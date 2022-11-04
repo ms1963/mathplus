@@ -235,7 +235,7 @@ class Matrix:
     def is_quadratic(self):
         return self.dim1 == self.dim2
             
-    # calculate the stabdard norm
+    # calculate the standard norm
     def norm(self):
         n = 0
         for c in range(0, self.dim2):
