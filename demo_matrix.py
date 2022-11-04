@@ -91,7 +91,7 @@ print("Use apply() to apply the lambda x -> x + 1 to each element of v4: " + str
 
 
 m6 = m4 * m5
-print("Cloning a matrix m6 = m3.clone(): " + str(m3.clone()))
+print("Creating matrix m6 = m4 * m5: " + str(m6))
 
 print("m7a = m6.clone(); m7b = m6")
 m7a = m6.clone()
