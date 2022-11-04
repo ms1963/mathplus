@@ -103,7 +103,7 @@ class Matrix:
     # recursive calculation of the determinant using sub-matrices
     def det(self):
         if self.dim1 != self.dim2:
-            raise ValueError("Determinants can only be calculöated for quadratic matrices")
+            raise ValueError("Determinants can only be calculated for quadratic matrices")
         if self.dim1 == 1:
             return self.m[0][0]
         else: # developing around 0,0 
@@ -169,12 +169,6 @@ class Matrix:
                 for r in range(0, self.dim1):
                     for c in range(0, other.dim2):
                         m.m[r][c] = self.row_vector(r) * other.col_vector(c)
-                        """
-                        value = 0
-                        for k in range(0, self.dim2):
-                            value += self.m[r][k] * other.m[k][c]
-                        m.m[r][c] = value    
-                        """
                 return m
         elif isinstance(other, Vector):
             if (not other.is_transposed() and self.dim1 != len(other)) or (other.is_transposed() and self.dim1 != 1):
