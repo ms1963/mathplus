@@ -122,7 +122,7 @@ class Matrix:
             s += line
         return s
         
-    # get a subm-atrix by leaving out all elements from row i and col j
+    # get a submatrix by leaving out all elements from row i and col j
     def sub_matrix(self, i, j):
         if not i in range(0, self.dim1) or not j in range(0, self.dim2):
             raise ValueError("out of range for indices")
@@ -324,6 +324,16 @@ class Matrix:
             for c in range(0, self.dim2):
                 m.m[r][c] = lambda_f(self.m[r][c])
         return m
+        
+    # like apply, but with lambda getting called with
+    # row, col, value at (row,col) 
+    def apply2(self, lambda_f):
+        m = Matrix(self.dim1, self.dim2)
+        for r in range(0, self.dim1):
+            for c in range(0, self.dim2):
+                m.m[r][c] = lambda_f(r, c, self.m[r][c])
+        return m
+        
             
                 
                 
@@ -568,6 +578,15 @@ class Vector:
         for i in range(0, len(self)):
             v[i] = lambda_f(self[i])
         return v
+        
+    # same as apply, but with additional vector position passed to 
+    # lambda
+    def apply2(self, lambda_f):
+        v = Vector(len(self))
+        for i in range(0, len(self)):
+            v[i] = lambda_f(i, self[i])
+        return v
+
             
         
         
