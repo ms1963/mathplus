@@ -44,15 +44,57 @@ class Matrix:
     def dim2(self):
         return self.dim2
         
-    # get a position in Matrix
-    def get_item(self, i):
-        if not i in range(0, self.dim1) or not j in range(0, self.dim2):
-            raise ValueError("indices out of range")
+    def __getitem__(self, arg):
+        if isinstance(arg, slice): # we got instance[i:j]
+            # get specified rows of matrix as 2-dim array
+            result = []
+            if arg.start == None:
+                first = 0
+            else:
+                first = arg.start
+            if arg.stop == None:
+                last = len(self.v)
+            else:
+                last = arg.stop
+            if arg.step == None:
+                step = 1
+            else:
+                step = arg.step
+            
+            for i in range(first, last, step):
+                result.append(self.m[i])
+                
+            return result
+            
+        elif isinstance(arg, tuple):
+            if len(arg) > 2: 
+                raise ValueError("maximum of 2 slices allowed")
+            else:
+                s1 = arg[0]
+                s2 = arg[1]
+                (x,y) = (isinstance(s1 ,int), isinstance(s2, int))
+                if (x,y) == (True, True): # we got instance[i,j]
+                    return self.m[s1][s2]
+                elif (x,y) == (True, False): # we got instance[i,k:l]
+                    tmp = self.m[s1]
+                    return tmp[s2]
+                elif (x,y) == (False, True): # we got instance[k:l, j]
+                    res = []
+                    for row in self.m[s1]:
+                        res.append(row[s2])
+                    return res
+                else: # (False, False) # we got instance[i1:2,j1:j2]
+                    res = []
+                    for row in self.m[s1]:
+                        res.append(row[s2])
+                    return res       
         else:
-            return self.m[i][j]
+            # get single row of matrix as a list
+            return self.m[arg] 
+        
             
     # set a position in matrix
-    def set_item(self,i,j, val):
+    def change_item(self,i,j, val):
         if not i in range(0, self.dim1) or not j in range(0, self.dim2):
             raise ValueError("indices out of range")
         else:
@@ -270,6 +312,10 @@ class Matrix:
         m = Matrix(dim1,dim2)
         m.m = list
         return m
+        
+    # return list of list of all matrix elements
+    def to_list(self):
+        return self.m
         
     # apply lambda to each element of matrix
     def apply(self, lambda_f):
@@ -511,6 +557,10 @@ class Vector:
         v = Vector(len(list), transposed)
         for i in range(0, len(v)): v[i] = list[i]
         return v
+    
+    # return list of all vector elements
+    def to_list(self):
+        return self.v
         
     # apply lambda to each element of vector
     def apply(self, lambda_f):

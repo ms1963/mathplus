@@ -99,7 +99,7 @@ m7b = m6
 print("m7a = " + str(m7a))
 print("m7b = " + str(m7b))
 
-m6.set_item(0, 0, 42)
+m6.change_item(0, 0, 42)
 print("Changing element 0,0 of matrix m6 to 42 => " + str(m6))
 
 print("m7a = " + str(m7a))
@@ -108,5 +108,29 @@ print("m7b = " + str(m7b))
 v = Vector.from_list([i for i in range(0,10)], transposed = True)
 print("v = " + str(v))
 print("Slice v[0:3, 5:8] = " + str(v[0:3, 5:8]))
+print()
+print("Matrix Slicing")
+print("m = [[i*j+1 for i in range(0,5)] for j in range(0,5)]")
+m = Matrix.from_list([[i*j+1 for i in range(0,5)] for j in range(0,5)])
+print(m)
+print()
+print("m[2:4] = ")
+print(m[2:4]) # get rows - slice
+print()
+print("m[2] = ")
+print(m[2]) # get single row - index
+print()
+print("m[3,3] = ")
+print(m[3,3]) # get element
+print()
+print("m[3][0:2] = ")
+print(m[3, 0:2]) # get specific elements from row 3
+print()
+print("m[0:2, 3] = ")
+print(m[0:2, 3]) # get col 3 from specific rows
+print()
+print("m[0:2,0:3] = ")
+print(m[0:2,0:3]) # get matrix with row 0 and 1 and columns 0,1,2 per row
+
 
 
