@@ -105,3 +105,9 @@ print("Changing element 0,0 of matrix m6 to 42 => " + str(m6))
 print("m7a = " + str(m7a))
 print("m7b = " + str(m7b))
 
+v = Vector.from_list([i for i in range(0,10)], transposed = True)
+print(v.is_transposed())
+print("v = " + str(v))
+print("Slice v[0:3, 5:8] = " + str(v[0:3, 5:8]))
+
+

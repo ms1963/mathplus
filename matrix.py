@@ -45,7 +45,7 @@ class Matrix:
         return self.dim2
         
     # get a position in Matrix
-    def get_item(self, i, j):
+    def get_item(self, i):
         if not i in range(0, self.dim1) or not j in range(0, self.dim2):
             raise ValueError("indices out of range")
         else:
@@ -290,7 +290,7 @@ class Vector:
     
     # Initialize vector with size, initial values for
     # its elements and initial transposition-state
-    def __init__(self, size, init_value = 0, transposed = False):
+    def __init__(self, size, transposed = False, init_value = 0):
         self.v = [init_value for i in range(0,size)]
         self._transposed = transposed
         
@@ -336,7 +336,34 @@ class Vector:
         return res
                    
     # access vector element, for example, x = v[6]
-    def __getitem__(self, i):
+    # also allows slicing such as vec[0:] or v[0:2, 4:]
+    def __getitem__(self, item):
+        result = []
+        if isinstance(item, slice):
+            result = []
+            if item.start == None:
+                first = 0
+            else:
+                first = item.start
+            if item.stop == None:
+                last = len(self.v)
+            else:
+                last = item.stop
+            if item.step == None:
+                step = 1
+            else:
+                step = item.step
+            
+            for i in range(first, last, step):
+                result.append(self.v[i])
+        if isinstance(item, tuple):
+            result = []
+            for x, y in enumerate(item):
+                result += self[y]
+            return result
+        return self.v[item]
+
+
         if i < 0 or i >= len(self.v):
             raise ValueError("index out of range")
         return self.v[i]
