@@ -132,6 +132,9 @@ print()
 print("m[0:2,0:3] = ")
 print(m[0:2,0:3]) # get matrix with row 0 and 1 and columns 0,1,2 per row
 
+print("setting Matrix and Vector format string to {0:.4f}")
+Matrix.set_format('{:.4f}')
+Vector.set_format('{:.4f}')
 m7 = Matrix.from_list([[5,9,2],[1,8,5],[3,6,4]])
 print("m7 = " + str(m7))
 print("det(m7) = " +str(m7.det()))

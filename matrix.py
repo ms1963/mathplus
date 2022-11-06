@@ -178,9 +178,9 @@ class Matrix:
     def cofactor(self, i, j):
         cof_ij = self.minor(i,j).det()
         if (i+j) % 2 == 0:
-            return cof_ij
+            return Decimal(cof_ij)
         else:
-            return -cof_ij
+            return Decimal(-cof_ij)
             
     # calculates all co-factors and returns the co-factor matrix
     def cofactor_matrix(self):
@@ -260,7 +260,7 @@ class Matrix:
             
     # matrix multiplication self * other. Raises ValueError if 
     # object passed as argument is neither a matrix nor a vector,  
-    # or when seld and other have incompatible dimensions
+    # or when self and other have incompatible dimensions
     def __mul__(self, other):
         if isinstance(other, Matrix):
             # self.dim2 must be equal to other.dim1
@@ -376,7 +376,14 @@ class Matrix:
         dim1 = len(list)
         dim2 = len(list[0])
         m = Matrix(dim1,dim2)
-        m.m = list
+        value_2D = []
+        for r in range(0, len(list)):
+            value_1D = []
+            for c in range(0, len(list[r])):
+                value_1D.append(Decimal(list[r][c]))
+            value_2D.append(value_1D)
+                
+        m.m = value_2D
         return m
         
     # returns 2d array of of all matrix elements
