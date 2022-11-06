@@ -5,7 +5,7 @@ from matrix import Vector, Matrix
 
 m1 =  Matrix(4,4)
 print("m1 = " + str(m1))
-m2 = Matrix.Unit(4)
+m2 = Matrix.identity(4)
 print("m2 = " + str(m2))
 print("det(m2) = " + str(m2.det()))
 print("m1 * m2 + m2 = " + str(m1 * m2 + m2))
@@ -73,7 +73,7 @@ v4 = Vector.from_list([1,1,1,1])
 print("v4 = " + str(v4))
 print("Multiplication of v4.T() with m3", str(v4.T() * m3))
 
-print("Multiplying unit matrix (size == 5) with 2: ", str(Matrix.Unit(5).mult_with_scalar(2)))
+print("Multiplying unit matrix (size == 5) with 2: ", str(Matrix.identity(5).mult_with_scalar(2)))
 
 m4 = Matrix.from_list([[1,2,3], [3, 2, 1]])
 m5 = Matrix.from_list([[1,1], [1,1], [1,1]])
@@ -111,7 +111,7 @@ print("Slice v[0:3, 5:8] = " + str(v[0:3, 5:8]))
 print()
 print("Matrix Slicing")
 print("m = [[i*j+1 for i in range(0,5)] for j in range(0,5)]")
-m = Matrix.from_list([[i*j+1 for i in range(0,5)] for j in range(0,5)])
+m = Matrix.from_list([[i*j+1 for i in range(0,10)] for j in range(0,10)])
 print(m)
 print()
 print("m[2:4] = ")
@@ -131,6 +131,14 @@ print(m[0:2, 3]) # get col 3 from specific rows
 print()
 print("m[0:2,0:3] = ")
 print(m[0:2,0:3]) # get matrix with row 0 and 1 and columns 0,1,2 per row
+
+m7 = Matrix.from_list([[5,9,2],[1,8,5],[3,6,4]])
+print("m7 = " + str(m7))
+print("Cofactor matrix of m7 = " + str(m7.cofactor_matrix()))
+print("Inverse(m7) = " + str(m7.inverse_matrix()))
+print("m7 * inverse(m7)" + str(m7 * m7.inverse_matrix()))
+print("Solving equation m7 * x = [1][2][0]")
+print(m7.solve(Vector.from_list([1, 2, 0])))
 
 
 

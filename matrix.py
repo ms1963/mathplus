@@ -123,7 +123,7 @@ class Matrix:
         return s
         
     # get a submatrix by leaving out all elements from row i and col j
-    def sub_matrix(self, i, j):
+    def minor(self, i, j):
         if not i in range(0, self.dim1) or not j in range(0, self.dim2):
             raise ValueError("out of range for indices")
         m = Matrix(self.dim1-1, self.dim2-1)
@@ -155,8 +155,43 @@ class Matrix:
                     factor =  1
                 else:
                     factor = -1
-                det += factor * self.m[0][c] * self.sub_matrix(0, c).det()
+                det += factor * self.m[0][c] * self.minor(0, c).det()
             return det 
+    
+    def cofactor(self, i, j):
+        cof_ij = self.minor(i,j).det()
+        if (i+j) % 2 == 0:
+            return cof_ij
+        else:
+            return -cof_ij
+            
+    def cofactor_matrix(self):
+        m = Matrix(self.dim1, self.dim2)
+        for r in range(0, self.dim1):
+            for c in range(0, self.dim2):
+                m[r][c] = self.cofactor(r,c)
+        return m
+        
+    def adjoint_matrix(self):
+        return self.cofactor_matrix().T()
+        
+    def inverse_matrix(self):
+        if self.det() == 0:
+            raise ValueError("matrix with det == 0 has no inverse")
+        else:
+            return self.adjoint_matrix().mult_with_scalar(1 / self.det())
+            
+    def solve(self, vector):
+        if self.det() == 0:
+            raise ValueError("det == 0")
+        if (vector.is_transposed()):
+            raise ValueError("Vector must not be transposed")
+        if not self.is_quadratic():
+            raise ValueError("Matrix must be quadratic")
+        if len(vector) != self.dim2:
+            raise ValueError("dimensions of matrix and vector do not match")
+        return self.inverse_matrix() * vector
+            
         
     # get row vector 
     def row_vector(self, row):
@@ -173,7 +208,7 @@ class Matrix:
         return v
         
     # get Unit matrix for given size
-    def Unit(size):
+    def identity(size):
         dim1 = size
         dim2 = size
         m = Matrix(size,size)
