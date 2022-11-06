@@ -11,7 +11,6 @@ import math
 from copy import deepcopy
 from decimal import Decimal
 
-fstring = '{:4}'
 
 ################## class Matrix #################
 
