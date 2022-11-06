@@ -138,7 +138,7 @@ print("Cofactor matrix of m7 = " + str(m7.cofactor_matrix()))
 print("Inverse(m7) = " + str(m7.inverse_matrix()))
 print("m7 * inverse(m7)" + str(m7 * m7.inverse_matrix()))
 print("Solving equation m7 * x = [1][2][0]")
-print(m7.solve(Vector.from_list([1, 2, 0])))
+print(m7.solve_equation(Vector.from_list([1, 2, 0])))
 
 
 

@@ -44,6 +44,11 @@ class Matrix:
     def dim2(self):
         return self.dim2
         
+    # expects a slice such as matrix[1,2] or matrix[5] or matrix[4:6,7:9]
+    # matrix[1,2] returns the matrix element in row 1 and column 2 
+    # matrix[5] returns all elements of the fith row vector
+    # matrix[4:6,7:9] returns a matrix that spans the rows 4,5 of  
+    # the given matrix and the columns 7,8 of these rows
     def __getitem__(self, arg):
         if isinstance(arg, slice): # we got instance[i:j]
             # get specified rows of matrix as 2-dim array
@@ -93,7 +98,7 @@ class Matrix:
             return self.m[arg] 
         
             
-    # set a position in matrix
+    # sets a value in matrix. raises ValueError if indices are not in range
     def change_item(self,i,j, val):
         if not i in range(0, self.dim1) or not j in range(0, self.dim2):
             raise ValueError("indices out of range")
@@ -122,7 +127,8 @@ class Matrix:
             s += line
         return s
         
-    # get a submatrix by leaving out all elements from row i and col j
+    # get the by leaving out all elements from row i and col j 
+    # raises a ValueError if indices i,j are out of range
     def minor(self, i, j):
         if not i in range(0, self.dim1) or not j in range(0, self.dim2):
             raise ValueError("out of range for indices")
@@ -143,6 +149,7 @@ class Matrix:
         return m               
         
     # recursive calculation of the determinant using sub-matrices
+    # returns a ValueError is matrix is not quadratic
     def det(self):
         if self.dim1 != self.dim2:
             raise ValueError("Determinants can only be calculated for quadratic matrices")
@@ -158,6 +165,7 @@ class Matrix:
                 det += factor * self.m[0][c] * self.minor(0, c).det()
             return det 
     
+    # calculates cofactor of position i,j
     def cofactor(self, i, j):
         cof_ij = self.minor(i,j).det()
         if (i+j) % 2 == 0:
@@ -165,6 +173,7 @@ class Matrix:
         else:
             return -cof_ij
             
+    # calculates all co-factors and returns the co-factor matrix
     def cofactor_matrix(self):
         m = Matrix(self.dim1, self.dim2)
         for r in range(0, self.dim1):
@@ -172,16 +181,24 @@ class Matrix:
                 m[r][c] = self.cofactor(r,c)
         return m
         
+    # calculates the adjoint matrix by transposng the 
+    # co-factor matrix
     def adjoint_matrix(self):
         return self.cofactor_matrix().T()
         
+    # creates the inverse matrix iff det != 0. Raises a  
+    # ValueError if that is not the case
     def inverse_matrix(self):
         if self.det() == 0:
             raise ValueError("matrix with det == 0 has no inverse")
         else:
             return self.adjoint_matrix().mult_with_scalar(1 / self.det())
             
-    def solve(self, vector):
+    # calculates the equation matrix * <x1,x2, ..., xn> = <v1, v2, ..., vn>
+    # raises ValueError if det(matrix) == 0, <x1, x2, ..., xn> being 
+    # not transposed, matris is not quadratic, length of vector does 
+    # not comply with dimension of matrix
+    def solve_equation(self, vector):
         if self.det() == 0:
             raise ValueError("det == 0")
         if (vector.is_transposed()):
@@ -193,21 +210,21 @@ class Matrix:
         return self.inverse_matrix() * vector
             
         
-    # get row vector 
+    # get row vector for row
     def row_vector(self, row):
         v = Vector(self.dim2, transposed = True)
         for c in range(0, self.dim2):
             v[c] = self.m[row][c]
         return v
             
-    # get column vector
+    # get column vector for column
     def col_vector(self, col):
         v = Vector(self.dim1, transposed = False)
         for r in range(0, self.dim1):
             v[r] = self.m[r][col]
         return v
         
-    # get Unit matrix for given size
+    # get Unit/identity matrix matrix for given size
     def identity(size):
         dim1 = size
         dim2 = size
@@ -221,6 +238,7 @@ class Matrix:
         return m   
         
     # add two matrices with each other
+    #  if their sizes are not the same, a ValueError is raised
     def __add__(self, other):
         if self.dim1 != other.dim1 and self.dim2 != other.dim2:
             raise ValueError("matrices must have similar sizes")
@@ -231,7 +249,9 @@ class Matrix:
                     m.m[r][c] = self.m[r][c] + other.m[r][c]
             return m
             
-    # matrix multiplication
+    # matrix multiplication self * other. Raises ValueError if 
+    # object passed as argument is neither a matrix nor a vector,  
+    # or when seld and other have incompatible dimensions
     def __mul__(self, other):
         if isinstance(other, Matrix):
             # self.dim2 must be equal to other.dim1
@@ -268,7 +288,8 @@ class Matrix:
             raise ValueError("second argument must be matrix or vector")
             
             
-    # subtracting one matrix from the other
+    # subtracting one matrix from the other. Raises ValueError if sizes are
+    # not equal
     def __sub__(self, other):
         if self.dim1 != other.dim1 and self.dim2 != other.dim2:
             raise ValueError("matrices must have similar sizes")
@@ -295,7 +316,8 @@ class Matrix:
     def __ne__(self, other):
         return not (self == other)
         
-    # check whether matrix is symmetric, i.e., whether m == m.T
+    # check whether matrix is symmetric, i.e., whether m == m.T. Raises
+    # ValueError if dimensions are not equal
     def is_symmetric(self):
         if self.dim1 != self.dim2:
             raise ValueError("symmetry not defined for non-quadratic matrices")
@@ -348,11 +370,11 @@ class Matrix:
         m.m = list
         return m
         
-    # return list of list of all matrix elements
+    # returns 2d array of of all matrix elements
     def to_list(self):
         return self.m
         
-    # apply lambda to each element of matrix
+    # applies lambda to each element of matrix
     def apply(self, lambda_f):
         m = Matrix(self.dim1, self.dim2)
         for r in range(0, self.dim1):
@@ -427,7 +449,8 @@ class Vector:
         return res
                    
     # access vector element, for example, x = v[6]
-    # also allows slicing such as vec[0:] or v[0:2, 4:]
+    # also allows slicing such as vec[0:] or v[0:2, 4:]. 
+    # Raises a ValueError if index is out of range
     def __getitem__(self, arg):
         result = []
         if isinstance(arg, slice):
@@ -459,14 +482,17 @@ class Vector:
             raise ValueError("index out of range")
         return self.v[i]
         
-    # change vector element, for example: v[5] = 1
+    # change vector element, for example: v[5] = 1. Raises
+    # ValueError if index is out of range
     def __setitem__(self, i, value):
         if i < 0 or i >= len(self.v):
             raise ValueError("index out of range")
         self.v[i] = value
         
     # multiplication of vectors 
-    # vector multiplication with matrices is delegated
+    # vector multiplication with matrices is delegated.
+    # raises ValuError if other is not a vector, if length 
+    # of vectors is not equal, 
     # to class Matrix
     def __mul__(self, other):
         if isinstance(other, Matrix):
@@ -498,7 +524,9 @@ class Vector:
                         v[i] = self[i] * other[i]
                     return v
     
-    # add two vectors with each other
+    # add two vectors with each other. Raises ValueError of lengths
+    # are not equal or when trying to multiply a transposed with a 
+    # non-transpised vector
     def __add__(self, other):
         if len(other) != len(self):
             raise ValueError("incompatible lengths of vectors")
@@ -530,7 +558,9 @@ class Vector:
             for i in range(0,len(self)): res += self[i]*other[i]
             return res
             
-    # subtract one vector from the other
+    # subtract one vector from the other. Raises ValueError when
+    # vector lengths do not match, or when one vector is transposed while 
+    # the other isn't
     def __sub__(self, other):
         if len(other) != len(self):
             raise ValueError("incompatible lengths of vectors")
