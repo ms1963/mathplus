@@ -143,6 +143,18 @@ print("Inverse(m7) = " + str(m7.inverse_matrix()))
 print("m7 * inverse(m7)" + str(m7 * m7.inverse_matrix()))
 print("Solving equation m7 * x = [1][2][0]")
 print(m7.solve_equation(Vector.from_list([1, 2, 0])))
+print("Frobenius norm of m7 = " + str(m7.frobenius_norm()))
+print()
+Matrix.set_format('{:4}')
+Vector.set_format('{:4}')
+print("m8 = Matrix.from_flat_list(list = [1,2,3,4,5,6,7,8,9,10,11,12], shape=(3,4))")
+m8 = Matrix.from_flat_list(list = [1,2,3,4,5,6,7,8,9,10,11,12], shape=(3,4))
+print(m8)
+print("m9 = Matrix.from_flat_list(list = [1,2,3,4,5,6,7,8,9,10,11,12], shape=(4,3)")
+m9 = Matrix.from_flat_list( list = [1,2,3,4,5,6,7,8,9,10,11,12], shape=(4,3))
+print(m9)
+print("m9.reshape((3,4))")
+print(m9.reshape((3,4)))
 
 
 

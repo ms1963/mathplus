@@ -343,6 +343,13 @@ class Matrix:
         for c in range(0, self.dim2):
             n = max(n, self.col_vector(c).norm())
         return n
+        
+    def frobenius_norm(self):
+        sum = Decimal(0)
+        for r in range(0, self.dim1):
+            for c in range(0, self.dim2):
+                sum += self.m[r][c] * self.m[r][c]
+        return math.sqrt(sum)
             
     # create a matrix from a vector
     def from_vector(v):
@@ -389,6 +396,36 @@ class Matrix:
     # returns 2d array of of all matrix elements
     def to_list(self):
         return self.m
+        
+    # converts matrix row-by-row elements to one-dimensional array    
+    def to_flat_list(self):
+        list = []
+        for r in range(0, self.dim1):
+            for c in range(0, self.dim2):
+                list.append(self.m[r][c])
+        return list
+        
+    # creates a matrix from a flat list using the shape 
+    # (shape[0], shape[1]). Raises a ValueError if list 
+    # length does not suffice specified shape
+    def from_flat_list(list, shape):
+        if len(list) != shape[0] * shape[1]:
+            raise ValueError("len(list) <> shape_0 * shape_1")
+        m = Matrix(shape[0], shape[1])
+        for r in range(0, shape[0]):
+            for c in range(0, shape[1]):
+                m.m[r][c] = list[r * shape[1] + c]
+        return m
+        
+    def reshape(self, shape = None):
+        if shape == None:
+            return self
+        elif self.dim1 * self.dim2 != shape[0] * shape[1]:
+            raise ValueError("shape does not correspond to dim1*dim2")
+        else:
+            list = self.to_flat_list()
+            return Matrix.from_flat_list(list, shape)
+            
         
     # applies lambda to each element of matrix
     def apply(self, lambda_f):
