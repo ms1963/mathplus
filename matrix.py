@@ -29,9 +29,9 @@ class Matrix:
             for j in range(0, size2):
                 self.m[i].append(Decimal(init_value))
                 
-    # change format string to {:<n>}            
-    def setDecimalPlaces(n = 4):
-        Matrix.fstring = '{:' + str(n) + "}"
+    # change format string. used by __str__            
+    def set_format(s = '{:4}'):
+        Matrix.fstring = s
         
     # clone matrix
     def clone(self):
@@ -417,9 +417,9 @@ class Vector:
         self.v = [Decimal(init_value) for i in range(0,size)]
         self._transposed = transposed
         
-    # change format string to {:<n>}            
-    def setDecimalPlaces(self, n = 4):
-        Vector.fstring = '{:' + str(n) + "}"
+    # change format string. used by __str__            
+    def set_format(s = '{:4}'):
+        Matrix.fstring = s
         
     # clone vector
     def clone(self):
