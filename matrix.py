@@ -11,10 +11,13 @@ import math
 from copy import deepcopy
 from decimal import Decimal
 
+fstring = '{:4}'
 
 ################## class Matrix #################
 
 class Matrix:
+    
+    fstring = '{:4}'
     
     # create size1 x size2 matrix with optional initial values
     def __init__(self, size1, size2, init_value = 0):
@@ -26,6 +29,10 @@ class Matrix:
             for j in range(0, size2):
                 self.m[i].append(Decimal(init_value))
                 
+    # change format string to {:<n>}            
+    def setDecimalPlaces(n = 4):
+        Matrix.fstring = '{:' + str(n) + "}"
+        
     # clone matrix
     def clone(self):
         return deepcopy(self)
@@ -114,20 +121,20 @@ class Matrix:
             for c in range(0, self.dim2):
                 m.m[r][c] = self.m[r][c] * Decimal(val)
         return m
-                
+               
+    
     # string representation of matrix 
     def __str__(self):
         s = "\n"
         for r in range(0, self.dim1):
-            line = "|"
+            line = ""
             for c in range(0, self.dim2):
-                line += " " + str(self.m[r][c])
-                if c != self.dim2-1:
-                    line +=  "," 
-                else:
-                    line += " |\n"
+                line += " " + Matrix.fstring.format(self.m[r][c])
+                if c == self.dim2-1:
+                    line += "\n"
             s += line
         return s
+    
         
     # get the by leaving out all elements from row i and col j 
     # raises a ValueError if indices i,j are out of range
@@ -400,6 +407,7 @@ class Matrix:
                 
                                               
 class Vector:
+    fstring = '{:4}'
     
     _transposed = False
     
@@ -409,6 +417,10 @@ class Vector:
         self.v = [Decimal(init_value) for i in range(0,size)]
         self._transposed = transposed
         
+    # change format string to {:<n>}            
+    def setDecimalPlaces(self, n = 4):
+        Vector.fstring = '{:' + str(n) + "}"
+        
     # clone vector
     def clone(self):
         return deepcopy(self)
@@ -416,21 +428,22 @@ class Vector:
     # check whether vector is transposed
     def is_transposed(self):
         return self._transposed
+    
         
     # string representation of vector
     def __str__(self):
         if self._transposed:
-            res = "<"
+            res = ""
             for i in range(0, len(self.v)): 
-                res += str(self.v[i])
-                if i != len(self.v)-1: res += ","
-            res += ">"
+                res += Vector.fstring.format(self.v[i])
+            res += ""
             return res
         else:
             res = "\n"
             for i in range(0, len(self.v)):
-                res += "[" + str(self.v[i]) + "]\n"
+                res +=  Vector.fstring.format(self.v[i]) + "\n"
             return res
+    
     
     # vector transposition        
     def T(self):

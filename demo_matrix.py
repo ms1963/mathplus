@@ -144,3 +144,6 @@ print(m7.solve_equation(Vector.from_list([1, 2, 0])))
 
 
 
+
+
+
