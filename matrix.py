@@ -203,7 +203,7 @@ class Matrix:
             raise ValueError("det == 0")
         if (vector.is_transposed()):
             raise ValueError("Vector must not be transposed")
-        if not self.is_quadratic():
+        if not self.is_square():
             raise ValueError("Matrix must be quadratic")
         if len(vector) != self.dim2:
             raise ValueError("dimensions of matrix and vector do not match")
@@ -324,8 +324,8 @@ class Matrix:
         else:
             return self == self.T()
             
-    # check for quadratic matrix
-    def is_quadratic(self):
+    # check for square matrix
+    def is_square(self):
         return self.dim1 == self.dim2
             
     # calculate the standard norm
