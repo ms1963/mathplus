@@ -2,12 +2,14 @@
 ##############################################################
 # This is an implementation of Matrix and Vector datatypes 
 # in Python. 
-# It is pretty useless given the fact that there are already
-# much better solutions available such as pandas, numpy
+# It is pretty unncecessary given the fact that there are 
+# already much better solutions available such as pandas, numpy
+# The implementation used Decimal for better precision
 ##############################################################
 
 import math 
 from copy import deepcopy
+from decimal import Decimal
 
 
 ################## class Matrix #################
@@ -22,7 +24,7 @@ class Matrix:
         self.dim2 = size2
         for i in range(0, size1):
             for j in range(0, size2):
-                self.m[i].append(init_value)
+                self.m[i].append(Decimal(init_value))
                 
     # clone matrix
     def clone(self):
@@ -103,14 +105,14 @@ class Matrix:
         if not i in range(0, self.dim1) or not j in range(0, self.dim2):
             raise ValueError("indices out of range")
         else:
-            self.m[i][j] = val
+            self.m[i][j] = Decimal(val)
         
     # multiply all matrix elements with a scalar
     def mult_with_scalar(self, val):
         m = Matrix(self.dim1, self.dim2)
         for r in range (0, self.dim1):
             for c in range(0, self.dim2):
-                m.m[r][c] = self.m[r][c] * val
+                m.m[r][c] = self.m[r][c] * Decimal(val)
         return m
                 
     # string representation of matrix 
@@ -156,12 +158,12 @@ class Matrix:
         if self.dim1 == 1:
             return self.m[0][0]
         else: # developing around 0,0 
-            det = 0
+            det = Decimal(0)
             for c in range(0, self.dim1):
                 if c % 2 == 0:
-                    factor =  1
+                    factor =  Decimal(1)
                 else:
-                    factor = -1
+                    factor = Decimal(-1)
                 det += factor * self.m[0][c] * self.minor(0, c).det()
             return det 
     
@@ -192,7 +194,7 @@ class Matrix:
         if self.det() == 0:
             raise ValueError("matrix with det == 0 has no inverse")
         else:
-            return self.adjoint_matrix().mult_with_scalar(1 / self.det())
+            return self.adjoint_matrix().mult_with_scalar(Decimal(1) / self.det())
             
     # calculates the equation matrix * <x1,x2, ..., xn> = <v1, v2, ..., vn>
     # raises ValueError if det(matrix) == 0, <x1, x2, ..., xn> being 
@@ -232,9 +234,9 @@ class Matrix:
         for r in range(0, size):
             for c in range(0, size):
                 if r == c:
-                    m.m[r][c] = 1
+                    m.m[r][c] = Decimal(1)
                 else:
-                    m.m[r][c] = 0
+                    m.m[r][c] = Decimal(0)
         return m   
         
     # add two matrices with each other
@@ -274,13 +276,13 @@ class Matrix:
                 if not other.is_transposed():
                     v = Vector(self.dim1, False)
                     for r in range(0, self.dim1):
-                        value = 0
+                        value = Decimal(0)
                         for k in range(0, self.dim2):
                             value += self.m[r][k] * other[k]
                         v[r] = value
                     return v
                 else: # other.transposed and self.dim2 == 1
-                    sum = 0
+                    sum = Decimal(0)
                     for k in range(0, len(other)):
                         sum += self.m[0][k] * other[k]
                     return sum
@@ -330,7 +332,7 @@ class Matrix:
             
     # calculate the standard norm
     def norm(self):
-        n = 0
+        n = Decimal(0)
         for c in range(0, self.dim2):
             n = max(n, self.col_vector(c).norm())
         return n
@@ -339,10 +341,10 @@ class Matrix:
     def from_vector(v):
         if v.is_transposed():
             m = Matrix(1, len(v))
-            for i in range(0, len(v)): m.m[0][i] = v[i]
+            for i in range(0, len(v)): m.m[0][i] = Decimal(v[i])
         else:
             m = Matrix(len(v),1)
-            for i in range(0, len(v)): m.m[i][0] = v[i]
+            for i in range(0, len(v)): m.m[i][0] = Decimal(v[i])
         return m
         
     # build absolute values of all matrix elements
@@ -404,7 +406,7 @@ class Vector:
     # Initialize vector with size, initial values for
     # its elements and initial transposition-state
     def __init__(self, size, transposed = False, init_value = 0):
-        self.v = [init_value for i in range(0,size)]
+        self.v = [Decimal(init_value) for i in range(0,size)]
         self._transposed = transposed
         
     # clone vector
@@ -487,7 +489,7 @@ class Vector:
     def __setitem__(self, i, value):
         if i < 0 or i >= len(self.v):
             raise ValueError("index out of range")
-        self.v[i] = value
+        self.v[i] = Decimal(value)
         
     # multiplication of vectors 
     # vector multiplication with matrices is delegated.
@@ -554,7 +556,7 @@ class Vector:
         if len(self) != len(other):
             raise ValueError("incompatible lengths of vectors")
         else:
-            res = 0
+            res = Decimal(0)
             for i in range(0,len(self)): res += self[i]*other[i]
             return res
             
@@ -585,14 +587,14 @@ class Vector:
         
     # get euclidean norm of vector
     def euclidean_norm(self):
-        res = 0.0
+        res = Decimal(0.0)
         for i in range(0,len(self)):
             res += self[i] * self[i]
         return math.sqrt(res)
         
     # get regular norm of vector 
     def norm(self):
-        res = 0.0
+        res = Decimal(0.0)
         for i in range(0,len(self)):
             res += abs(self[i])
         return res
@@ -600,7 +602,7 @@ class Vector:
     # multiply all vector elements with a scalar
     def mult_with_scalar(self, scalar):
         res = Vector(len(self))
-        for i in range(0, len(self)): res[i] = self[i] * scalar
+        for i in range(0, len(self)): res[i] = self[i] * Decimal(scalar)
         return res
         
     # check whether one vector is orthogonal to the other
@@ -615,9 +617,9 @@ class Vector:
     # get ith unit/base vector for dimension = size
     def unit_vector(size, i):
         v = Vector(size)
-        for j in range(0,i): v[j] = 0
+        for j in range(0,i): v[j] = Decimal(0)
         v[i] = 1
-        for j in range(i+1, size): v[j] = 0
+        for j in range(i+1, size): v[j] = Decimal(0)
         return v
         
     # retrieve all unit/base vectors for dimension = size
@@ -630,7 +632,7 @@ class Vector:
     # create a vector from a list
     def from_list(list, transposed = False):
         v = Vector(len(list), transposed)
-        for i in range(0, len(v)): v[i] = list[i]
+        for i in range(0, len(v)): v[i] = Decimal(list[i])
         return v
     
     # return list of all vector elements

@@ -134,6 +134,8 @@ print(m[0:2,0:3]) # get matrix with row 0 and 1 and columns 0,1,2 per row
 
 m7 = Matrix.from_list([[5,9,2],[1,8,5],[3,6,4]])
 print("m7 = " + str(m7))
+print("det(m7) = " +str(m7.det()))
+print()
 print("Cofactor matrix of m7 = " + str(m7.cofactor_matrix()))
 print("Inverse(m7) = " + str(m7.inverse_matrix()))
 print("m7 * inverse(m7)" + str(m7 * m7.inverse_matrix()))
