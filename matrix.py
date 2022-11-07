@@ -280,7 +280,7 @@ class Matrix:
                 raise ValueError("incompatible dimensions of matrix and vector")
             else:
                 if not other.is_transposed():
-                    v = Vector(self.dim1, False)
+                    v = Vector(self.dim1, transposed = False)
                     for r in range(0, self.dim1):
                         value = Decimal(0)
                         for k in range(0, self.dim2):
@@ -565,7 +565,7 @@ class Vector:
                 if not other._transposed:
                     return self.scalar_product(other)
                 else:
-                    v = Vector(len(self), self._transposed)
+                    v = Vector(len(self), transposed = self._transposed)
                     for i in range(0, len(self)):
                         v[i] = self[i] * other[i]
                     return v
@@ -591,19 +591,19 @@ class Vector:
         elif self._transposed != other._transposed:
             raise ValueError("transposed and not transposed vectors cannot be added")
         else:
-            res = Vector(len(self), self._transposed)
+            res = Vector(len(self), transposed = self._transposed)
             for i in range(0, len(self)): res[i] = self[i] + other[i]
             return res
             
     # negative vector: all elements switch their sign
     def __neg__(self):
-        res = Vector(len(self), self._transposed)
+        res = Vector(len(self), transposed = self._transposed)
         for i in range(0, len(self)): res[i] = -self[i]
         return res
         
     # positive vector: nothing changes
     def __pos__(self):
-        res = Vector(len(self), self._transposed)
+        res = Vector(len(self), transposed = self._transposed)
         for i in range(0, len(self)): res[i] = +self[i]
         return res
         
@@ -687,7 +687,7 @@ class Vector:
         
     # create a vector from a list
     def from_list(list, transposed = False):
-        v = Vector(len(list), transposed)
+        v = Vector(len(list), transposed = transposed)
         for i in range(0, len(v)): v[i] = Decimal(list[i])
         return v
     
