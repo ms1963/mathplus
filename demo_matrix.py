@@ -155,8 +155,14 @@ m9 = Matrix.from_flat_list( list = [1,2,3,4,5,6,7,8,9,10,11,12], shape=(4,3))
 print(m9)
 print("m9.reshape((3,4))")
 print(m9.reshape((3,4)))
-
-
+print("v5 = Vector(6, dtype = int, init_value = 1, transposed = False)")
+v5 = Vector(6, dtype = int, init_value = 3, transposed = False)
+print(v5)
+print("v6 = Vector(6, dtype = int, init_value = 2, transposed = False)")
+v6 = Vector(6, dtype = int, init_value = 2, transposed = False)
+print(v6)
+print("v5 * v6 =  ")
+print(v5*v6)
 
 
 

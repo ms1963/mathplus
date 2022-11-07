@@ -4,12 +4,10 @@
 # in Python. 
 # It is pretty unncecessary given the fact that there are 
 # already much better solutions available such as pandas, numpy
-# The implementation used Decimal for better precision
 ##############################################################
 
 import math 
 from copy import deepcopy
-from decimal import Decimal
 
 
 ################## class Matrix #################
@@ -19,14 +17,16 @@ class Matrix:
     fstring = '{:4}'
     
     # create size1 x size2 matrix with optional initial values
-    def __init__(self, size1, size2, init_value = 0):
+    # dtype specifies the desired data type of matrix elements
+    def __init__(self, size1, size2, dtype = float, init_value = 0):
         if size1 <= 0 or size2 <= 0: raise ValueError("a matrix must have positive dimensions")
         self.m = [[] for r in range(0,size1)]
         self.dim1 = size1
         self.dim2 = size2
+        self.dtype = dtype
         for i in range(0, size1):
             for j in range(0, size2):
-                self.m[i].append(Decimal(init_value))
+                self.m[i].append(dtype(init_value))
                 
     # change format string. used by __str__            
     def set_format(s = '{:4}'):
@@ -38,7 +38,7 @@ class Matrix:
                 
     # transpose the matrix
     def T(self):
-        m = Matrix(self.dim2, self.dim1)
+        m = Matrix(self.dim2, self.dim1, dtype = self.dtype)
         for r in range(0, self.dim2):
             for c in range(0, self.dim1):
                 m.m[r][c] = self.m[c][r]
@@ -111,14 +111,14 @@ class Matrix:
         if not i in range(0, self.dim1) or not j in range(0, self.dim2):
             raise ValueError("indices out of range")
         else:
-            self.m[i][j] = Decimal(val)
+            self.m[i][j] = self.dtype(val)
         
     # multiply all matrix elements with a scalar
     def mult_with_scalar(self, val):
         m = Matrix(self.dim1, self.dim2)
         for r in range (0, self.dim1):
             for c in range(0, self.dim2):
-                m.m[r][c] = self.m[r][c] * Decimal(val)
+                m.m[r][c] = self.m[r][c] * val
         return m
                
     
@@ -140,7 +140,7 @@ class Matrix:
     def minor(self, i, j):
         if not i in range(0, self.dim1) or not j in range(0, self.dim2):
             raise ValueError("out of range for indices")
-        m = Matrix(self.dim1-1, self.dim2-1)
+        m = Matrix(self.dim1-1, self.dim2-1, dtype = self.dtype)
         for r in range(0, self.dim1):
             for c in range(0, self.dim2):
                 if r == i or c == j:
@@ -164,12 +164,12 @@ class Matrix:
         if self.dim1 == 1:
             return self.m[0][0]
         else: # developing around 0,0 
-            det = Decimal(0)
+            det = self.dtype(0)
             for c in range(0, self.dim1):
                 if c % 2 == 0:
-                    factor =  Decimal(1)
+                    factor =  self.dtype(1)
                 else:
-                    factor = Decimal(-1)
+                    factor = self.dtype(-1)
                 det += factor * self.m[0][c] * self.minor(0, c).det()
             return det 
     
@@ -177,13 +177,13 @@ class Matrix:
     def cofactor(self, i, j):
         cof_ij = self.minor(i,j).det()
         if (i+j) % 2 == 0:
-            return Decimal(cof_ij)
+            return cof_ij
         else:
-            return Decimal(-cof_ij)
+            return -cof_ij
             
     # calculates all co-factors and returns the co-factor matrix
     def cofactor_matrix(self):
-        m = Matrix(self.dim1, self.dim2)
+        m = Matrix(self.dim1, self.dim2, dtype = self.dtype)
         for r in range(0, self.dim1):
             for c in range(0, self.dim2):
                 m[r][c] = self.cofactor(r,c)
@@ -200,7 +200,7 @@ class Matrix:
         if self.det() == 0:
             raise ValueError("matrix with det == 0 has no inverse")
         else:
-            return self.adjoint_matrix().mult_with_scalar(Decimal(1) / self.det())
+            return self.adjoint_matrix().mult_with_scalar(self.dtype(1) / self.det())
             
     # calculates the equation matrix * <x1,x2, ..., xn> = <v1, v2, ..., vn>
     # raises ValueError if det(matrix) == 0, <x1, x2, ..., xn> being 
@@ -220,29 +220,29 @@ class Matrix:
         
     # get row vector for row
     def row_vector(self, row):
-        v = Vector(self.dim2, transposed = True)
+        v = Vector(self.dim2, dtype = self.dtype, transposed = True)
         for c in range(0, self.dim2):
             v[c] = self.m[row][c]
         return v
             
     # get column vector for column
     def col_vector(self, col):
-        v = Vector(self.dim1, transposed = False)
+        v = Vector(self.dim1, dtype = self.dtype, transposed = False)
         for r in range(0, self.dim1):
             v[r] = self.m[r][col]
         return v
         
     # get Unit/identity matrix matrix for given size
-    def identity(size):
+    def identity(size, dtype = float):
         dim1 = size
         dim2 = size
-        m = Matrix(size,size)
+        m = Matrix(size,size, dtype)
         for r in range(0, size):
             for c in range(0, size):
                 if r == c:
-                    m.m[r][c] = Decimal(1)
+                    m.m[r][c] = dtype(1)
                 else:
-                    m.m[r][c] = Decimal(0)
+                    m.m[r][c] = dtype(0)
         return m   
         
     # add two matrices with each other
@@ -251,7 +251,7 @@ class Matrix:
         if self.dim1 != other.dim1 and self.dim2 != other.dim2:
             raise ValueError("matrices must have similar sizes")
         else:
-            m = Matrix(self.dim1, self.dim2)
+            m = Matrix(self.dim1, self.dim2, dtype = self.dtype)
             for r in range(0, self.dim1):
                 for c in range (0, self.dim2):
                     m.m[r][c] = self.m[r][c] + other.m[r][c]
@@ -270,7 +270,7 @@ class Matrix:
                 msg += "with a " + str(other.dim1) + " x " + str(other.dim2) + " matrix"
                 raise ValueError(msg)
             else:
-                m = Matrix(self.dim1, other.dim2)
+                m = Matrix(self.dim1, other.dim2, dtype=self.dtype)
                 for r in range(0, self.dim1):
                     for c in range(0, other.dim2):
                         m.m[r][c] = self.row_vector(r) * other.col_vector(c)
@@ -280,15 +280,15 @@ class Matrix:
                 raise ValueError("incompatible dimensions of matrix and vector")
             else:
                 if not other.is_transposed():
-                    v = Vector(self.dim1, transposed = False)
+                    v = Vector(self.dim1, dtype = self.dtype, transposed = False)
                     for r in range(0, self.dim1):
-                        value = Decimal(0)
+                        value = self.dtype(0)
                         for k in range(0, self.dim2):
                             value += self.m[r][k] * other[k]
                         v[r] = value
                     return v
                 else: # other.transposed and self.dim2 == 1
-                    sum = Decimal(0)
+                    sum = self.dtype(0)
                     for k in range(0, len(other)):
                         sum += self.m[0][k] * other[k]
                     return sum
@@ -302,7 +302,7 @@ class Matrix:
         if self.dim1 != other.dim1 and self.dim2 != other.dim2:
             raise ValueError("matrices must have similar sizes")
         else:
-            m = Matrix(self.dim1, self.dim2)
+            m = Matrix(self.dim1, self.dim2, dtype = self.dtype)
             for r in range(0, self.dim1):
                 for c in range (0, self.dim2):
                     m.m[r][c] = self.m[r][c] - other.m[r][c]
@@ -338,13 +338,13 @@ class Matrix:
             
     # calculate the standard norm
     def norm(self):
-        n = Decimal(0)
+        n = self.dtype(0)
         for c in range(0, self.dim2):
             n = max(n, self.col_vector(c).norm())
         return n
         
     def frobenius_norm(self):
-        sum = Decimal(0)
+        sum = self.dtype(0)
         for r in range(0, self.dim1):
             for c in range(0, self.dim2):
                 sum += self.m[r][c] * self.m[r][c]
@@ -353,16 +353,16 @@ class Matrix:
     # create a matrix from a vector
     def from_vector(v):
         if v.is_transposed():
-            m = Matrix(1, len(v))
-            for i in range(0, len(v)): m.m[0][i] = Decimal(v[i])
+            m = Matrix(1, len(v), dtype = v.dtype)
+            for i in range(0, len(v)): m.m[0][i] = v.dtype(v[i])
         else:
-            m = Matrix(len(v),1)
-            for i in range(0, len(v)): m.m[i][0] = Decimal(v[i])
+            m = Matrix(len(v),1, dtype = v.dtype)
+            for i in range(0, len(v)): m.m[i][0] = v.dtype(v[i])
         return m
         
     # build absolute values of all matrix elements
     def __abs__(self):
-        m = Matrix(self.dim1, self.dim2)
+        m = Matrix(self.dim1, self.dim2, dtype = self.dtype)
         for r in range(0, self.dim1):
             for c in range(0, self.dim2):
                 m.m[r][c] = abs(self.m[r][c])
@@ -378,15 +378,15 @@ class Matrix:
         return m
     
     # create and initialize a matrix from a list
-    def from_list(list):
+    def from_list(list, dtype = float):
         dim1 = len(list)
         dim2 = len(list[0])
-        m = Matrix(dim1,dim2)
+        m = Matrix(dim1,dim2,dtype = dtype)
         value_2D = []
         for r in range(0, len(list)):
             value_1D = []
             for c in range(0, len(list[r])):
-                value_1D.append(Decimal(list[r][c]))
+                value_1D.append(dtype(list[r][c]))
             value_2D.append(value_1D)
                 
         m.m = value_2D
@@ -407,28 +407,28 @@ class Matrix:
     # creates a matrix from a flat list using the shape 
     # (shape[0], shape[1]). Raises a ValueError if list 
     # length does not suffice specified shape
-    def from_flat_list(list, shape):
+    def from_flat_list(list, shape, dtype = float):
         if len(list) != shape[0] * shape[1]:
             raise ValueError("len(list) <> shape_0 * shape_1")
-        m = Matrix(shape[0], shape[1])
+        m = Matrix(shape[0], shape[1], dtype = dtype)
         for r in range(0, shape[0]):
             for c in range(0, shape[1]):
-                m.m[r][c] = list[r * shape[1] + c]
+                m.m[r][c] = dtype(list[r * shape[1] + c])
         return m
         
-    def reshape(self, shape = None):
+    def reshape(self, dtype = float, shape = None):
         if shape == None:
             return self
         elif self.dim1 * self.dim2 != shape[0] * shape[1]:
             raise ValueError("shape does not correspond to dim1*dim2")
         else:
             list = self.to_flat_list()
-            return Matrix.from_flat_list(list, shape)
+            return Matrix.from_flat_list(list, shape, dtype = self.dtype)
             
         
     # applies lambda to each element of matrix
     def apply(self, lambda_f):
-        m = Matrix(self.dim1, self.dim2)
+        m = Matrix(self.dim1, self.dim2, dtype = self.dtype)
         for r in range(0, self.dim1):
             for c in range(0, self.dim2):
                 m.m[r][c] = lambda_f(self.m[r][c])
@@ -437,7 +437,7 @@ class Matrix:
     # like apply, but with lambda getting called with
     # row, col, value at (row,col) 
     def apply2(self, lambda_f):
-        m = Matrix(self.dim1, self.dim2)
+        m = Matrix(self.dim1, self.dim2, dtype = self.dtype)
         for r in range(0, self.dim1):
             for c in range(0, self.dim2):
                 m.m[r][c] = lambda_f(r, c, self.m[r][c])
@@ -456,9 +456,10 @@ class Vector:
     
     # Initialize vector with size, initial values for
     # its elements and initial transposition-state
-    def __init__(self, size, transposed = False, init_value = 0):
-        self.v = [Decimal(init_value) for i in range(0,size)]
+    def __init__(self, size, transposed = False, dtype = float, init_value = 0):
+        self.v = [dtype(init_value) for i in range(0,size)]
         self._transposed = transposed
+        self.dtype = dtype
         
     # change format string. used by __str__            
     def set_format(s = '{:4}'):
@@ -490,7 +491,7 @@ class Vector:
     
     # vector transposition        
     def T(self):
-        v = Vector(len(self), transposed = not self.is_transposed())
+        v = Vector(len(self), dtype = self.dtype, transposed = not self.is_transposed())
         for i in range(0, len(self)): 
             v[i] = self[i]
         return v
@@ -501,7 +502,7 @@ class Vector:
         
     # calculate absolute value of all elements
     def __abs__(self):
-        res = Vector(len(self))
+        res = Vector(len(self), dtype = self.dtype)
         for i in range(0, len(self)):
             res[i] = abs(self[i])
         return res
@@ -545,7 +546,7 @@ class Vector:
     def __setitem__(self, i, value):
         if i < 0 or i >= len(self.v):
             raise ValueError("index out of range")
-        self.v[i] = Decimal(value)
+        self.v[i] = self.dtype(value)
         
     # multiplication of vectors 
     # vector multiplication with matrices is delegated.
@@ -565,19 +566,19 @@ class Vector:
                 if not other._transposed:
                     return self.scalar_product(other)
                 else:
-                    v = Vector(len(self), transposed = self._transposed)
+                    v = Vector(len(self), dtype = self.dtype, transposed = self._transposed)
                     for i in range(0, len(self)):
-                        v[i] = self[i] * other[i]
+                        v[i] = self.dtype(self[i] * other[i])
                     return v
             else: # not self.transposed  
                 if other._transposed:
-                    mat = Matrix(len(self), len(other))
+                    mat = Matrix(len(self), len(other), dtype = self.dtype)
                     for r in range(0, len(self)):
                         for c in range(0, len(other)):
                             mat.m[r][c] = self[r]*other[c]
                     return mat       
                 else: 
-                    v = Vector(len(self), self._transposed)
+                    v = Vector(len(self), dtype = self.dtype, transposed = self._transposed)
                     for i in range(0, len(self)):
                         v[i] = self[i] * other[i]
                     return v
@@ -591,20 +592,20 @@ class Vector:
         elif self._transposed != other._transposed:
             raise ValueError("transposed and not transposed vectors cannot be added")
         else:
-            res = Vector(len(self), transposed = self._transposed)
+            res = Vector(len(self), dtype = self.dtype, transposed = self._transposed)
             for i in range(0, len(self)): res[i] = self[i] + other[i]
             return res
             
     # negative vector: all elements switch their sign
     def __neg__(self):
-        res = Vector(len(self), transposed = self._transposed)
+        res = Vector(len(self), dtype = self.dtype, transposed = self._transposed)
         for i in range(0, len(self)): res[i] = -self[i]
         return res
         
     # positive vector: nothing changes
     def __pos__(self):
-        res = Vector(len(self), transposed = self._transposed)
-        for i in range(0, len(self)): res[i] = +self[i]
+        res = Vector(len(self), dtype = self.dtype, transposed = self._transposed)
+        for i in range(0, len(self)): res[i] = self[i]
         return res
         
     # build scalar product of two vectors
@@ -612,7 +613,7 @@ class Vector:
         if len(self) != len(other):
             raise ValueError("incompatible lengths of vectors")
         else:
-            res = Decimal(0)
+            res = self.dtype(0)
             for i in range(0,len(self)): res += self[i]*other[i]
             return res
             
@@ -625,7 +626,7 @@ class Vector:
         elif self._transposed != other._transposed:
             raise ValueError("transposed and not transposed vectors cannot be subtracted from each other")
         else:
-            res = Vector(len(self))
+            res = Vector(len(self), dtype = self.dtype)
             for i in range(0, len(self)): res[i] = self[i] - other[i]
             return res
             
@@ -643,14 +644,14 @@ class Vector:
         
     # get euclidean norm of vector
     def euclidean_norm(self):
-        res = Decimal(0.0)
+        res = dtype(0.0)
         for i in range(0,len(self)):
             res += self[i] * self[i]
         return math.sqrt(res)
         
     # get regular norm of vector 
     def norm(self):
-        res = Decimal(0.0)
+        res = self.dtype(0.0)
         for i in range(0,len(self)):
             res += abs(self[i])
         return res
@@ -658,7 +659,7 @@ class Vector:
     # multiply all vector elements with a scalar
     def mult_with_scalar(self, scalar):
         res = Vector(len(self))
-        for i in range(0, len(self)): res[i] = self[i] * Decimal(scalar)
+        for i in range(0, len(self)): res[i] = self[i] * dtype(scalar)
         return res
         
     # check whether one vector is orthogonal to the other
@@ -671,24 +672,24 @@ class Vector:
             return self.scalar_product(other) == 0
     
     # get ith unit/base vector for dimension = size
-    def unit_vector(size, i):
+    def unit_vector(size, i, dtype = float):
         v = Vector(size)
-        for j in range(0,i): v[j] = Decimal(0)
+        for j in range(0,i): v[j] = dtype(0)
         v[i] = 1
-        for j in range(i+1, size): v[j] = Decimal(0)
+        for j in range(i+1, size): v[j] = dtype(0)
         return v
         
     # retrieve all unit/base vectors for dimension = size
-    def all_unit_vectors(size):
+    def all_unit_vectors(size, dtype = float):
         vec_arr = []
         for i in range(0, size):
-                vec_arr.append(Vector.unit_vector(size,i))
+                vec_arr.append(Vector.unit_vector(size,i, dtype))
         return vec_arr
         
     # create a vector from a list
-    def from_list(list, transposed = False):
+    def from_list(list, dtype = float, transposed = False):
         v = Vector(len(list), transposed = transposed)
-        for i in range(0, len(v)): v[i] = Decimal(list[i])
+        for i in range(0, len(v)): v[i] = dtype(list[i])
         return v
     
     # return list of all vector elements
@@ -697,7 +698,7 @@ class Vector:
         
     # apply lambda to each element of vector
     def apply(self, lambda_f):
-        v = Vector(len(self))
+        v = Vector(len(self), dtype = self.dtype)
         for i in range(0, len(self)):
             v[i] = lambda_f(self[i])
         return v
@@ -705,7 +706,7 @@ class Vector:
     # same as apply, but with additional vector position passed to 
     # lambda
     def apply2(self, lambda_f):
-        v = Vector(len(self))
+        v = Vector(len(self), dtype = self.dtype)
         for i in range(0, len(self)):
             v[i] = lambda_f(i, self[i])
         return v
