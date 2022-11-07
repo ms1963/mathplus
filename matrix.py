@@ -482,18 +482,22 @@ class Matrix:
                     m[row][j1] = m[row][j2]
                     m[row][j2] = tmp
                 return m        
-    
+                
+    # row <row> is multiplied with <factor>
+    def multiply_with_factor(self, row, factor):
+        m = self.clone()
+        for col in range(0, m.dim2):
+            m.m[row][col] = factor * m.m[row][col]
+        return m
+        
+    # M[touched_row] += factor * M[untouched_row]
+    def add_multiple_of_row(self, touched_row, untouched_row, factor):
+        m = self.clone()
+        for c in range(0, m.dim2):
+            m.m[touched_row][c] += m.m[untouched_row][col] * factor
+
+
     def echolon(self):
-        def multiply_with_factor(matrix, row, factor):
-            for col in range(0, matrix.dim2):
-                matrix.m[row][col] = factor * matrix[row][col]
-            return matrix
-            
-        def add_with_factor(matrix, row, factor):
-            for col in range(0, matrix.dim2):
-                matrix.m[row][col] = factor + matrix.m[row][col]
-            return matrix
-            
         def find_pivot(matrix, start_row, col):
             for row in range(start_row, matrix.dim1):
                 if matrix.m[row][col] != 0:
@@ -515,7 +519,7 @@ class Matrix:
             else:
                 m = m.swap_rows(row, r_pivot)
                 if m.m[row][col] != 1:
-                    m = multiply_with_factor(m, row, 1/pivot)
+                    m = m.multiply_with_factor(row, 1/pivot)
                 for r in range(row+1, m.dim1):
                     if m[r][col] == 0:
                         continue

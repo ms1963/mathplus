@@ -175,9 +175,11 @@ print(v6)
 print("v5 * v6 =  ")
 print(v5*v6)
 
+print("Swap operations using m9")
+print(m9)
+print("swapping rows 0 and 2" + str(m9.swap_rows(0,2)))
+print("swapping columns 1 and 2" + str(m9.swap_columns(1,2)))
 m10 = Matrix.from_list([[0,1,2], [1,2,1], [0,3,6]])
-
-
 print("m10 = " +str(m10))
 print("m10 Echolon form is ", end="")
 print(m10.echolon())
