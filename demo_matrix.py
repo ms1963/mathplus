@@ -3,6 +3,13 @@ from matrix import Vector, Matrix
 # just a show case to illustrate usage of Matrix and Vector classes
 # in matrix
 
+
+Matrix.set_separators("|", "|")
+Vector.set_separators("[", "]")
+print("Separators for Matrix set to " + Matrix.left_sep + " and " + Matrix.right_sep)
+print("Separators for Vector set to " + Vector.left_sep + " and " + Vector.right_sep)
+print()
+
 m1 =  Matrix(4,4)
 print("m1 = " + str(m1))
 m2 = Matrix.identity(4)

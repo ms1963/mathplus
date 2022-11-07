@@ -15,6 +15,8 @@ from copy import deepcopy
 class Matrix:
     
     fstring = '{:4}'
+    left_sep = ""
+    right_sep = ""
     
     # create size1 x size2 matrix with optional initial values
     # dtype specifies the desired data type of matrix elements
@@ -31,6 +33,11 @@ class Matrix:
     # change format string. used by __str__            
     def set_format(s = '{:4}'):
         Matrix.fstring = s
+        
+    # determines how a matrix will be represented in __str__
+    def set_separators(left, right):
+        Matrix.left_sep = left
+        Matrix.right_sep = right
         
     # clone matrix
     def clone(self):
@@ -126,11 +133,11 @@ class Matrix:
     def __str__(self):
         s = "\n"
         for r in range(0, self.dim1):
-            line = ""
+            line = Matrix.left_sep
             for c in range(0, self.dim2):
                 line += " " + Matrix.fstring.format(self.m[r][c])
                 if c == self.dim2-1:
-                    line += "\n"
+                    line += Matrix.right_sep + "\n"
             s += line
         return s
     
@@ -451,6 +458,8 @@ class Matrix:
                                               
 class Vector:
     fstring = '{:4}'
+    left_sep = ""
+    right_sep = ""
     
     _transposed = False
     
@@ -465,6 +474,11 @@ class Vector:
     def set_format(s = '{:4}'):
         Matrix.fstring = s
         
+    # determines how a matrix will be represented in __str__
+    def set_separators(left, right):
+        Vector.left_sep = left
+        Vector.right_sep = right
+        
     # clone vector
     def clone(self):
         return deepcopy(self)
@@ -477,15 +491,15 @@ class Vector:
     # string representation of vector
     def __str__(self):
         if self._transposed:
-            res = ""
+            res = Vector.left_sep
             for i in range(0, len(self.v)): 
                 res += Vector.fstring.format(self.v[i])
-            res += ""
+            res += Vector.right_sep
             return res
         else:
             res = "\n"
             for i in range(0, len(self.v)):
-                res +=  Vector.fstring.format(self.v[i]) + "\n"
+                res +=  Vector.left_sep + Vector.fstring.format(self.v[i]) + Vector.right_sep + "\n"
             return res
     
     
