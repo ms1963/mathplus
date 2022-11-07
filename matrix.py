@@ -417,15 +417,20 @@ class Matrix:
     def from_flat_list(list, shape, dtype = float):
         if len(list) != shape[0] * shape[1]:
             raise ValueError("len(list) <> shape_0 * shape_1")
-        m = Matrix(shape[0], shape[1], dtype = dtype)
-        for r in range(0, shape[0]):
-            for c in range(0, shape[1]):
-                m.m[r][c] = dtype(list[r * shape[1] + c])
-        return m
+        elif shape == None:
+            raise ValueError("shape must not be none")
+        else:
+            m = Matrix(shape[0], shape[1], dtype = dtype)
+            for r in range(0, shape[0]):
+                for c in range(0, shape[1]):
+                    m.m[r][c] = dtype(list[r * shape[1] + c])
+            return m
         
-    def reshape(self, dtype = float, shape = None):
-        if shape == None:
-            return self
+    def reshape(self, shape, dtype = float):
+        if shape == None : 
+            raise ValueError("shape must not be None")
+        elif shape[0] == self.dim1 and shape[1] == self.dim2:
+            return self.clone()
         elif self.dim1 * self.dim2 != shape[0] * shape[1]:
             raise ValueError("shape does not correspond to dim1*dim2")
         else:
