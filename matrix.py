@@ -655,18 +655,41 @@ class Vector:
                 result += self[y]
             return result
         return self.v[arg]
-
-
         if i < 0 or i >= len(self.v):
             raise ValueError("index out of range")
         return self.v[i]
         
-    # change vector element, for example: v[5] = 1. Raises
-    # ValueError if index is out of range
-    def __setitem__(self, i, value):
-        if i < 0 or i >= len(self.v):
-            raise ValueError("index out of range")
-        self.v[i] = self.dtype(value)
+    # possible usages:
+    # vector[8] = 9  => assigns value to singlevector position
+    # vector[0:3] = [0,1,2] = set vector[0:3] to list elements
+    # vector[2:4, 6:8] => sets vector positions 2:4 and 6:8 
+    # to elements of list
+    def __setitem__(self, arg, val):
+        if isinstance(arg, slice):
+            if arg.start == None: first = 0
+            else: first = arg.start
+            if arg.stop == None: last = len(v.v)
+            else: last = arg.stop
+            if arg.step == None: step = 1
+            else: step = arg.step
+            j = 0
+            for i in range(first, last, step):
+                self.v[i] = self.dtype(val[j])
+                j += 1
+        elif isinstance(arg, tuple):
+            j = 0
+            for x,y in enumerate(arg):
+                if y.start == None: start = 0
+                else: start = y.start
+                if y.stop == None: stop = len(v.v)
+                else: stop = y.stop
+                if y.step == None: step = 1
+                else: step = y.step
+                for i in range(start, stop, step):
+                    self.v[i] = self.dtype(val[j])
+                    j+= 1
+        else:
+            self.v[arg] = self.dtype(val)
         
     # multiplication of vectors 
     # vector multiplication with matrices is delegated.

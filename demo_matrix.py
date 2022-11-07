@@ -190,6 +190,18 @@ m7_enhanced  = Matrix.from_list([[5,9,2,1],[1,8,5,2],[3,6,4,0]])
 print("m7_enhanced = " + str(m7_enhanced))
 print("Solution in column 4 of reduced echolon matrix" + str(m7_enhanced.reduced_echolon()))
 
+v7 = Vector.from_list([i for i in range(0,10)])
+print("v7 = " + str(v7))
+print("v7[0:2, 5:7] = [-1,-2,-3,-4]")
+v7[0:2, 5:7] = [-1.0,-2.0,-3.0,-4.0]
+print("result is " + str(v7))
+print("v7[9] = 99")
+v7[9] = 99
+print(v7)
+
+
+
+
 
 
 
