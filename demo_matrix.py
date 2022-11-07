@@ -176,9 +176,17 @@ print("v5 * v6 =  ")
 print(v5*v6)
 
 m10 = Matrix.from_list([[0,1,2], [1,2,1], [0,3,6]])
+
+
 print("m10 = " +str(m10))
 print("m10 Echolon form is ", end="")
 print(m10.echolon())
+print("m10 Reduced Echolon is ", end="")
+print(m10.reduced_echolon())
+
+
+
+
 
 
 

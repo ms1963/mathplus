@@ -481,10 +481,7 @@ class Matrix:
                     tmp = m[row][j1]
                     m[row][j1] = m[row][j2]
                     m[row][j2] = tmp
-                return m
-            
-
-        
+                return m        
     
     def echolon(self):
         def multiply_with_factor(matrix, row, factor):
@@ -505,7 +502,11 @@ class Matrix:
             
         m = Matrix.clone(self)
         col = 0
-        for row in range(0, m.dim2):
+        if m.dim1 < m.dim2:
+            upper_limit = m.dim1
+        else:
+            upper_limit = m.dim2
+        for row in range(0, upper_limit):
             col = row
             if m.m[row][col] == 1: continue
             (pivot, r_pivot) = find_pivot(m, row + 1, col)
@@ -524,14 +525,36 @@ class Matrix:
                             for c in range(0, m.dim2):
                                 m[r][c] = m[r][c] + factor * m[row][c]
         return m
+        
+
                             
-                        
-                        
-                        
-        
-        
-            
-                
+  
+    def reduced_echolon(self):
+        m = self.clone()
+        lead = 0
+        i = 0
+        for r in range(0, self.dim1):
+            if (m.dim2 <= lead): break
+            i = r
+            while m.m[i][lead] == 0:
+                i += 1
+                if (i == m.dim1):
+                    i = r
+                    lead += 1
+                    if m.dim2 == lead:
+                        return m
+            m = m.swap_rows(i,r)
+            val = m.m[r][lead]
+            for j in range(0, m.dim2):
+                m.m[r][j] /= val
+            for i in range(0, m.dim1):
+                if (i == r): 
+                    continue
+                val = m.m[i][lead]
+                for j in range(0, m.dim2):
+                    m[i][j] -= val * m.m[r][j]
+            lead += 1
+        return m
                 
  ################## class Vector #################
                 
