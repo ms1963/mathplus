@@ -532,7 +532,6 @@ class Matrix:
     def reduced_echolon(self):
         m = self.clone()
         lead = 0
-        i = 0
         for r in range(0, self.dim1):
             if (m.dim2 <= lead): break
             i = r
