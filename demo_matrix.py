@@ -183,6 +183,10 @@ print("m10 Echolon form is ", end="")
 print(m10.echolon())
 print("m10 Reduced Echolon is ", end="")
 print(m10.reduced_echolon())
+print("Solving m7 * x [1,2,0].T with reduced echolon matrix")
+m7_enhanced  = Matrix.from_list([[5,9,2,1],[1,8,5,2],[3,6,4,0]])
+print("m7_enhanced = " + str(m7_enhanced))
+print("Solution in column 4 of reduced echolon matrix" + str(m7_enhanced.reduced_echolon()))
 
 
 
