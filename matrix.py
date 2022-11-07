@@ -450,6 +450,81 @@ class Matrix:
                 m.m[r][c] = lambda_f(r, c, self.m[r][c])
         return m
         
+    def swap_rows(self, i1, i2):
+        if not i1 in range(0, self.dim1) or not i2 in range(0, self.dim1):
+            raise ValueError("indices out of range")
+        else:
+            m = self.clone()
+            if i1 == i2: 
+                return m
+            else:
+                m = self.clone()
+                tmp = m.m[i1]
+                m.m[i1] = m.m[i2]
+                m.m[i2] = tmp
+                return m
+            
+    def swap_columns(self, j1, j2):
+        if not j1 in range(0, self.dim2) or not j2 in range(0, self.dim2):
+            raise ValueError("indices out of range")
+        else:
+            m = self.clone()
+            if j1 == j2: 
+                return m
+            else:
+                for row in range(0, m.dim1):
+                    tmp = m[row][j1]
+                    m[row][j1] = m[row][j2]
+                    m[row][j2] = tmp
+                return m
+            
+
+        
+    
+    def echolon(self):
+        def multiply_with_factor(matrix, row, factor):
+            for col in range(0, matrix.dim2):
+                matrix.m[row][col] = factor * matrix[row][col]
+            return matrix
+            
+        def add_with_factor(matrix, row, factor):
+            for col in range(0, matrix.dim2):
+                matrix.m[row][col] = factor + matrix.m[row][col]
+            return matrix
+            
+        def find_pivot(matrix, start_row, col):
+            for row in range(start_row, matrix.dim1):
+                if matrix.m[row][col] != 0:
+                    return (matrix.m[row][col], row)
+            return (-1,-1)           
+            
+        m = Matrix.clone(self)
+        col = 0
+        for row in range(0, m.dim2):
+            col = row
+            if m.m[row][col] == 1: continue
+            (pivot, r_pivot) = find_pivot(m, row + 1, col)
+            if (pivot,r_pivot) == (-1,-1):
+                continue
+            else:
+                m = m.swap_rows(row, r_pivot)
+                if m.m[row][col] != 1:
+                    m = multiply_with_factor(m, row, 1/pivot)
+                for r in range(row+1, m.dim1):
+                    if m[r][col] == 0:
+                        continue
+                    else:
+                        factor = -m.m[r][col]
+                        if factor != 0:
+                            for c in range(0, m.dim2):
+                                m[r][c] = m[r][c] + factor * m[row][c]
+        return m
+                            
+                        
+                        
+                        
+        
+        
             
                 
                 
@@ -725,7 +800,6 @@ class Vector:
             v[i] = lambda_f(i, self[i])
         return v
 
-            
-        
+    
         
 
