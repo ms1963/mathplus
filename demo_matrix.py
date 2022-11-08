@@ -1,4 +1,5 @@
 from matrix import Vector, Matrix
+import math
 
 # just a show case to illustrate usage of Matrix and Vector classes
 # in matrix
@@ -92,6 +93,9 @@ print("m4 * m5 = " + str(m4 * m5))
 
 print("Use apply() to apply the lambda x -> x^2 to each element of m3: " + str(m3.apply(lambda x: x * x)))
 
+print("You may also use m3.apply(math.sin) for vectors or matrices")
+print(m3.apply(math.sin))
+print()
 
 print("Use apply() to apply the lambda x -> x + 1 to each element of v4: " + str(v4.apply(lambda x: x + 1)))
 
@@ -231,6 +235,7 @@ print()
 
 print("Creating a matrix filled with random numbers")
 print(Matrix.random_matrix((3,3), fromvalue = 1, tovalue = 10, dtype = int, seedval = 42))
+
 
 
 
