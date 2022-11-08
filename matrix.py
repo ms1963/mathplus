@@ -10,22 +10,35 @@ import math
 from copy import deepcopy
 from random import uniform, randrange, seed
 
+#################################################
+################## class Common #################
+#################################################
+class Common:
 
-# returns the signs for a list of numbers
-# for example, [2, -6, 0, 3] => [1, -1, 0, 1]
-def sign(list):
-    if list ==  []: 
-        return [] 
-    else:
-        result = [] 
-        for elem in list:
-            if elem == 0:
-                result.append(0)
-            elif elem > 0:
-                result.append(1)
-            else:
-                result.append(-1)
-        return result
+    # returns the signs for a list of numbers
+    # for example, [2, -6, 0, 3] => [1, -1, 0, 1]
+    def sign(list):
+        if list ==  []: 
+            return [] 
+        else:
+            result = [] 
+            for elem in list:
+                if elem == 0:
+                    result.append(0)
+                elif elem > 0:
+                    result.append(1)
+                else:
+                    result.append(-1)
+            return result
+
+    # delete elements from an array with indices of elements           
+    # to delete given in indices
+    def delete(array, indices):
+        new_array = []
+        for i in range(0, len(array)):
+            if not i in indices:
+                new_array.append(array[i])
+        return new_array
         
         
 #################################################

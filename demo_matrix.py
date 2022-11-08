@@ -1,4 +1,4 @@
-from matrix import Vector, Matrix
+from matrix import Vector, Matrix, Common
 import math
 
 # just a show case to illustrate usage of Matrix and Vector classes
@@ -246,6 +246,9 @@ print()
 
 print("Creating a matrix filled with random numbers")
 print(Matrix.random_matrix((3,3), fromvalue = 1, tovalue = 10, dtype = int, seedval = 42))
+
+
+print(Common.delete([i for i in range(0, 10)], [1,3,5,7]))
 
 
 
