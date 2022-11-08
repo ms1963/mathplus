@@ -8,6 +8,7 @@
 
 import math 
 from copy import deepcopy
+from random import uniform, randrange
 
 
 # returns the signs for a list of numbers
@@ -710,7 +711,19 @@ class Matrix:
             result.append(act_value)
             act_value += step
         return result
-     
+        
+    # get a matrix filled with random numbers
+    def random_matrix(shp, fromvalue, tovalue, dtype):
+        rows = shp[0]
+        cols = shp[1]
+        m = Matrix(rows, cols, dtype)
+        for r in range(0, rows):
+            for c in range(0, cols):
+                if dtype == int:
+                    m.m[r][c] = int(randrange(fromvalue, tovalue))
+                else:
+                    m.m[r][c] = dtype(uniform(fromvalue, tovalue))
+        return m
             
  #################################################              
  ################## class Vector #################
@@ -1000,6 +1013,19 @@ class Vector:
         v = Vector(len(list), transposed = transposed)
         for i in range(0, len(v)): v[i] = dtype(list[i])
         return v
+
+
+    # get a vector filled with random numbers
+    def random_vector(length, fromvalue, tovalue, dtype):
+        v = Vector(length, dtype)
+        if dtype == int:
+            for i in range(0, length):
+                v[i] = int(randrange(fromvalue, tovalue))
+        else:
+            for i in range(0, length):
+                v[i] = dtype(uniform(fromvalue,tovalue))
+        return v
+        
     
     # return list of all vector elements
     def to_list(self):
