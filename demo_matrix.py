@@ -220,9 +220,20 @@ print(Q)
 print("R = ")
 print(R)
 
+print("Eigenvalues of m ")
+print(m.eigenvalues())
+print()
+
+print("For matrix : ")
+m = Matrix.from_list([[5,4],[1,2]])
+print(m)
+print("the eigenvalues are " + str(m.eigenvalues()))
+
+
 print("Create diagonal matrix from [1,2,3]")
 m = Matrix.diagonal_matrix([1,2,3], dtype = int)
 print(m)
+
 
 print("Using Matrix.arange(start = 0, stop = 5, step = 0.5, dtype = float) ")
 print(Matrix.arange(start = 0, stop = 5, step = 0.5, dtype = int))
@@ -235,6 +246,10 @@ print()
 
 print("Creating a matrix filled with random numbers")
 print(Matrix.random_matrix((3,3), fromvalue = 1, tovalue = 10, dtype = int, seedval = 42))
+
+
+
+
 
 
 
