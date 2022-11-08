@@ -79,7 +79,7 @@ class Matrix:
         return (self.dim1, self.dim2)
     
     # change format string. used by __str__            
-    def set_format(s = '{:4}'):
+    def set_format(s):
         Matrix.fstring = s
         
     # determines how a matrix will be represented in __str__
@@ -422,6 +422,18 @@ class Matrix:
     # check for square matrix
     def is_square(self):
         return self.dim1 == self.dim2
+        
+    def is_hermitian(self):
+        if self.dim1 != self.dim2:
+            raise ValueError("only a squre matrix can be hermitian")
+        if self.dtype != complex:
+            return self.is_symmetric()
+        else:
+            for r in range(self.dim1):
+                for c in range(self.dim2):
+                    if self.m[r][c] != self.m[c][r].conjugate():
+                        return False
+            return True
             
     # calculate the standard norm
     def norm(self):
@@ -798,7 +810,7 @@ class Vector:
             return (len(self), False)
             
     # change format string. used by __str__            
-    def set_format(s = '{:4}'):
+    def set_format(s):
         Matrix.fstring = s
         
     # determines how a matrix will be represented in __str__
