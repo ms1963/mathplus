@@ -249,6 +249,31 @@ print("Creating a matrix filled with random numbers")
 print(Matrix.random_matrix((3,3), fromvalue = 1, tovalue = 10, dtype = int, seedval = 42))
 
 
+print("mc is a matrix with complex numbers:")
+mc = Matrix.from_list([[complex(1,2), complex(3,5), complex(0,1)]], dtype = complex)
+print(mc)
+print("md is a matrix with complex numbers as well: ")
+md = Matrix.from_list([[complex(4,2)],[complex(1,0)], [complex(1,1)] ], dtype = complex)
+print(md)
+print("mc @ md = " + str(mc @ md))
+print("md @ mc = " + str(md @ mc))
+
+
+md = Matrix.from_list([   
+        [complex(1,0), complex(3,5), complex(1,1)],
+        [complex(3,-5), complex(2,0), complex(4,2)], 
+        [complex(1,-1),complex(4,-2), complex(1,0)]
+    ], dtype = complex)
+print("md = " + str(md))
+print("Is md a Hermitian matrix ? " + str(md.is_hermitian()))
+
+
+
+
+
+
+
+
 
 
 
