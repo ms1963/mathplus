@@ -222,13 +222,15 @@ print(m)
 
 print("Using Matrix.arange(start = 0, stop = 5, step = 0.5, dtype = float) ")
 print(Matrix.arange(start = 0, stop = 5, step = 0.5, dtype = int))
+print()
 
 
 print("Creating a vector filled with random numbers")
 print (Vector.random_vector(10, 1, 5, int))
+print()
 
 print("Creating a matrix filled with random numbers")
-print(Matrix.random_matrix((3,3), fromvalue = 1, tovalue = 10, dtype = int))
+print(Matrix.random_matrix((3,3), fromvalue = 1, tovalue = 10, dtype = int, seedval = 42))
 
 
 

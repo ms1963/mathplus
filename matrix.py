@@ -8,7 +8,7 @@
 
 import math 
 from copy import deepcopy
-from random import uniform, randrange
+from random import uniform, randrange, seed
 
 
 # returns the signs for a list of numbers
@@ -713,7 +713,9 @@ class Matrix:
         return result
         
     # get a matrix filled with random numbers
-    def random_matrix(shp, fromvalue, tovalue, dtype):
+    def random_matrix(shp, fromvalue, tovalue, dtype, seedval = None):
+        if seedval != None:
+            seed(seedval)
         rows = shp[0]
         cols = shp[1]
         m = Matrix(rows, cols, dtype)
@@ -1016,7 +1018,9 @@ class Vector:
 
 
     # get a vector filled with random numbers
-    def random_vector(length, fromvalue, tovalue, dtype):
+    def random_vector(length, fromvalue, tovalue, dtype, seedval = None):
+        if seedval != None:
+            seed(seedval)
         v = Vector(length, dtype)
         if dtype == int:
             for i in range(0, length):
