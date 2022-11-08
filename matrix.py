@@ -30,6 +30,10 @@ class Matrix:
             for j in range(0, size2):
                 self.m[i].append(dtype(init_value))
                 
+    # get the shape of the matrix, i.e. its numbers of rows and columns
+    def shape(self):
+        return (self.dim1, self.dim2)
+    
     # change format string. used by __str__            
     def set_format(s = '{:4}'):
         Matrix.fstring = s
@@ -111,7 +115,9 @@ class Matrix:
         else:
             # get single row of matrix as a list
             return self.m[arg] 
-        
+            
+    
+    
             
     # sets a value in matrix. raises ValueError if indices are not in range
     def change_item(self,i,j, val):
@@ -228,16 +234,31 @@ class Matrix:
     # get row vector for row
     def row_vector(self, row):
         v = Vector(self.dim2, dtype = self.dtype, transposed = True)
-        for c in range(0, self.dim2):
-            v[c] = self.m[row][c]
+        v.v = self.m[row]
         return v
+        
+    # get all row vectors at once
+    def all_row_vectors(self):
+        shape = self.shape()
+        result = []
+        for i in range(0, shape[0]):
+            result.append(self.row_vector(i))
+        return result
             
     # get column vector for column
-    def col_vector(self, col):
+    def column_vector(self, col):
         v = Vector(self.dim1, dtype = self.dtype, transposed = False)
         for r in range(0, self.dim1):
             v[r] = self.m[r][col]
         return v
+        
+    # get all column vectors at once
+    def all_column_vectors(self):
+        shape = self.shape()
+        result = []
+        for j in range(0, shape[1]):
+            result.append(self.column_vector(j))
+        return result
         
     # get Unit/identity matrix matrix for given size
     def identity(size, dtype = float):
@@ -251,6 +272,15 @@ class Matrix:
                 else:
                     m.m[r][c] = dtype(0)
         return m   
+        
+    # returns the diagonal of a square matrix as a list
+    def diagonal(self):
+        if not self.is_square():
+            raise ValueError("diagonal only available in square matrix")
+        list = []
+        for i in range(0, self.shape()[0]):
+            list.append(self.m[i][i])
+        return list
         
     # add two matrices with each other
     #  if their sizes are not the same, a ValueError is raised
@@ -280,7 +310,7 @@ class Matrix:
                 m = Matrix(self.dim1, other.dim2, dtype=self.dtype)
                 for r in range(0, self.dim1):
                     for c in range(0, other.dim2):
-                        m.m[r][c] = self.row_vector(r) * other.col_vector(c)
+                        m.m[r][c] = self.row_vector(r) * other.column_vector(c)
                 return m
         elif isinstance(other, Vector):
             if (not other.is_transposed() and self.dim1 != len(other)) or (other.is_transposed() and self.dim1 != 1):
@@ -299,6 +329,8 @@ class Matrix:
                     for k in range(0, len(other)):
                         sum += self.m[0][k] * other[k]
                     return sum
+        elif isinstance(other, self.dtype):
+            return self.mult_with_scalar(other)
         else:
             raise ValueError("second argument must be matrix or vector")
             
@@ -347,7 +379,7 @@ class Matrix:
     def norm(self):
         n = self.dtype(0)
         for c in range(0, self.dim2):
-            n = max(n, self.col_vector(c).norm())
+            n = max(n, self.column_vector(c).norm())
         return n
         
     def frobenius_norm(self):
@@ -484,7 +516,7 @@ class Matrix:
                 return m        
                 
     # row <row> is multiplied with <factor>
-    def multiply_with_factor(self, row, factor):
+    def mult_with_factor(self, row, factor):
         m = self.clone()
         for col in range(0, m.dim2):
             m.m[row][col] = factor * m.m[row][col]
@@ -497,6 +529,7 @@ class Matrix:
             m.m[touched_row][c] += m.m[untouched_row][col] * factor
 
 
+    # creates  the row echolon form of the matrix
     def echolon(self):
         def find_pivot(matrix, start_row, col):
             for row in range(start_row, matrix.dim1):
@@ -519,7 +552,7 @@ class Matrix:
             else:
                 m = m.swap_rows(row, r_pivot)
                 if m.m[row][col] != 1:
-                    m = m.multiply_with_factor(row, 1/pivot)
+                    m = m.mult_with_scalar(row, 1/pivot)
                 for r in range(row+1, m.dim1):
                     if m[r][col] == 0:
                         continue
@@ -530,9 +563,8 @@ class Matrix:
                                 m[r][c] = m[r][c] + factor * m[row][c]
         return m
         
-
-                            
-  
+    
+    # calculates the reduced row echolon form of the matrix    
     def reduced_echolon(self):
         m = self.clone()
         lead = 0
@@ -558,6 +590,88 @@ class Matrix:
                     m[i][j] -= val * m.m[r][j]
             lead += 1
         return m
+        
+    # set up a matrix by stacking up the row vectors
+    # [ ---- r1 ----] 
+    # [ ---- r2 ----] 
+    #       .... 
+    # [ ---- rn ----]
+    def from_row_vectors(vec_array):
+        for arg in vec_array:
+            if not isinstance(arg, Vector):
+                raise TypeError("Vectors expected as arguments")
+            elif (len(vec_array) == 0): 
+                raise ValueError("Empty argument list")
+            else:
+                shape = vec_array[0].shape()
+                m = Matrix(len(vec_array), shape[0])
+                i = 0
+                for vec in vec_array:
+                    v_shape = vec.shape()
+                    if v_shape != shape or v_shape[1] != True:
+                        raise ValueError("vectors must be transposed and share the same shape")    
+                    m.m[i] = vec.to_list()
+                    i += 1
+                return m
+    
+    # create a matrix from column vectors   
+    # | c1 c2 c3 .... cn | 
+    # |  |  |  |       | | 
+    # |  |  |  |       | | 
+                   
+    def from_column_vectors(vec_array):
+        if not isinstance(vec_array, list):
+            raise TypeError("unexpected argument type")
+        for vec in vec_array:
+            if not isinstance(vec, Vector):
+                raise TypeError("Vectors expected as arguments")
+            elif (len(vec_array) == 0): 
+                raise ValueError("Empty argument list")
+            else:
+                shape = vec_array[0].shape()
+                m = Matrix(shape[0], len(vec_array))
+                i = 0
+                for col in range(0, len(vec_array)):
+                    vec = vec_array[col]
+                    v_shape = vec.shape()
+                    if v_shape != shape or v_shape[1] != False:
+                        raise ValueError("vectors must be transposed and share the same shape")    
+                    for j in range(0, v_shape[0]):
+                        m.m[j][i] = vec[j]
+                    i += 1
+                return m
+                
+    def qr_decomposition(self):
+        u = []
+        e = []
+        a = self.all_column_vectors()
+        shape = self.shape()
+        e = [None for i in range(0, shape[1])]
+        u = [None for i in range(0, shape[1])]
+        if not shape[1] >= shape[0]:
+            raise ValueError("number of columns must be >= number of rows")
+        u[0] = a[0]
+        e[0] = u[0].mult_with_scalar(1 / u[0].euclidean_norm())
+        u[1] = a[1] - e[0] * (a[1].T()*e[0])
+        e[1] = u[1].mult_with_scalar(1 / u[1].euclidean_norm())
+        for k in range(2, shape[1]):
+            u[k] = a[k]
+            for i in range(0,k):
+                u[k] -= e[i] * (a[k].T() * e[i])
+            e[k] = u[k].mult_with_scalar(1/u[k].euclidean_norm())
+        Q = Matrix.from_column_vectors(e)
+        R = Matrix(shape[1], shape[0], dtype = self.dtype)
+        for i in range(0, shape[1]):
+            for j in range(0, shape[0]):
+                if i > j: R.m[i][j] = 0
+                else:
+                    R.m[i][j] = a[j].T() * e[i]
+        return (Q,R)
+            
+        
+            
+        
+        
                 
  ################## class Vector #################
                 
@@ -576,6 +690,15 @@ class Vector:
         self._transposed = transposed
         self.dtype = dtype
         
+    # get the number of elements in the vector
+    # if vector is transposed => (len(v), True)
+    #                    else => (len(v), False)
+    def shape(self):
+        if self.is_transposed():
+            return (len(self), True)
+        else:
+            return (len(self), False)
+            
     # change format string. used by __str__            
     def set_format(s = '{:4}'):
         Matrix.fstring = s
@@ -599,7 +722,7 @@ class Vector:
         if self._transposed:
             res = Vector.left_sep
             for i in range(0, len(self.v)): 
-                res += Vector.fstring.format(self.v[i])
+                res += " " + Vector.fstring.format(self.v[i])
             res += Vector.right_sep
             return res
         else:
@@ -700,6 +823,8 @@ class Vector:
         if isinstance(other, Matrix):
             m = Matrix.from_vector(self)
             return m * other
+        elif isinstance(other, self.dtype):
+            return self.mult_with_scalar(other)
         if not isinstance(other, Vector):
             raise ValueError("other object must also be a vector")
         if len(other) != len(self):
@@ -787,7 +912,7 @@ class Vector:
         
     # get euclidean norm of vector
     def euclidean_norm(self):
-        res = dtype(0.0)
+        res = self.dtype(0.0)
         for i in range(0,len(self)):
             res += self[i] * self[i]
         return math.sqrt(res)
@@ -802,7 +927,7 @@ class Vector:
     # multiply all vector elements with a scalar
     def mult_with_scalar(self, scalar):
         res = Vector(len(self))
-        for i in range(0, len(self)): res[i] = self[i] * dtype(scalar)
+        for i in range(0, len(self)): res[i] = self[i] * self.dtype(scalar)
         return res
         
     # check whether one vector is orthogonal to the other

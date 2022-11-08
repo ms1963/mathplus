@@ -57,7 +57,7 @@ for i in range(0, m3.dim1):
     print("row vector [" + str(i) + "] = " + str(m3.row_vector(i)))
 
 for i in range(0, m3.dim2):
-    print("col vector [" + str(i) + "] = " + str(m3.col_vector(i)))
+    print("col vector [" + str(i) + "] = " + str(m3.column_vector(i)))
     
 print("Multiplication of m3 with unit matrix  = " + str(m2 * m3))
 
@@ -95,7 +95,11 @@ print("Use apply() to apply the lambda x -> x^2 to each element of m3: " + str(m
 
 print("Use apply() to apply the lambda x -> x + 1 to each element of v4: " + str(v4.apply(lambda x: x + 1)))
 
-
+print()
+print("Calculating the diagonal of matrix m5 * m4")
+list = (m5*m4).diagonal()
+print(list)
+print()
 
 m6 = m4 * m5
 print("Creating matrix m6 = m4 * m5: " + str(m6))
@@ -181,6 +185,7 @@ print("swapping rows 0 and 2" + str(m9.swap_rows(0,2)))
 print("swapping columns 1 and 2" + str(m9.swap_columns(1,2)))
 m10 = Matrix.from_list([[0,1,2], [1,2,1], [0,3,6]])
 print("m10 = " +str(m10))
+print("m10.shape() = " + str(m10.shape()))
 print("m10 Echolon form is ", end="")
 print(m10.echolon())
 print("m10 Reduced Echolon is ", end="")
@@ -198,6 +203,23 @@ print("result is " + str(v7))
 print("v7[9] = 99")
 v7[9] = 99
 print(v7)
+
+
+
+print()
+print("QR factorization of m = ")
+m = Matrix.from_list([[1,1,0],[1,0,1],[0,1,1]])
+print(m)
+(Q,R) = m.qr_decomposition()
+print("Q = ")
+print(Q)
+print("R = ")
+print(R)
+
+
+
+
+
 
 
 
