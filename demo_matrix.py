@@ -216,6 +216,9 @@ print(Q)
 print("R = ")
 print(R)
 
+m = Matrix.diagonal_matrix([1,2,3], dtype = int)
+print(m)
+
 
 
 

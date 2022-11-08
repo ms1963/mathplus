@@ -10,6 +10,23 @@ import math
 from copy import deepcopy
 
 
+# returns the signs for a list of numbers
+# for example, [2, -6, 0, 3] => [1, -1, 0, 1]
+def sign(list):
+    if list ==  []: 
+        return [] 
+    else:
+        result = [] 
+        for elem in list:
+            if elem == 0:
+                result.append(0)
+            elif elem > 0:
+                result.append(1)
+            else:
+                result.append(-1)
+        return result
+        
+        
 #################################################
 ################## class Matrix #################
 #################################################
@@ -673,6 +690,14 @@ class Matrix:
                 else:
                     R.m[i][j] = a[j].T() * e[i]
         return (Q,R)
+        
+    # creates a diagonal matrix with the list 
+    # elements populating the diagonal
+    def diagonal_matrix(list, dtype = float):
+        m = Matrix(len(list), len(list), dtype)
+        for i in range(0, len(list)):
+            m[i][i] = list[i]
+        return m
      
             
  #################################################              
