@@ -216,8 +216,12 @@ print(Q)
 print("R = ")
 print(R)
 
+print("Create diagonal matrix from [1,2,3]")
 m = Matrix.diagonal_matrix([1,2,3], dtype = int)
 print(m)
+
+print("Using Matrix.arange(start = 0, stop = 5, step = 0.5, dtype = float) ")
+print(Matrix.arange(start = 0, stop = 5, step = 0.5, dtype = int))
 
 
 

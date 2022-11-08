@@ -295,10 +295,11 @@ class Matrix:
         
     # returns the diagonal of a square matrix as a list
     def diagonal(self):
-        if not self.is_square():
+        shp = self.shape()
+        if shp[1] > shp[0]:
             raise ValueError("diagonal only available in square matrix")
         list = []
-        for i in range(0, self.shape()[0]):
+        for i in range(0, shp[1]):
             list.append(self.m[i][i])
         return list
         
@@ -698,6 +699,17 @@ class Matrix:
         for i in range(0, len(list)):
             m[i][i] = list[i]
         return m
+        
+    # creates a list with all entries from start to stop 
+    # using step as increment. The values created are in 
+    # [start, stop[
+    def arange(start = 0, stop = 1, step = 1, dtype = float):
+        result = []
+        act_value = start
+        while act_value < stop:
+            result.append(act_value)
+            act_value += step
+        return result
      
             
  #################################################              
