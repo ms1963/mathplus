@@ -40,6 +40,16 @@ class Common:
                 new_array.append(array[i])
         return new_array
         
+    # erase values from array so that that none of 
+    # these numbers is left in the array
+    def erase(array, values):
+        new_array = deepcopy(array)
+        for val in values:
+            while val in new_array:
+                new_array.remove(val)
+        return new_array
+            
+        
         
 #################################################
 ################## class Matrix #################
