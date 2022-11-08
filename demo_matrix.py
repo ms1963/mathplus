@@ -220,14 +220,15 @@ print(Q)
 print("R = ")
 print(R)
 
-print("Eigenvalues of m ")
-print(m.eigenvalues())
-print()
+
 
 print("For matrix : ")
 m = Matrix.from_list([[5,4],[1,2]])
 print(m)
-print("the eigenvalues are " + str(m.eigenvalues()))
+(eigenvalues, eigenvectors) = m.eigen()
+print("the eigenvalues are " + str(eigenvalues))
+print("and the eigenvectors are :")
+for ev in eigenvectors: print(ev)
 
 
 print("Create diagonal matrix from [1,2,3]")
@@ -246,12 +247,6 @@ print()
 
 print("Creating a matrix filled with random numbers")
 print(Matrix.random_matrix((3,3), fromvalue = 1, tovalue = 10, dtype = int, seedval = 42))
-
-
-print(Common.delete([i for i in range(0, 10)], [1,3,5,7]))
-
-
-
 
 
 

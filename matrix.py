@@ -716,8 +716,8 @@ class Matrix:
                     R.m[i][j] = a[j].T() * e[i]
         return (Q,R)
         
-    # eigenvalues calculation using QR decomposition 
-    def eigenvalues(self):
+    # eigenvalues and eigenvectors calculation using QR decomposition 
+    def eigen(self):
         epsilon = 1E-12
         i_max = 1000
         if self.dtype == int:
@@ -733,7 +733,7 @@ class Matrix:
             A_new = R @ Q
             diff = abs(A_new - A_orig).frobenius_norm()
             i += 1
-        return A_new.diagonal()
+        return (A_new.diagonal(), A_new.all_column_vectors())
         
     # creates a diagonal matrix with the list 
     # elements populating the diagonal
