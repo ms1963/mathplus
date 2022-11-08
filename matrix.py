@@ -530,17 +530,17 @@ class Matrix:
             return Matrix.from_flat_list(list, shape, dtype = self.dtype)
             
         
-    # applies lambda to each element of matrix
-    def apply(self, lambda_f):
+    # map applies lambda to each element of matrix
+    def map(self, lambda_f):
         m = Matrix(self.dim1, self.dim2, dtype = self.dtype)
         for r in range(0, self.dim1):
             for c in range(0, self.dim2):
                 m.m[r][c] = lambda_f(self.m[r][c])
         return m
         
-    # like apply, but with lambda getting called with
+    # like map, but with lambda getting called with
     # row, col, value at (row,col) 
-    def apply2(self, lambda_f):
+    def map2(self, lambda_f):
         m = Matrix(self.dim1, self.dim2, dtype = self.dtype)
         for r in range(0, self.dim1):
             for c in range(0, self.dim2):
@@ -1089,16 +1089,16 @@ class Vector:
     def to_list(self):
         return self.v
         
-    # apply lambda to each element of vector
-    def apply(self, lambda_f):
+    # map applies lambda to each element of vector
+    def map(self, lambda_f):
         v = Vector(len(self), dtype = self.dtype)
         for i in range(0, len(self)):
             v[i] = lambda_f(self[i])
         return v
         
-    # same as apply, but with additional vector position passed to 
+    # same as map, but with additional vector position passed to 
     # lambda
-    def apply2(self, lambda_f):
+    def map2(self, lambda_f):
         v = Vector(len(self), dtype = self.dtype)
         for i in range(0, len(self)):
             v[i] = lambda_f(i, self[i])
