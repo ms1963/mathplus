@@ -173,7 +173,7 @@ class Matrix:
     # raises a ValueError if indices i,j are out of range
     def minor(self, i, j):
         if not i in range(0, self.dim1) or not j in range(0, self.dim2):
-            raise ValueError("out of range for indices")
+            raise ValueError("indices out of range")
         m = Matrix(self.dim1-1, self.dim2-1, dtype = self.dtype)
         for r in range(0, self.dim1):
             for c in range(0, self.dim2):
@@ -244,9 +244,9 @@ class Matrix:
         if self.det() == 0:
             raise ValueError("det == 0")
         if (vector.is_transposed()):
-            raise ValueError("Vector must not be transposed")
+            raise ValueError("vector must not be transposed")
         if not self.is_square():
-            raise ValueError("Matrix must be quadratic")
+            raise ValueError("matrix must be quadratic")
         if len(vector) != self.dim2:
             raise ValueError("dimensions of matrix and vector do not match")
         return self.inverse_matrix() * vector
@@ -354,7 +354,7 @@ class Matrix:
         elif isinstance(other, self.dtype):
             return self.mult_with_scalar(other)
         else:
-            raise ValueError("second argument must be matrix or vector")
+            raise TypeError("second argument must be matrix or vector")
             
     def __matmul__(self, other):
         return self * other
@@ -475,7 +475,7 @@ class Matrix:
         if len(list) != shape[0] * shape[1]:
             raise ValueError("len(list) <> shape_0 * shape_1")
         elif shape == None:
-            raise ValueError("shape must not be none")
+            raise ValueError("shape must not be None")
         else:
             m = Matrix(shape[0], shape[1], dtype = dtype)
             for r in range(0, shape[0]):
@@ -624,9 +624,9 @@ class Matrix:
     def from_row_vectors(vec_array):
         for arg in vec_array:
             if not isinstance(arg, Vector):
-                raise TypeError("Vectors expected as arguments")
+                raise TypeError("vectors expected as arguments")
             elif (len(vec_array) == 0): 
-                raise ValueError("Empty argument list")
+                raise ValueError("empty argument list")
             else:
                 shape = vec_array[0].shape()
                 m = Matrix(len(vec_array), shape[0])
@@ -649,9 +649,9 @@ class Matrix:
             raise TypeError("unexpected argument type")
         for vec in vec_array:
             if not isinstance(vec, Vector):
-                raise TypeError("Vectors expected as arguments")
+                raise TypeError("vectors expected as arguments")
             elif (len(vec_array) == 0): 
-                raise ValueError("Empty argument list")
+                raise ValueError("empty argument list")
             else:
                 shape = vec_array[0].shape()
                 m = Matrix(shape[0], len(vec_array))
@@ -692,6 +692,25 @@ class Matrix:
                 else:
                     R.m[i][j] = a[j].T() * e[i]
         return (Q,R)
+        
+    # eigenvalues calculation using QR decomposition 
+    def eigenvalues(self):
+        epsilon = 1E-12
+        i_max = 1000
+        if self.dtype == int:
+            diff = int("inf")
+        else:
+            diff = self.dtype("inf")
+        i = 0
+        A_new = self.clone()
+        A_orig = self.clone()
+        while (diff > epsilon) and (i < i_max):
+            A_orig = A_new
+            (Q,R) = A_orig.qr_decomposition()
+            A_new = R @ Q
+            diff = abs(A_new - A_orig).frobenius_norm()
+            i += 1
+        return A_new.diagonal()
         
     # creates a diagonal matrix with the list 
     # elements populating the diagonal
@@ -882,7 +901,7 @@ class Vector:
         elif isinstance(other, self.dtype):
             return self.mult_with_scalar(other)
         if not isinstance(other, Vector):
-            raise ValueError("other object must also be a vector")
+            raise TypeError("other object must also be a vector")
         if len(other) != len(self):
             raise ValueError("incompatible lengths of vectors")
         else:
