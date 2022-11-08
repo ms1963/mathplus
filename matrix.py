@@ -10,7 +10,10 @@ import math
 from copy import deepcopy
 
 
+#################################################
 ################## class Matrix #################
+#################################################
+
 
 class Matrix:
     
@@ -333,6 +336,9 @@ class Matrix:
             return self.mult_with_scalar(other)
         else:
             raise ValueError("second argument must be matrix or vector")
+            
+    def __matmul__(self, other):
+        return self * other
             
             
     # subtracting one matrix from the other. Raises ValueError if sizes are
@@ -667,13 +673,11 @@ class Matrix:
                 else:
                     R.m[i][j] = a[j].T() * e[i]
         return (Q,R)
+     
             
-        
-            
-        
-        
-                
+ #################################################              
  ################## class Vector #################
+ #################################################
                 
                                               
 class Vector:
@@ -979,6 +983,4 @@ class Vector:
             v[i] = lambda_f(i, self[i])
         return v
 
-    
-        
 
