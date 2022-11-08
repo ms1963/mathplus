@@ -41,7 +41,7 @@ class Common:
         return new_array
         
     # erase values from array so that that none of 
-    # these numbers is left in the array
+    # these numbers is left in the array 
     def erase(array, values):
         new_array = deepcopy(array)
         for val in values:
@@ -78,7 +78,7 @@ class Matrix:
     def shape(self):
         return (self.dim1, self.dim2)
     
-    # change format string. used by __str__            
+    # change format string. used by __str__        
     def set_format(s):
         Matrix.fstring = s
         
@@ -160,8 +160,6 @@ class Matrix:
             # get single row of matrix as a list
             return self.m[arg] 
             
-    
-    
             
     # sets a value in matrix. raises ValueError if indices are not in range
     def change_item(self,i,j, val):
@@ -191,6 +189,8 @@ class Matrix:
             s += line
         return s
     
+    def __repr__(self):
+        return str(self)
         
     # get the by leaving out all elements from row i and col j 
     # raises a ValueError if indices i,j are out of range
@@ -382,7 +382,6 @@ class Matrix:
     def __matmul__(self, other):
         return self * other
             
-            
     # subtracting one matrix from the other. Raises ValueError if sizes are
     # not equal
     def __sub__(self, other):
@@ -449,7 +448,7 @@ class Matrix:
                 sum += self.m[r][c] * self.m[r][c]
         return math.sqrt(sum)
             
-    # create a matrix from a vector
+    # create a matrix from vector 
     def from_vector(v):
         if v.is_transposed():
             m = Matrix(1, len(v), dtype = v.dtype)
@@ -655,7 +654,8 @@ class Matrix:
     # [ ---- r1 ----] 
     # [ ---- r2 ----] 
     #       .... 
-    # [ ---- rn ----]
+    # [ ---- rn ----] 
+
     def from_row_vectors(vec_array):
         for arg in vec_array:
             if not isinstance(arg, Vector):
@@ -757,7 +757,7 @@ class Matrix:
         
     # creates a list with all entries from start to stop 
     # using step as increment. The values created are in 
-    # [start, stop[
+    # [start, stop[ 
     def arange(start = 0, stop = 1, step = 1, dtype = float):
         result = []
         act_value = start
@@ -826,7 +826,6 @@ class Vector:
     def is_transposed(self):
         return self._transposed
     
-        
     # string representation of vector
     def __str__(self):
         if self._transposed:
@@ -840,6 +839,9 @@ class Vector:
             for i in range(0, len(self.v)):
                 res +=  Vector.left_sep + Vector.fstring.format(self.v[i]) + Vector.right_sep + "\n"
             return res
+            
+    def __repr__(self):
+        return str(self)
     
     
     # vector transposition        
@@ -1083,7 +1085,6 @@ class Vector:
             for i in range(0, length):
                 v[i] = dtype(uniform(fromvalue,tovalue))
         return v
-        
     
     # return list of all vector elements
     def to_list(self):
