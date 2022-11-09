@@ -11,7 +11,7 @@ Pros:
 + minimalistic library that constrains itself to essential functionality
 + call by value: only the setters __setitem__ manipulate an object directly. All other functionality tries to stick with a functional approach
 + small code size
-+ easy to use
++ easy to use (see the implementation of QR decomposition as an example)
 
 Cons:
 
