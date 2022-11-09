@@ -780,6 +780,62 @@ class Matrix:
                 else:
                     m.m[r][c] = dtype(uniform(fromvalue, tovalue))
         return m
+        
+    # rotation matrices for 2D and 3d 
+    # for 3d: rotation around x, y, z, general rotation
+    def rotation2D(angle, dtype = float):
+        m = Matrix(2,2,dtype)
+        m.m[0][0] =  dtype(math.cos(angle))
+        m.m[0][1] =  dtype(-math.sin(angle))
+        m.m[1][0] =  dtype(math.sin(angle))
+        m.m[1][1] =  dtype(math.cos(angle))
+        return m
+        
+    def rotation3d_x(angle_x, dtype=float):
+        m1 = Matrix(3,3,dtype)
+        m1.m[0][0] = dtype(1)
+        m1.m[0][1] = dtype(0)
+        m1.m[0][2] = dtype(0)
+        m1.m[1][0] = dtype(0)
+        m1.m[1][1] = dtype(math.cos(angle_x))
+        m1.m[1][2] = dtype(-math.sin(angle_x))
+        m1.m[2][0] = dtype(0)
+        m1.m[2][1] = dtype(math.sin(angle_x))
+        m1.m[2][2] = dtype(math.cos[angle_x])
+        return m1
+        
+    def rotation3d_y(angle_y, dtype=float):
+        m2 = Matrix(3,3,dtype)
+        m2.m[0][0] = dtype(math.cos(angle_y))
+        m2.m[0][1] = dtype(0)
+        m2.m[0][2] = dtype(math.sin(angle_y))
+        m2.m[1][0] = dtype(0)
+        m2.m[1][1] = dtype(1)
+        m2.m[1][2] = dtype(0)
+        m2.m[2][0] = dtype(-math.sin(angle_y))
+        m2.m[2][1] = dtype(0)
+        m2.m[2][2] = dtype(math.cos(angle_y))
+        return m2
+        
+    def rotation3d_z(angle_z, dtype = float):
+        m3 = Matrix(3,3,dtype)
+        m3.m[0][0] = dtype(math.cos(angle_z))
+        m3.m[0][1] = dtype(-math.sin(angle_z))
+        m3.m[0][2] = dtype(0)
+        m3.m[1][0] = dtype(math.sin(angle_z))
+        m3.m[1][1] = dtype(math.cos(angle_z))
+        m3.m[1][2] = dtype(0)
+        m3.m[2][0] = dtype(0)
+        m3.m[2][1] = dtype(0)
+        m3.m[2][2] = dtype(1)
+        return m3
+        
+    def rotation3D(angle_x, angle_y, angle_z, dtype = float):
+        rot_x = Matrix.rotation3d_z(angle_x, dtype)
+        rot_y = Matrix.rotation3d_y(angle_y, dtype)
+        rot_z = Matrix.rotation3d_z(angle_z, dtype)
+        return rot_z @ rot_y @ rot_x
+    
             
  #################################################              
  ################## class Vector #################
