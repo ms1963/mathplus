@@ -434,7 +434,7 @@ class Matrix:
                         return False
             return True
             
-    # calculate the standard norm
+    # calculate the standard norm for column vectors
     def norm(self):
         n = self.dtype(0)
         for c in range(0, self.dim2):
@@ -1091,6 +1091,16 @@ class Vector:
         for i in range(0,len(self)):
             res += abs(self[i])
         return res
+    
+    # normalizing a vector
+    def normalize(self):
+        v = deepcopy(self)
+        norm = self.dtype(v.euclidean_norm())
+        if norm > 0:
+            v = v.mult_with_scalar(1/norm)
+        else:
+            raise ValueError("vector with euclidean norm 0 cannot be normalized")
+        return v
             
     # multiply all vector elements with a scalar
     def mult_with_scalar(self, scalar):

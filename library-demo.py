@@ -282,7 +282,16 @@ m = Matrix.rotation3D(math.pi/2, math.pi/2, math.pi)
 print(m)
 
 
-
+print()
+print("Normalization of vector v =")
+v = Vector.from_list([2,4,5])
+print(v)
+v = v.normalize()
+print("leads to")
+print(v)
+print("Euclidean norm = ", end = "")
+print(v.euclidean_norm())
+print()
 
 
 
