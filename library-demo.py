@@ -281,7 +281,6 @@ print("Example of a general rotation with angle_x = math.pi/2, angle_y = math.pi
 m = Matrix.rotation3D(math.pi/2, math.pi/2, math.pi)
 print(m)
 
-
 print()
 print("Normalization of vector v =")
 v = Vector.from_list([2,4,5])
@@ -293,20 +292,16 @@ print("Euclidean norm = ", end = "")
 print(v.euclidean_norm())
 print()
 
+print("Random matrix m")
+m = Matrix.random_matrix((5,5), fromvalue = -1, tovalue = 1, dtype = float)
+print(m)
+print("After removing rows 3 & 4 as well as columns 3 & 4")
+m = m.remove_rows([3,4])
+m = m.remove_columns([3,4])
+print(m)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+v = Vector.random_vector(6, dtype = float, fromvalue = -2, tovalue = 2)
+print("Generating random vector = \n" + str(v))
+print("Removing values at vector[1,3, and 5] " + str(v.remove(indices=[1,3,5])))
 
 

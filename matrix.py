@@ -836,6 +836,63 @@ class Matrix:
         rot_z = Matrix.rotation3d_z(angle_z, dtype)
         return rot_z @ rot_y @ rot_x
     
+    # remove a row from self and return result as a new matrix 
+    def remove_row(self, i):
+        (dim1, dim2) = self.shape()
+        if not i in range(0, dim1):
+            raise ValueError("row does not exist")
+        else:
+            dim1 -= 1
+            row_vectors = self.all_row_vectors()
+            row_vectors.remove(row_vectors[i])
+            return Matrix.from_row_vectors(row_vectors)
+            
+    # remove a column from self and return result as a new matrix
+    def remove_column(self, j):
+        (dim1, dim2) = self.shape()
+        if not j in range(0, dim2):
+            raise ValueError("column does not exist")
+        else:
+            dim2 -= 1
+            column_vectors = self.all_column_vectors()
+            column_vectors.remove(column_vectors[j])
+            return Matrix.from_column_vectors(column_vectors)
+            
+    # remove multiple rows from a matrix
+    def remove_rows(self, row_list):
+        m = deepcopy(self)
+        if row_list == []: return m
+        rl = row_list
+        rl.sort()
+        completed = False
+        while not completed:
+            r = rl[0]
+            m = m.remove_row(r)
+            rl.remove(r)
+            if rl == []: completed = True
+            else:
+                for i in range(0,len(rl)):
+                    rl[i] -= 1
+        return m
+        
+    # remove multiple columns from a matrix
+    def remove_columns(self, col_list):
+        m = deepcopy(self)
+        if col_list == []: return m
+        cl = col_list
+        cl.sort()
+        completed = False
+        while not completed:
+            c = cl[0]
+            m = m.remove_column(c)
+            cl.remove(c)
+            if cl == []: completed = True
+            else:
+                for i in range(0,len(cl)):
+                    cl[i] -= 1
+        return m
+            
+            
             
  #################################################              
  ################## class Vector #################
@@ -1155,6 +1212,21 @@ class Vector:
     # return list of all vector elements
     def to_list(self):
         return self.v
+        
+    # get a new Vector by removing elements from self
+    # indices to remove are passed as the indices list
+    def remove(self, indices):
+        v = deepcopy(self)
+        if indices == []: 
+            return v
+        else:
+            arr = []
+            for i in range(0, len(self)):
+                if i in indices: continue
+                else: arr.append(self.v[i])
+            m = Vector.from_list(arr, dtype = self.dtype) 
+            return m
+                
         
     # map applies lambda to each element of vector
     def map(self, lambda_f):
