@@ -729,9 +729,9 @@ class Matrix:
         return (Q,R)
         
     # eigenvalues and eigenvectors calculation using QR decomposition 
-    def eigen(self):
-        epsilon = 1E-12
-        i_max = 1000
+    # epsilon is the precision respectively the tolerance
+    # i_max defines the maximum number of iterations
+    def eigen(self, epsilon = 1E-14, i_max = 1000):
         if self.dtype == int:
             diff = int("inf")
         else:

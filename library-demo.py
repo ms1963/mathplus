@@ -56,6 +56,7 @@ print("m3 transposed with m3.T() + " + str(m3.T()))
 
 for i in range(0, m3.dim1):
     print("row vector [" + str(i) + "] = " + str(m3.row_vector(i)))
+print()
 
 for i in range(0, m3.dim2):
     print("col vector [" + str(i) + "] = " + str(m3.column_vector(i)))
@@ -225,7 +226,7 @@ print(R)
 print("For matrix : ")
 m = Matrix.from_list([[5,4],[1,2]])
 print(m)
-(eigenvalues, eigenvectors) = m.eigen()
+(eigenvalues, eigenvectors) = m.eigen(epsilon = 1E-16, i_max = 2000)
 print("the eigenvalues are " + str(eigenvalues))
 print("and the eigenvectors are :")
 for ev in eigenvectors: print(ev)
