@@ -274,7 +274,12 @@ print(repr(v7))
 print()
 print("Obtaining information about matrix md using repr(md) = ")
 print(repr(md))
+print()
 
+
+print("Example of a general rotation with angle_x = math.pi/2, angle_y = math.pi/2, angle_z = math(pi)")
+m = Matrix.rotation3D(math.pi/2, math.pi/2, math.pi)
+print(m)
 
 
 
