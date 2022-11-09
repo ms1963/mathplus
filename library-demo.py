@@ -266,8 +266,13 @@ md = Matrix.from_list([
     ], dtype = complex)
 print("md = " + str(md))
 print("Is md a Hermitian matrix ? " + str(md.is_hermitian()))
+print()
 
-
+print("Obtaining information about vector v7 using repr(v7) = ")
+print(repr(v7))
+print()
+print("Obtaining information about matrix md using repr(md) = ")
+print(repr(md))
 
 
 

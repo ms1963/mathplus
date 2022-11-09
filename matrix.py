@@ -190,7 +190,7 @@ class Matrix:
         return s
     
     def __repr__(self):
-        return str(self)
+        return "dim1 = " + str(self.dim1) + "\ndim2 = " + str(self.dim2) + "\ndtype = " + str(self.dtype) + "\nContent of inner array self.m = " + str(self.m)
         
     # get the by leaving out all elements from row i and col j 
     # raises a ValueError if indices i,j are out of range
@@ -841,7 +841,7 @@ class Vector:
             return res
             
     def __repr__(self):
-        return str(self)
+        return "len = " + str(len(self)) + "\ntransposed = " + str(self.is_transposed()) + "\ndtype = " + str(self.dtype) + "\nContent of inner array self.v = " + str(self.v)
     
     
     # vector transposition        
