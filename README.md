@@ -3,6 +3,8 @@ Just my own implementation of matrices, vectors, polynomials and rational number
 
 The demo code in demo_matrix.py shows how to use the trivial library. Given the fact that libraries like pandas, numpy exist, it is obviously unnecessary to come up with a matrix and vector implementation. Nonetheless, I did it for the fun of experimentation.
 
+graph.py implements a naive graph structure that uses a matrix for visualizing the edges between nodes.
+
 Note: Rational cannot be used as a dtype for Matrices as this does not make a lot of sense. You may use the Rational.float() conversion to bridge the gap.
 
 
