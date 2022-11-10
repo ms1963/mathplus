@@ -108,6 +108,9 @@ print()
 
 m6 = m4 * m5
 print("Creating matrix m6 = m4 * m5: " + str(m6))
+print()
+print("pow(m6, 2) = ")
+print(m6.mult_n_times(2))
 
 print("m7a = m6.clone(); m7b = m6")
 m7a = m6.clone()

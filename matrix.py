@@ -514,12 +514,15 @@ class Matrix:
                 
     # multiply all matrix elements with n
     def mult_n_times(self, n):
-        if n <= 1:
+        if n == 0:
+            return Matrix.identity(len(self), dtype = self.dtype)
+        elif n == 1:
             return self
-        m = deepcopy(self)
-        for i in range(0, n): 
-            m = m * self
-        return m
+        else:
+            m = deepcopy(self)
+            for i in range(0, n-1): 
+                m = m * self
+            return m
     
     # create and initialize a matrix from a list
     def from_list(list, dtype = float):
@@ -937,6 +940,13 @@ class Matrix:
                 for i in range(0,len(cl)):
                     cl[i] -= 1
         return m
+        
+    def __pow__(self, arg):
+        if not isinstance(arg, int):
+            raise TypeError("only ints are allow in Matrix.__pow__")
+        if arg < 0:
+            raise ValueError("argument to __pow__ must be >= 0")
+        return self.mult_n_times(arg)
             
             
             
