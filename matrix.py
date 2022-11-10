@@ -1413,9 +1413,7 @@ class Polynomial:
             a = self[2]
             b = self[1]
             c = self[0]
-            print("a = " + str(a) + " b = " + str(b) + " c = " +str(c))
             delta = b*b-4*a*c
-            print(delta)
             if delta < 0:
                 return (0, None, None)
             elif delta == 0:

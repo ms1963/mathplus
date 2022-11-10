@@ -315,7 +315,6 @@ print("q2 = " + str(q2))
 res = (q1/q2)
 print("q1 / q2 = ")
 print("Quotient = " + str(res[0]))
-print("Remainder = " + str(res[1]))
 
 p = Polynomial([2,-7,5])
 print("Polynom p = " + str(p))
