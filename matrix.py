@@ -941,14 +941,71 @@ class Matrix:
                     cl[i] -= 1
         return m
         
+    # calculate the power of matrix m - pow(m,1) == m,  
+    # pow(m,2) = m @ m, ...
     def __pow__(self, arg):
         if not isinstance(arg, int):
             raise TypeError("only ints are allow in Matrix.__pow__")
         if arg < 0:
             raise ValueError("argument to __pow__ must be >= 0")
         return self.mult_n_times(arg)
+        
+    # methods to add transposed      vectors to all or a subset of rows 
+    # methods to add not transposed  vectors to all or a subset of cols
+        
+    def add_vector_to_all_rows(self, vector):
+        dim1, dim2 = self.shape()
+        if len(vector) != dim2:
+            raise ValueError("size of vector and dim2 do not match")
+        elif not vector.is_transposed():
+            raise ValueError("vector must be transposed to be added to matrix")
+        else:
+            result = deepcopy(self)
+            for r in range(0, dim1):
+                for c in range(0, dim2):
+                    result.m[r][c] += vector[c]
+            return result
+        
+    # rows must be iterable
+    def add_vector_to_rows(self, rows, vector):
+        dim1, dim2 = self.shape()
+        if len(vector) != dim2:
+            raise ValueError("size of vector and dim2 do not match")
+        elif not vector.is_transposed():
+            raise ValueError("vector must be transposed to be added to matrix")
+        else:
+            result = deepcopy(self)
+            for r in rows:
+                for c in range(0, dim2):
+                    result.m[r][c] += vector[c]
+            return result
             
-            
+    def add_vector_to_all_columns(self, vector):
+        dim1, dim2 = self.shape()
+        if len(vector) != dim1:
+            raise ValueError("size of vector and dim1 do not match")
+        elif vector.is_transposed():
+            raise ValueError("vector must not be transposed to be added to matrix")
+        else:
+            result = deepcopy(self)
+            for c in range(0, dim2):
+                for r in range(0, dim1):
+                    result.m[r][c] += vector[r]
+            return result
+    
+    # cols mut be iterable    
+    def add_vector_to_columns(self, cols, vector):
+        dim1, dim2 = self.shape()
+        if len(vector) != dim1:
+            raise ValueError("size of vector and dim1 do not match")
+        elif not vector.is_transposed():
+            raise ValueError("vector must be transposed to be added to matrix")
+        else:
+            result = deepcopy(self)
+            for c in cols:
+                for r in range(0, dim1):
+                    result.m[r][c] += vector[c]
+            return result           
             
  #################################################              
  ################## class Vector #################
