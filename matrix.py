@@ -1,11 +1,14 @@
 
 ##############################################################
 # This is an implementation of Matrix and Vector datatypes 
-# in Python. 
+# in Python. In addition, classes for rational numbers and 
+# Polynomials are included.
 # It is pretty unncecessary given the fact that there are 
 # already much better solutions available such as pandas, numpy
 ##############################################################
 
+from __future__ import print_function
+from __future__ import division
 import math 
 from copy import deepcopy
 from random import uniform, randrange, seed
@@ -160,6 +163,49 @@ class Matrix:
             # get single row of matrix as a list
             return self.m[arg] 
             
+    def __setitem__(self, arg, val):
+        if isinstance(arg, slice): # we got instance[i:j]
+            # set specified rows of matrix as 2-dim array
+            if arg.start == None:
+                first = 0
+            else:
+                first = arg.start
+            if arg.stop == None:
+                last = len(self.v)
+            else:
+                last = arg.stop
+            if arg.step == None:
+                step = 1
+            else:
+                step = arg.step
+            
+            r = 0
+            for i in range(first, last, step):
+                self.m[i] = val[r]
+                r += 1
+        elif isinstance(arg, tuple):
+            if len(arg) > 2: 
+                raise ValueError("maximum of 2 slices allowed")
+            else:
+                s1 = arg[0]
+                s2 = arg[1]
+                (x,y) = (isinstance(s1 ,int), isinstance(s2, int))
+                if (x,y) == (True, True): # we got instance[i,j]
+                    self.m[s1][s2] = val
+                elif (x,y) == (True, False): # we got instance[i,k:l]
+                    self.m[s1] = val
+                elif (x,y) == (False, True): # we got instance[k:l, j]
+                    r = 0
+                    for row in self.m[s1]:
+                        self.m[s1] = val
+                else: # (False, False) # we got instance[i1:2,j1:j2]
+                    r = 0
+                    for row in self.m[s1]: 
+                        row[s2] = val[r]
+                        r += 1       
+        else:
+            # get single row of matrix as a list
+            self.m[arg] = val
             
     # sets a value in matrix. raises ValueError if indices are not in range
     def change_item(self,i,j, val):
@@ -1242,5 +1288,499 @@ class Vector:
         for i in range(0, len(self)):
             v[i] = lambda_f(i, self[i])
         return v
+        
+#################################################
+################ class Polynomial ###############
+#################################################       
 
+class Polynomial:
+    def _gcd(a, b):
+        while b != 0:
+            t = b
+            b = a % b
+            a = t
+        return a
+    
+    # calculate gcd for multiple numbers
+    def _gcdmult(args):
+        if len(args) == 1:
+            return args[0]
+        elif len(args) == 2:
+            return Polynomial._gcd(args[0], args[1])
+        elif len(args) == 0:
+            return None
+        else:
+            g = Polynomial._gcd(args[0], args[1])
+            for i in range(2, len(args)):
+                g = Polynomial._gcd(g, args[i])
+            return g
+            
+    # returns the ith element of the polynomial a_i * x^i 
+    # as result
+    def factor(self, idx):
+        if idx not in range(0, len(self.a)):
+            raise ValueError("index out of range")
+        result = [] 
+        if self.degree() == 0:
+            return Polynomial([self.a[0]])
+        for i in range(0, idx):
+            result.append(0)
+        result.append(self.a[idx])
+        return Polynomial(result)
+            
+    # returns a polynomial that only consists of coeff*x^i
+    def single_p(coeff, i):
+        if i == 0:
+            return Polynomial([coeff])
+        else:
+            if coeff == 0:
+                return Polynomial([0])
+            else:
+                result = []
+                for j in range(0, i): result.append(0)
+                result.append(coeff)
+                return Polynomial(result)
+    
+    # divide coefficients by common gcd (=> _gcd_mult())
+    def normalize_gcd(self):
+        g = Polynomial._gcdmult(self.a)
+        if g == 1:
+            return deepcopy(self)
+        else:
+            result = deepcopy(self)
+            for i in range(0, len(result)):
+                result[i] /= g
+            return result
+            
+    # polynom will be divided by the coefficient of the highest 
+    # ranked x^î which is self.degree()
+    def normalize_coeff0(self):
+        a = deepcopy(self)
+        coeff0 = a.a[a.degree()] 
+        if coeff0 == 1:
+            return a
+        else:
+            res = []
+            for i in range(0, len(a)):
+                a.a[i] /= coeff0
+            return a
+                
+    
+    # the list a contains the coefficients of the 
+    # polynomial starting with a0, a1, ... 
+    # p(x) is then a0 + a1*x + a2*x^2 + a3*x^3 + ...
+    def __init__(self, a):
+        if a == None:
+            raise TypeError("None is not permitted as initializer")
+        elif a == []: 
+            raise ValueError("initializer must not be empty")
+        else:
+            self.a = a
+        
+    def linear_p(a0, a1):
+        if a1 != 0 and a0 != 0:
+            return Polynomial([a0,a1])
+        
+    # computes the value of the polynom at position x
+    def compute(self, x):
+        res = 0.0
+        for i in range(0, len(self.a)):
+            res += self.a[i] * pow(x,i)
+        return res
+        
+    # degree of the highest ranked x^i in the polynom
+    def degree(self): 
+        return len(self)-1
+        
+    # returns a triple (number of results, result1, result2)
+    # if no result exist (0, None, None) will be returned
+    # if one result exists (1, result, result) will be returned
+    # if two results exist (2, result1, result2) will be returned
+    def solve_quadr_eq(self):
+        if self.degree() != 2:
+            raise ValueError("only quadratic polynomials are allowed")
+        else:
+            a = self[2]
+            b = self[1]
+            c = self[0]
+            print("a = " + str(a) + " b = " + str(b) + " c = " +str(c))
+            delta = b*b-4*a*c
+            print(delta)
+            if delta < 0:
+                return (0, None, None)
+            elif delta == 0:
+                result = -b / (2*a)
+                return (1, result, result)
+            else:
+                sol1 = (-b + math.sqrt(delta)) / (2*a)
+                sol2 = (-b - math.sqrt(delta)) / (2*a)
+                return (2, sol1, sol2)
+            
+    # get single coefficient of polynom
+    def __getitem__(self, arg):
+        return self.a[arg]
+        
+    # set single coefficient of polynom
+    def __setitem__(self, arg, val):
+        self.a[arg] = val
+        
+    # derivation of a polynom     
+    def derivation(self):
+        res = []
+        pos = 0
+        for i in range(0, len(self.a)-1):
+            if self.a[i+1] == 0:
+                res.append(0)
+            else:
+                res.append((i+1) * self.a[i+1])
+        return Polynomial(res)
+        
+    # addition of polynoms
+    def __add__(self, other):
+        a = []
+        if len(self.a) >= len(other.a):
+            for i in range(0, len(other.a)):
+                a.append(self.a[i] + other.a[i])
+            for i in range(len(other.a), len(self.a)):
+                a.append(self.a[i])
+        else:
+            for i in range(0, len(self.a)):
+                a.append(self.a[i] + other.a[i])
+            for i in range(len(self.a), len(other.a)):
+                a.append(other.a[i])
+        return Polynomial(a)
+        
+    # getting length of polynomial
+    def __len__(self):
+        return len(self.a)
+        
+    # helper method for __mul__
+    def _max_index(self):
+        last_i = 0
+        for i in range(0, len(self)):
+            if self.a[i] != 0:
+                last_i = i
+        return last_i
+        
+    # multiplication of polynoms
+    def __mul__(self, other):
+        m1 = self._max_index()
+        m2 = other._max_index()
+        arr = [0 for i in range(0, m1+m2+1)]
+        for i in range(0, len(self)):
+            for j in range(0, len(other)):
+                arr[i+j] += self.a[i] * other.a[j]
+        result = Polynomial(arr)
+        return result
+    
+    # division of polynoms
+    # returns a tuple consisting of (quotient, remainder)
+    def __truediv__(self, other):
+        p1 = deepcopy(self)
+        p2 = deepcopy(other)
+        p1.a.reverse()
+        p2.a.reverse()
+        nominator = p1.a
+        denominator = p2.a
+        result = list(nominator) # Copy the dividend
+        normalizer = denominator[0]
+        for i in range(len(nominator)-(len(denominator)-1)):
+            result[i] /= normalizer 
+            coefficient = result[i]
+            if coefficient != 0:
+                for j in range(1, len(denominator)): 
+                    result[i + j] += -denominator[j] * coefficient
+        separator = -(len(denominator)-1)
+        a1 = result[:separator]
+        a1.reverse()
+        a2 = result[separator:]
+        a2.reverse()
+        return Polynomial(a1), Polynomial(a2) 
+            
+    # negation of polynom, for example, x => -x
+    def __neg__(self):
+        neg = deepcopy(self)
+        for i in range(0, len(neg.a)):
+            neg.a[i] = -neg.a[i]
+        return neg
+        
+    # identity
+    def __pos__(self):
+        return deepcopy(self)
+        
+    # subtraction of polynoms is delegated to negation and addition
+    def __sub__(self,other):
+        return self.__add__(-other)
+        
+    # check for equality
+    def __eq__(self, other):
+        if len(self.a) != len(other.a):
+            return False
+        else:
+            for i in range(0, len(self.a)):
+                if self.a[i] != other.a[i]:
+                    return False
+            return True
+            
+            
+    # check for inequality
+    def __ne__(self, other):   
+        return not self == other
+            
+    # string representation pf a polynom
+    def __str__(self):
+        res =""
+        for i in range(0, len(self.a)):
+            if i == 0:
+                if self.a[0] != 0:
+                    res += str(self.a[i])
+            elif i == 1:
+                if self.a[i] != 0:
+                    if res == "": 
+                        if self.a[i] == 1:
+                            res += "x"
+                        else:
+                            res += str(self.a[i]) + "*x"
+                    else:
+                        if self.a[i] == 1:
+                            res += " + x"
+                        else:
+                            res += " + " + str(self.a[i]) + "*x"
+            else:
+                if self.a[i] != 0:
+                    if res == "": 
+                        if self.a[i] == 1:
+                            res += "x^" + str(i)
+                        else:
+                            res += str(self.a[i]) + "*x^" + str(i)
+                    else:
+                        if self.a[i] == 1:
+                            res += " + x^" + str(i)
+                        else:
+                            res += " + " + str(self.a[i]) + "*x^" + str(i)
+        return res
+        
+
+#################################################
+################ class Rational #################
+#################################################       
+
+
+"""
+class Rational implements rational numbers
+for Python. It provides many useful operators,
+methods to convert floats or ints to rational
+numbers, and vice versa. It includes a 
+method to obtain a rational representation
+of e (Euler number). 
+
+"""
+
+def gcd(a, b):
+    while b != 0:
+        t = b
+        b = a % b
+        a = t
+    return a
+    
+# convert number into a list of digits, for example 123 in [1,2,3]
+def getDigits(n):
+    list = []
+    s = str(n)
+    for i in range(0, len(s)):     
+        list.append(int(s[i]))
+    return list
+    
+# calc number of digits of number, for example, 4355 has 4 digits
+def getLength(n):
+    return len(getDigits(n))
+
+#check if a number does not contain the digit 0
+def checkForValidity(n):
+    return not 0 in getDigits(n)
+    
+# helper function for convertig floats, periods, fractions 
+# to rational numbers.
+# for example denom(12345) == 99999, denom(2) == 9
+def denom(period):
+    sum = 0
+    for i in range(0, getLength(period)): sum = sum * 10 + 9
+    return sum
+
+def fac(n):
+    res = 1
+    for i in range(2, n+1): res *= i
+    return res
+
+class Rational:
+    def __init__(self, nom, denom):
+        assert denom != 0, "denominator must be <> 0"
+        gcd_nd = gcd(nom,denom)
+        self.nom = int(nom / gcd_nd)
+        self.denom = int(denom / gcd_nd)
+        
+    def nominator(self):
+        return self.nom
+        
+    def denominator(self):
+        return self.denom
+        
+    def __add__(self, r):
+        x = self.nom * r.denom
+        y = r.nom * self.denom
+        n = x + y
+        d = self.denom * r.denom
+        return Rational(n, d)
+        
+    def __mul__(self, r):
+        n = self.nom * r.nom
+        d = self.denom * r.denom
+        return Rational(n, d)
+        
+    def __truediv__(self, r):
+        return self * r.reciprocal()
+        
+    def reciprocal(self):
+        assert self.nom != 0; "Invertion with 0 nominator is not allowed"
+        return Rational(self.denom, self.nom)
+        
+    def __neg__(self):
+        return Rational(-self.nom, self.denom)
+        
+    def __pos__(self):
+        return self 
+        
+    def __sub__(self,r):
+        return self + -r
+        
+    def __eq__(self, r):
+        return self.nom == r.nom and self.denom == r.denom
+        
+    def __ne__(self, r):
+        return not self == r
+        
+    def __gt__(self, r):
+        tmp = self - r 
+        return tmp.nom > 0 and tmp.denom  > 0 
+        
+    def __ge__(self, r):
+        return self > r or self == r
+        
+    def __lt__(self, r):
+        return r > self
+        
+    def __le__(self, r):
+        return self < r or self == r
+        
+    def __str__(self):
+        if self.denom == 1:
+            return str(int(self.nom))
+        else:
+            return str(int(self.nom)) + " / " + str(int(self.denom))
+            
+    def __repr__(self):
+        return str(self.nom) + " / " + str(self.denom)
+        
+    def __pow__(self, exp):
+        e = int(exp)
+        return Rational(pow(self.nom, e), pow(self.denom, e))
+        
+    def __invert__(self):
+        return self.reciprocal()
+        
+    # converts a rational number to an integer (heavy loss of precision)
+    def __int__(self):
+        return int(self.nom // self.denom)
+        
+    # converts a rational to float (mostly harmless, medium loss of precision)    
+    def __float__(self):
+        return 1.0 * self.nom / self.denom
+        
+    ################## class functions ##################
+        
+    def zero():
+        return Rational(0, 1)
+        
+    def one():
+        return Rational(1,1)
+        
+    def onehalf():
+        return Rational(1,2)
+        
+    def onethird():
+        return Rational(1,3)
+        
+        
+    # calculates an approximation of Eulers number as rational
+    # number. digits: number of Taylor nodes to be calculated
+    def e(digits):
+        assert digits > 0, "zero digits is not allowed"
+        sum = Rational.one()
+        for i in range(1,digits + 1): 
+            sum += Rational(1,fac(i))
+        return(sum)
+
+    
+    # convert a period like 3 (equivalent to 0.33333333) to a 
+    # rational number. The argument leadingzeroes specifies
+    # how many zeros there are between the decimal point and
+    # the start of the period. for example, 0.0333333 has a 
+    # period of 3 and a leadingzeros of 1
+    def periodToRational(period, leadingzeros = 0):
+        assert leadingzeros >= 0, "leadingzeros must be >= 0"
+        assert checkForValidity(period), "period is not allowed to contain 0"
+        return Rational(period, pow(10, leadingzeros)*denom(period))
+        
+    def intToRational(n):
+        return Rational(n, 1)
+        
+    
+    # creates an rational number that has the value 0.fraction
+    # Number of leading zeros in leadingzeros: if for example, 
+    # the number is 0.000fraction leadingzeros is 3
+    def fractionToRational(n, leadingzeros = 0):
+        if n == 0: 
+            return Rational.zero()
+        else:
+            list = []
+            s = str(n)
+            for i in range(0, len(s)): list.append(int(s[i]))
+            return Rational(n, pow(10, leadingzeros + len(list)))
+        
+    def floatToRational(x, digits=0):
+        left = abs(int(f))
+        right = abs(f - int(f))
+        r_left = Rational.intToRational(left)
+        zeros = 0
+        tmp = right
+        while (int(tmp) == 0):
+            zeros += 1
+            tmp = 10 * tmp
+        zeros -= 1
+        tmp = tmp / 10 * pow(10, digits)
+        r_right = Rational.fractionToRational(int(tmp), leadingzeros = zeros)
+        if x >= 0:
+            return r_left + r_right
+        else:
+            return -r_left + r_right
+            
+            
+    # for example, in the float 2.00125879879879 we would use 
+    # number = 2, leadingzeros = 2, fraction = 125, period = 879
+    def periodicFloatToRational(number, fraction, leadingzeros, period):
+        r1 = Rational.intToRational(number)
+        if fraction == 0:
+            r2 = Rational.periodToRational(period,leadingzeros)
+        else:
+            r2 = Rational.periodToRational(period, leadingzeros+getLength(fraction))
+        r3 = Rational.fractionToRational(fraction, leadingzeros)
+        return r1+r2+r3
+        
+        
+
+
+
+
+            
+            
 

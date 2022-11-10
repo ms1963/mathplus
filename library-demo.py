@@ -1,4 +1,4 @@
-from matrix import Vector, Matrix, Common
+from matrix import Vector, Matrix, Common, Polynomial, Rational
 import math
 
 # just a show case to illustrate usage of Matrix and Vector classes
@@ -303,5 +303,41 @@ print(m)
 v = Vector.random_vector(6, dtype = float, fromvalue = -2, tovalue = 2)
 print("Generating random vector = \n" + str(v))
 print("Removing values at vector[1,3, and 5] " + str(v.remove(indices=[1,3,5])))
+
+# Demo usage of polynomials:
+q1 = Polynomial([-8,-4,5,7])
+q2 = Polynomial([-1,1])
+print("q1 = " + str(q1))
+print("q2 = " + str(q2))
+res = (q1/q2)
+print("q1 / q2 = ")
+print("Quotient = " + str(res[0]))
+print("Remainder = " + str(res[1]))
+
+p = Polynomial([2,-7,5])
+print("Polynom p = " + str(p))
+print("Solving the quadratic equation leads to " + str(Polynomial([2,-7,5]).solve_quadr_eq()))
+print("Polynomial q is " + str(Polynomial.linear_p(-1,1)))
+print("Deviding p by q ")
+res = Polynomial([2,-7,5]) / Polynomial.linear_p(-1,1)
+print("yields " + str(res[0].normalize_coeff0()))
+
+# Demo usage of Rational
+r1 = Rational(1,2)
+r2 = Rational(1,3)
+print("Rational number r1 = " + str(r1))
+print("Rational number r2 = " + str(r2))
+print("r1 + r2 = " + str(r1+r2))
+print("r1 * r2 = " + str(r1*r2))
+print()
+print("e as a Rational is ", Rational.e(20))
+print()
+print("What is the rational number that leads to 4711.000123666666..?")
+print(Rational.periodicFloatToRational(number = 4711, fraction=123, leadingzeros = 3, period = 6))
+print("float division yields ")
+print(float(Rational.periodicFloatToRational(number = 4711, fraction=123, leadingzeros = 3, period = 6)))
+
+
+
 
 
