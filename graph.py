@@ -38,6 +38,14 @@ class Graph:
     def __getitem__(self, key):
         return self.dict[key]
         
+    def __str__(self):
+        res = "Entries of dictionary: \n"
+        for key in self.dict.keys():
+            for entry in self.dict[key]:
+                (target, weight) = entry
+                res += "from " + str(key) + " to "  + str(target) + " with associated weight = " + str(weight) + "\n"
+        return res
+
         
     def compute_reachability_matrix(self, iterations = 1):
         matrix = Matrix.identity(len(self.reverse_proj), dtype = int)
@@ -68,6 +76,6 @@ print(g.compute_reachability_matrix(2))
 print(g.reverse_proj)
 print()
 # print the internal structure used by Graph
-print(g.dict)
+print(g)
 
 
