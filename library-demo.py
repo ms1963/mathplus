@@ -314,6 +314,34 @@ v = Vector.from_list([1 for i in range(0,5)], dtype = int)
 print("Vector v is " + str(v))
 print("Adding vector v to all columns of m" + str(m.add_vector_to_all_columns(v)))
 print("And now adding v.T() to a subset of rows of m", str(m.add_vector_to_rows({0, 2, 4}, v.T())))
+print("The three base vectors of a base relative to the standard base:")
+b1_new = Vector.from_list([0, -1,  2])
+b2_new = Vector.from_list([1,  2,  0])
+b3_new = Vector.from_list([1,  1,  1])
+print(b1_new)
+print(b2_new)
+print(b3_new)
+print("form the transformation matrix t")
+T = Matrix.from_column_vectors([b1_new, b2_new, b3_new])
+print(T)
+print("The vector v ")
+v_old = Vector.from_list([1,1,1])
+print(str(v))
+print("gets mapped to t @ v")
+
+print(T.shape())
+print(v_old.shape())
+print(T @ v_old)
+
+print("To get the other direction we need the inverse of T:")
+T_inv = T.inverse_matrix()
+print(T_inv)
+print("using the following vector:")
+v_new = Vector.from_list([2,2,3])
+print(v_new)
+print("and multiplying it with T_inv yields: ")
+print(T_inv @ v_new)
+
 
 # Demo usage of polynomials:
 q1 = Polynomial([-8,-4,5,7])
@@ -346,8 +374,6 @@ print("What is the rational number that leads to 4711.000123666666..?")
 print(Rational.periodicFloatToRational(number = 4711, fraction=123, leadingzeros = 3, period = 6))
 print("float division yields ")
 print(float(Rational.periodicFloatToRational(number = 4711, fraction=123, leadingzeros = 3, period = 6)))
-
-
 
 
 

@@ -404,22 +404,16 @@ class Matrix:
                         m.m[r][c] = self.row_vector(r) * other.column_vector(c)
                 return m
         elif isinstance(other, Vector):
-            if (not other.is_transposed() and self.dim1 != len(other)) or (other.is_transposed() and self.dim1 != 1):
+            if (self.dim2 != len(other)) or (other.is_transposed() and self.dim1 != 1):
                 raise ValueError("incompatible dimensions of matrix and vector")
             else:
                 if not other.is_transposed():
                     v = Vector(self.dim1, dtype = self.dtype, transposed = False)
                     for r in range(0, self.dim1):
-                        value = self.dtype(0)
-                        for k in range(0, self.dim2):
-                            value += self.m[r][k] * other[k]
-                        v[r] = value
+                        v[r] = self.row_vector(r) * other
                     return v
-                else: # other.transposed and self.dim2 == 1
-                    sum = self.dtype(0)
-                    for k in range(0, len(other)):
-                        sum += self.m[0][k] * other[k]
-                    return sum
+                else: # other.transposed and self.dim2 == 1 
+                    return self.column_vector(0) * other
         elif isinstance(other, self.dtype):
             return self.mult_with_scalar(other)
         else:
@@ -524,18 +518,26 @@ class Matrix:
                 m = m * self
             return m
     
-    # create and initialize a matrix from a list
-    def from_list(list, dtype = float):
-        dim1 = len(list)
-        dim2 = len(list[0])
-        m = Matrix(dim1,dim2,dtype = dtype)
+    # create and initialize a matrix from a list of lists
+    def from_list(_list, dtype = float):
+        dim1 = len(_list)
+        if (dim1 == 0):
+            raise ValueError("Initialization list must not be empty")
+            
+        dim2 = len(_list[0])
+        
         value_2D = []
-        for r in range(0, len(list)):
-            value_1D = []
-            for c in range(0, len(list[r])):
-                value_1D.append(dtype(list[r][c]))
-            value_2D.append(value_1D)
-                
+        
+        m = Matrix(dim1,dim2,dtype = dtype)
+        if (dim1 == 1):
+            for i in range(0, len(_list)):
+                value_2D.append(_list[i]) 
+        else:
+            for r in range(0, dim1):
+                value_1D = []
+                for c in range(0, dim2):
+                    value_1D.append(dtype(_list[r][c]))
+                value_2D.append(value_1D)
         m.m = value_2D
         return m
         
@@ -1156,7 +1158,6 @@ class Vector:
     # vector multiplication with matrices is delegated.
     # raises ValuError if other is not a vector, if length 
     # of vectors is not equal, 
-    # to class Matrix
     def __mul__(self, other):
         if isinstance(other, Matrix):
             m = Matrix.from_vector(self)
@@ -1191,7 +1192,7 @@ class Vector:
     
     # add two vectors with each other. Raises ValueError of lengths
     # are not equal or when trying to multiply a transposed with a 
-    # non-transpised vector
+    # non-transposed vector
     def __add__(self, other):
         if len(other) != len(self):
             raise ValueError("incompatible lengths of vectors")
