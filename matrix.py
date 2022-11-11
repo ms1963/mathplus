@@ -855,6 +855,16 @@ class Matrix:
             lead += 1
         return m
         
+    # to determine the rank of a matrix, we need to compute its row echolon form 
+    # and count all row vectors that are no null vectors (<=> euclidean norm == 0)
+    def rank(self):
+        row_echolon = self.echolon()
+        count = 0
+        for i in range(0, row_echolon.dim1):
+            if row_echolon.row_vector(i).euclidean_norm() != 0:
+                count += 1
+        return count
+        
     # set up a matrix by stacking up the row vectors
     # [ ---- r1 ----] 
     # [ ---- r2 ----] 
