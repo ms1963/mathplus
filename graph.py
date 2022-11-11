@@ -71,7 +71,7 @@ g.new_edge('hamburg',   ('berlin',    1))
 g.new_edge('frankfurt', ('berlin',    1))
 
 # calculate reachability matrix 
-print(g.compute_reachability_matrix(2))
+print(g.compute_reachability_matrix(1))
 # show how indices are mapped to node names
 print(g.reverse_proj)
 print()
