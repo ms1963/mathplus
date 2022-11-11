@@ -262,6 +262,8 @@ print(md)
 print("mc @ md = " + str(mc @ md))
 print("md @ mc = " + str(md @ mc))
 
+print("Hermitian conjugate of mc = " + str(mc.H()))
+
 
 md = Matrix.from_list([   
         [complex(1,0), complex(3,5), complex(1,1)],

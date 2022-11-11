@@ -149,6 +149,14 @@ class Matrix:
             for c in range(0, self.dim1):
                 m.m[r][c] = self.m[c][r]
         return m
+        
+    def H(self):
+        if self.dtype != complex: return self.T()
+        m = Matrix(self.dim2, self.dim1, dtype = self.dtype)
+        for r in range(0, self.dim2):
+            for c in range(0, self.dim1):
+                m.m[r][c] = self.m[c][r].conjugate()
+        return m
     
     # get number of rows (dim1)
     def dim1(self):
