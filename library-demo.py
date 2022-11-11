@@ -371,6 +371,25 @@ print("What is the rational number that leads to 4711.000123666666..?")
 print(Rational.periodicFloatToRational(number = 4711, fraction=123, leadingzeros = 3, period = 6))
 print("float division yields ")
 print(float(Rational.periodicFloatToRational(number = 4711, fraction=123, leadingzeros = 3, period = 6)))
+print()
+print("Let us carry out a central projection with homogeneous corrdinates")
+v = Vector.from_list([2,3,4,1])
+print("Viewpoint is " + str(v))
+print("The plane p is defined by ax+by+az=0 => n.T = (a,b,c,0).T")
+n = Vector.from_list([1,4,7,0])
+print(n)
+M = v * n.T()
+print("The projection matrix is given by v * n.T " + str(M))
+p = Vector.from_list([-1,1,0,0])
+print("Vector p is a point in 3D space " + str(p))
+print("It is projected onto p' on the plane by M @ p " + str(M @ p))
+print("which is in normal coordinates: ")
+p_coord = Vector.from_list((M@p)[0:3])
+print(p_coord)
+print("By the way, det(M) is " + str(M.det()))
+print("but obviously a projection form 3D space to 2D space cannot be invertible.")
+
+
 
 
 
