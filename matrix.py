@@ -182,6 +182,13 @@ class Matrix:
             # get single row of matrix as a list
             return self.m[arg] 
             
+    # usage examples for __setitem__:
+    # m[4,3] = 0 (could also be done with m[4][3] = 0 
+    # m[0] = [1,2,3] used to set a whole line 
+    # m[1,1:3] = [4,8] sets columns 1 & 2 in line 1 
+    # m[0:2,2] = [4,2] sets column 2 in rows 0 & 1 to 4 resp. 2 
+    # m[2:4,1:3] = [[21, 22],[31, 32]] changes multiple rows
+    # and columns
     def __setitem__(self, arg, val):
         if isinstance(arg, slice): # we got instance[i:j:s]
             if not isinstance(val, list):
