@@ -1126,6 +1126,25 @@ class Matrix:
                     result.m[r][c] += vector[c]
             return result           
             
+    # generators for rows and columns
+    # they return row or column vectors
+    def iter_rows(self):
+        for r in range(0, self.dim1):
+            yield deepcopy(self.row_vector(r))
+            
+    def iter_cols(self):
+        for c in range(0, self.dim2):
+            yield deepcopy(self.column_vector(c))
+            
+    def iter_rows_in_range(self, rowrng):
+        for r in rowrng:
+            yield deepcopy(self.row_vector(r))
+            
+    def iter_cols_in_range(self, colrng):
+        for c in colrng:
+            yield deepcopy(self.column_vector(c))
+         
+            
  #################################################              
  ################## class Vector #################
  #################################################
@@ -1458,6 +1477,15 @@ class Vector:
             m = Vector.from_list(arr, dtype = self.dtype) 
             return m
                 
+    # generator for vector elements
+    def iter_vec(self):
+        for i in range(0, len(self)):
+            yield self.v[i]
+            
+    def iter_vec_in_range(self, rng):
+        for i in rng:
+            yield self.v[i]
+    
         
     # map applies lambda to each element of vector
     def map(self, lambda_f):
