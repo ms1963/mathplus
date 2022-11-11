@@ -332,7 +332,7 @@ class Matrix:
             self.m[i][j] = self.dtype(val)
         
     # multiply all matrix elements with a scalar
-    def mult_with_scalar(self, val):
+    def scalar_product(self, val):
         m = Matrix(self.dim1, self.dim2)
         for r in range (0, self.dim1):
             for c in range(0, self.dim2):
@@ -420,7 +420,7 @@ class Matrix:
         if self.det() == 0:
             raise ValueError("matrix with det == 0 has no inverse")
         else:
-            return self.adjoint_matrix().mult_with_scalar(self.dtype(1) / self.det())
+            return self.adjoint_matrix().scalar_product(self.dtype(1) / self.det())
             
     # calculates the equation matrix * <x1,x2, ..., xn> = <v1, v2, ..., vn>
     # raises ValueError if det(matrix) == 0, <x1, x2, ..., xn> being 
@@ -532,7 +532,7 @@ class Matrix:
                 else: # other.transposed and self.dim2 == 1 
                     return self.column_vector(0) * other
         elif isinstance(other, self.dtype):
-            return self.mult_with_scalar(other)
+            return self.scalar_product(other)
         else:
             raise TypeError("second argument must be matrix or vector")
             
@@ -779,7 +779,7 @@ class Matrix:
             else:
                 m = m.swap_rows(row, r_pivot)
                 if m.m[row][col] != 1:
-                    m = m.mult_with_scalar(row, 1/pivot)
+                    m = m.scalar_product(row, 1/pivot)
                 for r in range(row+1, m.dim1):
                     if m[r][col] == 0:
                         continue
@@ -879,14 +879,14 @@ class Matrix:
         if not shape[1] >= shape[0]:
             raise ValueError("number of columns must be >= number of rows")
         u[0] = a[0]
-        e[0] = u[0].mult_with_scalar(1 / u[0].euclidean_norm())
+        e[0] = u[0].scalar_product(1 / u[0].euclidean_norm())
         u[1] = a[1] - e[0] * (a[1].T()*e[0])
-        e[1] = u[1].mult_with_scalar(1 / u[1].euclidean_norm())
+        e[1] = u[1].scalar_product(1 / u[1].euclidean_norm())
         for k in range(2, shape[1]):
             u[k] = a[k]
             for i in range(0,k):
                 u[k] -= e[i] * (a[k].T() * e[i])
-            e[k] = u[k].mult_with_scalar(1/u[k].euclidean_norm())
+            e[k] = u[k].scalar_product(1/u[k].euclidean_norm())
         Q = Matrix.from_column_vectors(e)
         R = Matrix(shape[1], shape[0], dtype = self.dtype)
         for i in range(0, shape[1]):
@@ -1299,7 +1299,7 @@ class Vector:
             m = Matrix.from_vector(self)
             return m * other
         elif isinstance(other, self.dtype):
-            return self.mult_with_scalar(other)
+            return self.scalar_product(other)
         if not isinstance(other, Vector):
             raise TypeError("other object must also be a vector")
         if len(other) != len(self):
@@ -1307,7 +1307,7 @@ class Vector:
         else:
             if self._transposed:
                 if not other._transposed:
-                    return self.scalar_product(other)
+                    return self.cross_product(other)
                 else:
                     v = Vector(len(self), dtype = self.dtype, transposed = self._transposed)
                     for i in range(0, len(self)):
@@ -1352,7 +1352,7 @@ class Vector:
         return res
         
     # build scalar product of two vectors
-    def scalar_product(self, other):
+    def cross_product(self, other):
         if len(self) != len(other):
             raise ValueError("incompatible lengths of vectors")
         else:
@@ -1404,13 +1404,13 @@ class Vector:
         v = deepcopy(self)
         norm = self.dtype(v.euclidean_norm())
         if norm > 0:
-            v = v.mult_with_scalar(1/norm)
+            v = v.scalar_product(1/norm)
         else:
             raise ValueError("vector with euclidean norm 0 cannot be normalized")
         return v
             
     # multiply all vector elements with a scalar
-    def mult_with_scalar(self, scalar):
+    def scalar_product(self, scalar):
         res = Vector(len(self))
         for i in range(0, len(self)): res[i] = self[i] * self.dtype(scalar)
         return res
@@ -1422,7 +1422,7 @@ class Vector:
         if self.is_transposed() or other.is_transposed():
             raise ValueError("vectors must not be transposed")
         else:
-            return self.scalar_product(other) == 0
+            return self.cross_product(other) == 0
     
     # get ith unit/base vector for dimension = size
     def unit_vector(size, i, dtype = float):

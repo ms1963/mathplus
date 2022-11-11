@@ -82,7 +82,7 @@ v4 = Vector.from_list([1,1,1,1])
 print("v4 = " + str(v4))
 print("Multiplication of v4.T() with m3", str(v4.T() * m3))
 
-print("Multiplying unit matrix (size == 5) with 2: ", str(Matrix.identity(5).mult_with_scalar(2)))
+print("Multiplying unit matrix (size == 5) with 2: ", str(Matrix.identity(5).scalar_product(2)))
 
 m4 = Matrix.from_list([[1,2,3], [3, 2, 1]])
 m5 = Matrix.from_list([[1,1], [1,1], [1,1]])
@@ -389,3 +389,6 @@ p_coord = Vector.from_list((M@p)[0:3])
 print(p_coord)
 print("By the way, det(M) is " + str(M.det()))
 print("but obviously a projection form 3D space to 2D space cannot be invertible.")
+
+for row in M.iter_rows():
+    print(row)
