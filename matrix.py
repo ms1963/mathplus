@@ -73,6 +73,15 @@ class Common:
     def slice_length(slc, array):
         return len(array[slc])
         
+    # print for matrices
+    def print_matrix(m):
+        print('\n'.join('\t'.join(map(str, row)) for row in m.m))
+        
+    # print for vectors: based upon __str__
+    def print_vector(v):
+        print(v)
+    
+        
 #################################################
 ################## class Matrix #################
 #################################################

@@ -390,5 +390,10 @@ print(p_coord)
 print("By the way, det(M) is " + str(M.det()))
 print("but obviously a projection form 3D space to 2D space cannot be invertible.")
 
-for row in M.iter_rows():
-    print(row)
+print()
+print("Printing matrices and vectots with print_matrix respectively print_vector")
+Common.print_matrix(M)
+print()
+Common.print_vector(M.row_vector(0))
+print()
+Common.print_vector(M.column_vector(0))
