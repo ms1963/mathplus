@@ -75,11 +75,31 @@ class Common:
         
     # print for matrices
     def print_matrix(m):
-        print('\n'.join('\t'.join(map(str, row)) for row in m.m))
+        print("[")    
+        for r in range(0, m.dim1):
+            print(" [", end="")
+            for c in range(0, m.dim2):
+                print(" " + str(m.m[r][c]), end ="")
+                if c < m.dim2-1: print("\t",end="")
+            print(" ]")
+        print("]")
         
     # print for vectors: based upon __str__
     def print_vector(v):
-        print(v)
+        if v.is_transposed():
+            print("[", end="")
+            for r in range(0, len(v)):
+                print("  " + str(v[r]), end ="") 
+                if r < len(v)-1: 
+                    print("\t", end ="")
+                else:
+                    print("  ", end="")
+            print("]")
+        else:
+            print("[")
+            for r in range(0, len(v)):
+                print(" " + str(v[r]) + "\n", end = "")
+            print("]")
     
         
 #################################################
