@@ -372,6 +372,7 @@ print(Rational.periodicFloatToRational(number = 4711, fraction=123, leadingzeros
 print("float division yields ")
 print(float(Rational.periodicFloatToRational(number = 4711, fraction=123, leadingzeros = 3, period = 6)))
 print()
+# Example to illustrate a 3D projection
 print("Let us carry out a central projection with homogeneous corrdinates")
 v = Vector.from_list([2,3,4,1])
 print("Viewpoint is " + str(v))
@@ -388,8 +389,3 @@ p_coord = Vector.from_list((M@p)[0:3])
 print(p_coord)
 print("By the way, det(M) is " + str(M.det()))
 print("but obviously a projection form 3D space to 2D space cannot be invertible.")
-
-
-
-
-

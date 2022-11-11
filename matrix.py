@@ -1860,12 +1860,3 @@ class Rational:
             r2 = Rational.periodToRational(period, leadingzeros+getLength(fraction))
         r3 = Rational.fractionToRational(fraction, leadingzeros)
         return r1+r2+r3
-        
-        
-
-
-
-
-            
-            
-
