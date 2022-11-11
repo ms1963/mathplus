@@ -51,8 +51,27 @@ class Common:
             while val in new_array:
                 new_array.remove(val)
         return new_array
-            
         
+
+    # checks the shape of an array a, for example,
+    # [1,2] -> (1,2) 
+    # [[1,2,3][4,5,6]] -> (2,3)
+    def array_shape(a):
+        if not isinstance(a, list):
+            raise ValueError("only arrays are allowed")
+        if isinstance(a[0], list):
+            length = len(a[0])
+            for i in range(1, len(a)):
+                if len(a[i]) != length:
+                    raise ValueError("only rectangular arrays are allowed")
+            return(len(a), length)
+        else: 
+            return(1,len(a))
+        
+    # determines how many items are covered by a 
+    # slice slc applied to array        
+    def slice_length(slc, array):
+        return len(array[slc])
         
 #################################################
 ################## class Matrix #################
