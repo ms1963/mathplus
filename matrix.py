@@ -183,8 +183,14 @@ class Matrix:
             return self.m[arg] 
             
     def __setitem__(self, arg, val):
-        if isinstance(arg, slice): # we got instance[i:j]
-            # set specified rows of matrix as 2-dim array
+        if isinstance(arg, slice): # we got instance[i:j:s]
+            if not isinstance(val, list):
+                raise TypeError("argument must be a list")
+            slclen =   Common.slice_length(arg, [0 for i in range(0,self.dim1)])
+            dim1, dim2  = Common.array_shape(val)
+            if (slclen != dim1) or (dim2 != self.dim2):
+                raise ValueError("an array with " + str(slclen) + " rows and " + str(self.dim2) + " columns expected as argument")
+            # set specified rows of matrix as 2-dim 
             if arg.start == None:
                 first = 0
             else:
@@ -212,18 +218,103 @@ class Matrix:
                 if (x,y) == (True, True): # we got instance[i,j]
                     self.m[s1][s2] = val
                 elif (x,y) == (True, False): # we got instance[i,k:l]
-                    self.m[s1] = val
-                elif (x,y) == (False, True): # we got instance[k:l, j]
+                    if not isinstance(val, list):
+                        raise TypeError("list expected as argument")
+                    length_required = Common.slice_length(s2, self.m[s1])
+                    dim1, dim2 = Common.array_shape(val)
+                    if dim1 != 1:
+                        raise ValueError("one dimensional array required as argument")
+                    if length_required != dim2:
+                        raise ValueError("argument must be a list with length = " + str(length_required))
+                    if s2.start == None:
+                        first = 0
+                    else:
+                        first = s2.start
+                    if s2.stop == None:
+                        last = len(self.m[s1])
+                    else:
+                        last = s2.stop
+                    if s2.step == None:
+                        step = 1
+                    else:
+                        step = s2.step
                     r = 0
-                    for row in self.m[s1]:
-                        self.m[s1] = val
+                    for i in range(first, last, step):
+                        self.m[s1][i] = val[r]
+                        r += 1
+                elif (x,y) == (False, True): # we got instance[k:l, j]
+                    length_required = Common.slice_length(s1,self.column_vector(0))
+                    if not isinstance(val, list):
+                        raise TypeError("list expected as argument")
+                    dim1, dim2 = Common.array_shape(val)
+                    if dim1 != 1:
+                        raise ValueError("one dimensional array required as argument")
+                    if dim2 != length_required:
+                        raise ValueError("argument must be a list with length = " + str(length_required))
+                    if s1.start == None:
+                        first1 = 0
+                    else:
+                        first1 = s1.start
+                    if s1.stop == None:
+                        last1 = len(self.m[s1])
+                    else:
+                        last1 = s1.stop
+                    if s1.step == None:
+                        step1 = 1
+                    else:
+                        step1 = s1.step
+                        
+                    if s2.start == None:
+                        first2 = 0
+                    else:
+                        first2 = s2.start
+                    if s2.stop == None:
+                        last2 = len(self.m[s1])
+                    else:
+                        last2 = s2.stop
+                    if s2.step == None:
+                        step2 = 1
+                    else:
+                        step2 = s2.step
+                    r = 0
+                    for i1 in range(first1, last1, step1):
+                        c = 0
+                        for i2 in range(first2, last2, step3):
+                            self.m[i1][i2] = val[r,c]
+                            c += 1
+                        r += 1
                 else: # (False, False) # we got instance[i1:2,j1:j2]
+                    if not isinstance(val, list):
+                        raise TypeError("list expected as argument")
+                    length1_required = Common.slice_length(s1, self.column_vector(0).v)
+                    length2_required = Common.slice_length(s2, self.row_vector(0).v)
+                    if (length1_required, length2_required) != Common.array_shape(val):
+                        raise ValueError("list with shape " + str(length1_required) + " x " + str(length2_required) + " expected as argument")                            
+                        
+                    if s1 == None:
+                        first = 0
+                    else:
+                        first = s1.start
+                    if s1.stop == None:
+                        last = len(self.m[s1])
+                    else:
+                        last = s1.stop
+                    if s1.step == None:
+                        step = 1
+                    else:
+                        step = s1.step
+                        
                     r = 0
                     for row in self.m[s1]: 
                         row[s2] = val[r]
                         r += 1       
         else:
-            # get single row of matrix as a list
+            # set single row of matrix as a list
+            if not isinstance(val, list):
+                raise ValueError("list expected as argument")
+            dim1, dim2 = Common.array_shape(val)
+            if dim1 != 1 or dim2 != self.dim2:
+                raise ValueError("argument has not the right dimensions (1," + str(self.dim2))
             self.m[arg] = val
             
     # sets a value in matrix. raises ValueError if indices are not in range
