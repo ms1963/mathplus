@@ -74,27 +74,25 @@ class Common:
         return len(array[slc])
         
     # print for matrices
-    def print_matrix(m):
-        print("[")    
+    def print_matrix(m):   
         for r in range(0, m.dim1):
-            print(" [", end="")
+            print("[ ", end="")
             for c in range(0, m.dim2):
                 print(" " + str(m.m[r][c]), end ="")
                 if c < m.dim2-1: print("\t",end="")
-            print(" ]")
-        print("]")
+            print("  ]")
         
     # print for vectors: based upon __str__
     def print_vector(v):
         if v.is_transposed():
-            print("[", end="")
+            print("[ ", end="")
             for r in range(0, len(v)):
-                print("  " + str(v[r]), end ="") 
+                print("" + str(v[r]), end ="") 
                 if r < len(v)-1: 
                     print("\t", end ="")
                 else:
-                    print("  ", end="")
-            print("]")
+                    print("", end="")
+            print(" ]")
         else:
             print("[")
             for r in range(0, len(v)):
