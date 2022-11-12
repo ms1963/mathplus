@@ -364,6 +364,8 @@ print("Polynomial q is " + str(Polynomial.linear_p(-1,1)))
 print("Deviding p by q ")
 res = Polynomial([2,-7,5]) / Polynomial.linear_p(-1,1)
 print("yields " + str(res[0].normalize_coeff0()))
+print("Derivation of p = " + str(p.derivation()))
+print("Integral of p = "  + str(p.integral()))
 
 # Demo usage of Rational
 r1 = Rational(1,2)

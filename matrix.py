@@ -1755,7 +1755,7 @@ class Polynomial:
                 continue
             else:
                 res[i+1] = self.a[i] / (i+1)
-        return res
+        return Polynomial(res)
         
         
     # addition of polynoms
