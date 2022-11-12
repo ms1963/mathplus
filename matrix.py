@@ -56,7 +56,7 @@ class Common:
     # checks the shape of an array a, for example,
     # [1,2] -> (1,2) 
     # [[1,2,3][4,5,6]] -> (2,3)
-    def array_shape(a):
+    def shape(a):
         if not isinstance(a, list):
             raise ValueError("only arrays are allowed")
         if isinstance(a[0], list):
@@ -98,7 +98,51 @@ class Common:
             for r in range(0, len(v)):
                 print(" " + str(v[r]) + "\n", end = "")
             print("]")
-    
+            
+    # concatenate two rectangular arrays on axis 0 or 1 
+    def concatenate(arr1, arr2, axis = 0):
+        shp1 = Common.shape(arr1)
+        shp2 = Common.shape(arr2)
+        if axis == 0:
+            if shp1[1] != shp2[1]:
+                raise ValueError("cannot concatenate array with different number of columns on axis 0")
+            else:
+                result = []
+                for r in range(0, shp1[0]): 
+                    result.append(arr1[r])
+                for r in range(0, shp2[0]):
+                    result.append(arr2[r])
+                return result
+        else: # axis <> 0
+            if shp1[0] != shp2[0]:
+                raise ValueError("cannot concatenate array with different number of rows on axis 1")
+            else:
+                result = [[0 for i in range(0, shp1[1]+shp2[1])] for j in range(0, shp1[0])]
+                for c in range(0, shp1[1]):
+                    for r in range(0, shp1[0]):
+                        result[r][c] = arr1[r][c]
+                for c in range(shp1[1], shp1[1] + shp2[1]):
+                    for r in range(0, shp2[0]):
+                        result[r][c] = arr2[r][c-shp1[1]]
+                return result
+                
+    # summing all array elements on axis 0 or 1
+    def sum(arr, axis = 0):
+        shp = Common.shape(arr)
+        result = []
+        if axis == 0:
+            for c in range(0, shp[1]):
+                sum = 0
+                for r in range(0, shp[0]):
+                    sum += arr[r][c]   
+                result.append(sum)
+        else: # axis <= 0 
+            for r in range(0, shp[0]):
+                sum = 0
+                for c in range (0, shp[1]):
+                    sum += arr[r][c]
+                result.append(sum)
+        return result
         
 #################################################
 ################## class Matrix #################
@@ -241,7 +285,7 @@ class Matrix:
             if not isinstance(val, list):
                 raise TypeError("argument must be a list")
             slclen =   Common.slice_length(arg, [0 for i in range(0,self.dim1)])
-            dim1, dim2  = Common.array_shape(val)
+            dim1, dim2  = Common.shape(val)
             if (slclen != dim1) or (dim2 != self.dim2):
                 raise ValueError("an array with " + str(slclen) + " rows and " + str(self.dim2) + " columns expected as argument")
             # set specified rows of matrix as 2-dim 
@@ -275,7 +319,7 @@ class Matrix:
                     if not isinstance(val, list):
                         raise TypeError("list expected as argument")
                     length_required = Common.slice_length(s2, self.m[s1])
-                    dim1, dim2 = Common.array_shape(val)
+                    dim1, dim2 = Common.shape(val)
                     if dim1 != 1:
                         raise ValueError("one dimensional array required as argument")
                     if length_required != dim2:
@@ -300,7 +344,7 @@ class Matrix:
                     length_required = Common.slice_length(s1,self.column_vector(0))
                     if not isinstance(val, list):
                         raise TypeError("list expected as argument")
-                    dim1, dim2 = Common.array_shape(val)
+                    dim1, dim2 = Common.shape(val)
                     if dim1 != 1:
                         raise ValueError("one dimensional array required as argument")
                     if dim2 != length_required:
@@ -342,7 +386,7 @@ class Matrix:
                         raise TypeError("list expected as argument")
                     length1_required = Common.slice_length(s1, self.column_vector(0).v)
                     length2_required = Common.slice_length(s2, self.row_vector(0).v)
-                    if (length1_required, length2_required) != Common.array_shape(val):
+                    if (length1_required, length2_required) != Common.shape(val):
                         raise ValueError("list with shape " + str(length1_required) + " x " + str(length2_required) + " expected as argument")                            
                         
                     if s1 == None:
@@ -366,7 +410,7 @@ class Matrix:
             # set single row of matrix as a list
             if not isinstance(val, list):
                 raise ValueError("list expected as argument")
-            dim1, dim2 = Common.array_shape(val)
+            dim1, dim2 = Common.shape(val)
             if dim1 != 1 or dim2 != self.dim2:
                 raise ValueError("argument has not the right dimensions (1," + str(self.dim2))
             self.m[arg] = val
