@@ -134,7 +134,7 @@ class Matrix:
     # square matrices
     def tr(self):
         if not self.is_square():
-            raise ValueError("trace only defins for aquare matrices")
+            raise ValueError("trace only defined for aquare matrices")
         else:
             sum = 0
             diag = self.diagonal()
