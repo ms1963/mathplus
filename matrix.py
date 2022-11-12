@@ -1747,6 +1747,17 @@ class Polynomial:
                 res.append((i+1) * self.a[i+1])
         return Polynomial(res)
         
+    # Integration of polynomial 
+    def integral(self):
+        res = [0 for i in range(0, len(self.a) + 1)] 
+        for i in range(0, self.degree() + 1):
+            if self.a[i] == 0:
+                continue
+            else:
+                res[i+1] = self.a[i] / (i+1)
+        return res
+        
+        
     # addition of polynoms
     def __add__(self, other):
         a = []
