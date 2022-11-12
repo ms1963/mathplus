@@ -206,6 +206,8 @@ print("The rank of a matrix can be computed by creating its row echolon form")
 print("and then counting its rows that are not 0 which is the rank.")
 print("The rank of m10 is "+str(m10.rank()))
 print()
+print("The trace of a square matrix is defined as the sum of all elements on its diagonal. m10.tr() = " + str(m10.tr()))
+print()
 
 v7 = Vector.from_list([i for i in range(0,10)])
 print("v7 = " + str(v7))

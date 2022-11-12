@@ -128,6 +128,18 @@ class Matrix:
     # get the shape of the matrix, i.e. its numbers of rows and columns
     def shape(self):
         return (self.dim1, self.dim2)
+        
+    # tr() denotes the trace of a matrix which is the elements
+    # on the main diagonal summed up. tr() is only defines for
+    # square matrices
+    def tr(self):
+        if not self.is_square():
+            raise ValueError("trace only defins for aquare matrices")
+        else:
+            sum = 0
+            diag = self.diagonal()
+            for elem in diag: sum += elem
+            return sum
     
     # change format string. used by __str__        
     def set_format(s):
@@ -520,7 +532,7 @@ class Matrix:
     # returns the diagonal of a square matrix as a list
     def diagonal(self):
         shp = self.shape()
-        if shp[1] > shp[0]:
+        if shp[1] != shp[0]:
             raise ValueError("diagonal only available in square matrix")
         list = []
         for i in range(0, shp[1]):
