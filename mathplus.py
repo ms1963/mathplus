@@ -1960,9 +1960,10 @@ class Polynomial:
     # using the Durand-Kerner method       
     # Arguments:
     # max_iter: how many iterations should the algorithm use 
-    # epsilon:  what is the derivation of the imaginary part 
-    #           of the derivation should be interpreted as 
-    #           pure float
+    # epsilon:  what is the deviation of the imaginary part 
+    #           w.r.t. 0
+    #           if z.imag < epsilon,the complex number will  
+    #           be transformed to a float (z.real)
     def roots(poly, max_iter = 50, epsilon = 1E-4):
         degree = poly.degree()
         p_old = [complex(0.4, 0.9) ** i for i in range(0, degree)]
