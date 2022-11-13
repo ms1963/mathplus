@@ -144,11 +144,36 @@ class Common:
                 result.append(sum)
         return result
         
+    # calculates the mean of array elements
     def mean(arr):
         sum = 0
         for elem in arr:
             sum += elem
         return sum / len(arr)
+        
+    # calculates the standard deviation of array elemments
+    def std_dev(arr):
+        sum = 0
+        mu = Common.mean(arr)
+        for i in range(0, len(arr)):
+            sum += (arr[i] - mu) ** 2
+        res = math.sqrt(sum / len(arr))
+        return res 
+        
+    # calculates the variance of array elements
+    def variance(arr):
+        return Common.std_dev(arr) ** 2
+        
+    # calculates the median of array elements
+    def median(arr):
+        a = deepcopy(arr)
+        a.sort()
+        len_a = len(a)
+        if len(a) % 2 == 1:
+            return a[len_a // 2]
+        else:
+            return (a[(len_a - 1)//2]+a[(len_a+1)//2])/2
+        
             
         
 #################################################
@@ -1891,7 +1916,7 @@ class Polynomial:
             for i in range(0, len(self.a)):
                 if self.a[i] != other.a[i]:
                     return False
-            return True
+            return True 
             
             
     # check for inequality
