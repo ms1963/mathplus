@@ -173,6 +173,22 @@ class Common:
             return a[len_a // 2]
         else:
             return (a[(len_a - 1)//2]+a[(len_a+1)//2])/2
+            
+    # checks whether condition cond (lambda or function type)
+    # holds for all elements of an array
+    def all(array, cond):
+        for i in range(0, len(array)):
+            if not cond(array[i]):
+                return False
+        return True
+    
+    # checks whether condition cond (lambda or function type)
+    # holds for at least one element of an array
+    def any(array, cond):
+        for i in range(0, len(array)):
+            if cond(array[i]):
+                return True
+        return False
         
             
         
