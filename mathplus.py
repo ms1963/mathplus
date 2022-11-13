@@ -1265,6 +1265,18 @@ class Matrix:
                 res.append(self.row_vector(r).mean())
         return res
          
+    # this methods determines the sum of all columns or 
+    # rows depending on axis
+    def sum(self, axis = 0):
+        return Common.sum(self.m, axis)
+        
+    # concatenation of the rows or columns of matrix other
+    # to matrix self depending on axis
+    def concatenate(self, other, axis = 0):
+        array = Common.concatenate(self.m, other.m, axis)
+        m = Matrix.from_list(array, dtype = self.dtype)
+        return m
+        
             
  #################################################              
  ################## class Vector #################
