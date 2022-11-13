@@ -1631,7 +1631,7 @@ class Polynomial:
             
     # returns the ith element of the polynomial a_i * x^i 
     # as result
-    def factor(self, idx):
+    def factor(self, idx):    
         if idx not in range(0, len(self.a)):
             raise ValueError("index out of range")
         result = [] 
@@ -1796,6 +1796,20 @@ class Polynomial:
         result = Polynomial(arr)
         return result
     
+    # power of polynomials
+    def __pow__(self, factor):
+        if not isinstance(factor, int):
+            raise ValueError("only integers >= 0 are allowd in pow()")
+        elif (factor == 0):
+            return Polynomial([1])
+        elif (factor == 1):
+            return self
+        elif (factor == 2):
+            return self * self
+        else:
+            result = self * pow(self, factor - 1)
+            return result
+            
     # division of polynoms
     # returns a tuple consisting of (quotient, remainder)
     def __truediv__(self, other):
@@ -1881,7 +1895,36 @@ class Polynomial:
                             res += " + x^" + str(i)
                         else:
                             res += " + " + str(self.a[i]) + "*x^" + str(i)
-        return res
+        return res 
+        
+    # calculation of roots of a polynomial 
+    # using the Durand-Kerner method       
+    # Arguments:
+    # max_iter: how many iterations should the algorithm use 
+    # epsilon:  what is the derivation of the imaginary part 
+    #           of the derivation should be interpreted as 
+    #           pure float
+    def roots(poly, max_iter = 50, epsilon = 1E-4):
+        degree = poly.degree()
+        p_old = [complex(0.4, 0.9) ** i for i in range(0, degree)]
+        p_new = [0 for i in range(0, degree)]
+        i = 0 
+        while i < max_iter:
+            for j in range(0, degree): # for all p,q,r,s ... 
+                prod = 1 
+                for k in range(0,degree):
+                    if k == j: continue 
+                    elif k < j:
+                        prod *= p_old[j]-p_old[k]
+                    else:
+                        prod *= p_old[j]-p_new[k]
+                p_new[j] = p_old[j] - poly.compute(p_old[j])/prod
+            p_old = deepcopy(p_new)
+            i += 1 
+        for i in range(0,len(p_new)):
+            if abs(p_new[i].imag) < epsilon:
+                p_new[i] = float(p_new[i].real)
+        return p_new
         
 
 #################################################

@@ -4,6 +4,8 @@ import math
 # just a show case to illustrate usage of Matrix and Vector classes
 # in matrix
 
+print("This demo illustrates a subset of the functionality provided")
+print()
 
 Matrix.set_separators("|", "|")
 Vector.set_separators("[", "]")
@@ -16,7 +18,8 @@ print("m1 = " + str(m1))
 m2 = Matrix.identity(4)
 print("m2 = " + str(m2))
 print("det(m2) = " + str(m2.det()))
-print("m1 * m2 + m2 = " + str(m1 * m2 + m2))
+print("m1 @ m2 + m2 = " + str(m1 @ m2 + m2))
+print("For matrix multiplication you may eiher use '*' or '@'")
 
 v1  = Vector.unit_vector(4,3)
 print("v1 = " + str(v1))
@@ -88,9 +91,9 @@ m4 = Matrix.from_list([[1,2,3], [3, 2, 1]])
 m5 = Matrix.from_list([[1,1], [1,1], [1,1]])
 print("m4 = " + str(m4))
 print("m5 = " + str(m5))
-print("m5 * m4 = " + str(m5 * m4))
+print("m5 @ m4 = " + str(m5 @ m4))
 
-print("m4 * m5 = " + str(m4 * m5))
+print("m4 @ m5 = " + str(m4 @ m5))
 
 print("Use map() to apply the lambda x -> x^2 to each element of m3: " + str(m3.map(lambda x: x * x)))
 
@@ -101,13 +104,13 @@ print()
 print("Use map() to apply the lambda x -> x + 1 to each element of v4: " + str(v4.map(lambda x: x + 1)))
 
 print()
-print("Calculating the diagonal of matrix m5 * m4")
-list = (m5*m4).diagonal()
+print("Calculating the diagonal of matrix m5 @ m4")
+list = (m5 @ m4).diagonal()
 print(list)
 print()
 
-m6 = m4 * m5
-print("Creating matrix m6 = m4 * m5: " + str(m6))
+m6 = m4 @ m5
+print("Creating matrix m6 = m4 @ m5: " + str(m6))
 print()
 print("pow(m6, 2) = ")
 print(m6.mult_n_times(2))
@@ -349,6 +352,8 @@ print(T_inv @ v_new)
 
 
 # Demo usage of polynomials:
+print()
+print("Polynomials")
 q1 = Polynomial([-8,-4,5,7])
 q2 = Polynomial([-1,1])
 print("q1 = " + str(q1))
@@ -356,7 +361,11 @@ print("q2 = " + str(q2))
 res = (q1/q2)
 print("q1 / q2 = ")
 print("Quotient = " + str(res[0]))
-
+print("Remainder = " + str(res[1]))
+p = Polynomial([2,1]) * Polynomial([1,1]) * Polynomial([-4,1])
+print("p = " + str(p))
+print("What are the roots of p? ")
+print(p.roots(100, 1E-5))
 p = Polynomial([2,-7,5])
 print("Polynom p = " + str(p))
 print("Solving the quadratic equation leads to " + str(Polynomial([2,-7,5]).solve_quadr_eq()))
@@ -366,8 +375,11 @@ res = Polynomial([2,-7,5]) / Polynomial.linear_p(-1,1)
 print("yields " + str(res[0].normalize_coeff0()))
 print("Derivation of p = " + str(p.derivation()))
 print("Integral of p = "  + str(p.integral()))
-
+print("pow(p,2) = " + str(pow(p,2)))
+print("pow(p,3) = " + str(pow(p,3)))
+print()
 # Demo usage of Rational
+print("Rational numbers")
 r1 = Rational(1,2)
 r2 = Rational(1,3)
 print("Rational number r1 = " + str(r1))
@@ -402,6 +414,7 @@ print("but obviously a projection from 3D space to 2D space cannot be invertible
 
 print()
 print("Printing matrices and vectors with print_matrix respectively print_vector")
+print()
 Common.print_matrix(M)
 print()
 Common.print_vector(M.row_vector(0))
