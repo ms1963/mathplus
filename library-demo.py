@@ -1,4 +1,4 @@
-from matrix import Vector, Matrix, Common, Polynomial, Rational
+from mathplus import Vector, Matrix, Common, Polynomial, Rational
 import math
 
 # just a show case to illustrate usage of Matrix and Vector classes
