@@ -1687,7 +1687,44 @@ class Polynomial:
             for i in range(2, len(args)):
                 g = Polynomial._gcd(g, args[i])
             return g
+    
+    # the list a contains the coefficients of the 
+    # polynomial starting with a0, a1, ... 
+    # p(x) is then a0 + a1*x + a2*x^2 + a3*x^3 + ...
+    def __init__(self, a):
+        if a == None:
+            raise TypeError("None is not permitted as initializer")
+        elif a == []: 
+            raise ValueError("initializer must not be empty")
+        else:
+            self.a = a           
+    
+    #returns the coefficients of p with increasing i (x^i)
+    def coeffs(self):
+        if len(self) == 0:
+            return [] 
+        else:
+            result = [] 
+            for i in range(0,len(self)):
+                result.append(a[i])
+            return result  
             
+    # calculates the polynomial height
+    def height(self):
+        return max(self.a)
+        
+    # calculates the p-norm = pow(sum(abs(coefficients^p)), 1/p)
+    def p_norm(self, p):
+        if not isinstance(p, int) or p < 1:
+            raise ValueError("p must be an integer >= 1")
+        else:
+            print(self)
+            sum = 0 
+            for i in range(0, len(self)):
+                sum += abs(self.a[i])**p 
+            return pow(sum, 1/p)
+            
+                
     # returns the ith element of the polynomial a_i * x^i 
     # as result
     def factor(self, idx):    
@@ -1737,18 +1774,6 @@ class Polynomial:
             for i in range(0, len(a)):
                 a.a[i] /= coeff0
             return a
-                
-    
-    # the list a contains the coefficients of the 
-    # polynomial starting with a0, a1, ... 
-    # p(x) is then a0 + a1*x + a2*x^2 + a3*x^3 + ...
-    def __init__(self, a):
-        if a == None:
-            raise TypeError("None is not permitted as initializer")
-        elif a == []: 
-            raise ValueError("initializer must not be empty")
-        else:
-            self.a = a
         
     def linear_p(a0, a1):
         if a1 != 0 and a0 != 0:
