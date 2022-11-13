@@ -144,6 +144,13 @@ class Common:
                 result.append(sum)
         return result
         
+    def mean(arr):
+        sum = 0
+        for elem in arr:
+            sum += elem
+        return sum / len(arr)
+            
+        
 #################################################
 ################## class Matrix #################
 #################################################
@@ -1244,6 +1251,19 @@ class Matrix:
     def iter_cols_in_range(self, colrng):
         for c in colrng:
             yield deepcopy(self.column_vector(c))
+            
+    # computes the mean of all column vectors if axis == 0, 
+    # and the mean of all row vectors, otherwise
+    # returns the list of means
+    def mean(self, axis = 0):
+        res = []
+        if axis == 0:
+            for c in range(0, self.dim2):
+                res.append(self.column_vector(c).mean())
+        else: # axis == 1 
+            for r in range(0, self.dim1):
+                res.append(self.row_vector(r).mean())
+        return res
          
             
  #################################################              
@@ -1587,6 +1607,8 @@ class Vector:
         for i in rng:
             yield self.v[i]
     
+    def mean(self):
+        return Common.mean(self.v)
         
     # map applies lambda to each element of vector
     def map(self, lambda_f):
