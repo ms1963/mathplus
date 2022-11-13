@@ -2009,7 +2009,15 @@ class Polynomial:
         for i in range(0,len(p_new)):
             if abs(p_new[i].imag) < epsilon:
                 p_new[i] = float(p_new[i].real)
-        return p_new
+        return p_new 
+        
+    # given a sequence of roots this method calculates the 
+    # corresponding polynomial    
+    def poly_from_roots(*args):
+        p0 = Polynomial([1])
+        for arg in args:
+            p0 = p0 * Polynomial([-arg,1])
+        return p0
         
 
 #################################################
