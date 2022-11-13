@@ -33,7 +33,18 @@ class Common:
                 else:
                     result.append(-1)
             return result
+    
+    # methods to create array with different dimensions filled
+    # with init_value
+    def create_1Darray(count, init_value = 0):
+        return [init_value for i in range(0, count)]
+        
+    def create_2Darray(rowcount, colcount, init_value = 0):
+        return [[init_value for i in range(0, colcount)] for j in range(0, rowcount)]
 
+    def create_3Darray(dim1count, dim2count, dim3count, init_value = 0):
+        return [[[init_value for i in range(0, dim3count)] for j in range(0, dim2count)] for k in range(dim1count)]
+    
     # delete elements from an array with indices of elements           
     # to delete given in indices
     def delete(array, indices):
