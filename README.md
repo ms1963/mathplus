@@ -1,4 +1,4 @@
-# matrix_vector_for_python
+# mathplus
 Just my own implementation of matrices, vectors, polynomials and rational numbers  done just for fun.
 
 The demo code in demo_matrix.py shows how to use the trivial library. Given the fact that libraries like pandas, numpy exist, it is obviously unnecessary to come up with a matrix and vector implementation. Nonetheless, I did it for the fun of experimentation.
