@@ -1614,6 +1614,17 @@ class Vector:
         for i in range(0, len(self)): res[i] = self[i] * self.dtype(scalar)
         return res
         
+    def add_multiple_of_vector(self, other, factor):
+        if len(self) != len(other):
+            raise ValueError("dimensions of vectors differ")
+        elif self.is_transposed() != other.is_transposed():
+            raise ValueError("vectors must both be transposed or not transposed")
+        else:
+            vector = deepcopy(self)
+            for i in range(0, len(self)):
+                vector[i] += other[i] * factor
+            return vector
+                
     # check whether one vector is orthogonal to the other
     def is_orthogonal_to(self, other):
         if len(other) != len(self):
@@ -2065,7 +2076,64 @@ class Polynomial:
         p0 = Polynomial([1])
         for arg in args:
             p0 = p0 * Polynomial([-arg,1])
-        return p0
+        return p0 
+        
+    # method fit: calculates a polynomial that fits the training
+    # date passed in x_vector, y_vector.
+    # fit() id currently implemented without vectorization which
+    #    might change in the future.    
+    # x_vector and y_vector contain the training data, i.e. 
+    #    polynomial_to_be_searched.compute(x_vector[i]) = y_vector[i]
+    #    m := length of x_vector and y_vector
+    # degree: degree of polynomial_to_be_searched
+    # learningrate: learning rate that learning of fit() should use 
+    # epochs: number of iterations through all training data 
+    #    returns
+    # verbose: if set to true, the algorithm prints out the costs
+    #    in ecah epoch
+    #
+    # termination rule => regressions end when either numbber of 
+    # epochs is reached or when number of epochs is not reached,  
+    # but costs stop decreasing
+    
+    def fit(x_vector, y_vector, n, learningrate = 0.0001, epochs = 100, verbose = False):
+        if len(x_vector) != len(y_vector):
+            raise ValueError ("x_vector and y_vector must have same leng8th")
+        if x_vector.is_transposed() or y_vector.is_transposed():
+            raise ValueError("x_vector and y_vector must not be transposed")
+        # theta has n+1 elements, x_vector and y_vector m elements
+        theta = Vector(n+1, dtype = x_vector.dtype, init_value=0)
+        n_plus_1 = len(theta)
+        m        = len(x_vector)
+        theta = Vector.from_list([0 for i in range(0,n_plus_1)])
+        delta = Vector.from_list([0 for i in range(0,n_plus_1)])
+        
+        def h(x, theta):
+            res = 0
+            for i in range(0, n+1):
+                res += theta[i] * x ** i 
+            return res 
+            
+        def J(x_vector, y_vector, theta):
+            error = 0
+            for i in range(0,m):
+                error += (h(x_vector[i], theta)-y_vector[i]) ** 2
+            error *= (1 / (2*m))
+            return error
+            
+        for epoch in range(0, epochs):
+            cost_before = J(x_vector, y_vector, theta)
+            if verbose: print("cost = " + str(cost_before))
+            for j in range(0, n_plus_1):
+                res = 0
+                for i in range(0,m):
+                    res += (h(x_vector[i], theta)-y_vector[i]) * x_vector[i] ** j
+                res *= (learningrate/m)
+                delta[j] = res
+            theta = theta - delta
+            cost_after = J(x_vector, y_vector, theta)
+            if (cost_after >= cost_before): break
+        return Polynomial(theta.v)
         
 
 #################################################
