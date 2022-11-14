@@ -212,6 +212,14 @@ class Common:
             act_value += step
         return result   
         
+    # calculate the mean-normalized form of the 
+    # input array: 
+    def mean_normalization(array):
+        maximum = max(array)
+        mean    = Common.mean(array)
+        result  = [(array[i] - mean) / maximum for i in range(0, len(array))]
+        return result
+        
 #################################################
 ################## class Matrix #################
 #################################################
@@ -1854,7 +1862,7 @@ class Polynomial:
         self.a[arg] = val
         
     # derivation of a polynom     
-    def derivation(self):
+    def derivative(self):
         res = []
         pos = 0
         for i in range(0, len(self.a)-1):
