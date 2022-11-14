@@ -2090,7 +2090,8 @@ class Polynomial:
     # epochs: number of iterations through all training data 
     #    returns    
                 
-    def fit(x_vector, y_vector, n, learningrate = 0.0001, epochs = 100):
+    def fit(x_vector, y_vector, n, learningrate = 0.0001, epochs = 1000):
+
         if len(x_vector) != len(y_vector):
             raise ValueError ("x_vector and y_vector must have same length")
         if x_vector.is_transposed() or y_vector.is_transposed():
@@ -2102,15 +2103,20 @@ class Polynomial:
         theta = Vector.from_list([0 for i in range(0,n_plus_1)])
         pow_matrix = Matrix(m, n_plus_1, dtype = x_vector.dtype)
         
+        
         for r in range(0, m):
             for c in range(0, n_plus_1):
                 pow_matrix[r][c] = x_vector[r] ** c
                 
         for epoch in range(0, epochs):
+            
             diff = (pow_matrix * theta - y_vector)
             delta = (pow_matrix.T() * diff).scalar_product(learningrate/m)
-            theta = theta - delta
+            theta = theta - delta 
+            
         return Polynomial(theta.v)
+            
+            
             
             
 #################################################
