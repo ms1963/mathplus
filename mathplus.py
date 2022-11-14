@@ -2088,14 +2088,8 @@ class Polynomial:
     # degree: degree of polynomial_to_be_searched
     # learningrate: learning rate that learning of fit() should use 
     # epochs: number of iterations through all training data 
-    #    returns
-    # verbose: if set to true, the algorithm prints out the costs
-    #    in ecah epoch
-    #
-    # termination rule => regressions end when either numbber of 
-    # epochs is reached or when number of epochs is not reached,  
-    # but costs stop decreasing
-    
+    #    returns    
+                
     def fit(x_vector, y_vector, n, learningrate = 0.0001, epochs = 100, verbose = False):
         if len(x_vector) != len(y_vector):
             raise ValueError ("x_vector and y_vector must have same leng8th")
@@ -2106,36 +2100,19 @@ class Polynomial:
         n_plus_1 = len(theta)
         m        = len(x_vector)
         theta = Vector.from_list([0 for i in range(0,n_plus_1)])
-        delta = Vector.from_list([0 for i in range(0,n_plus_1)])
+        pow_matrix = Matrix(m, n_plus_1, dtype = x_vector.dtype)
         
-        def h(x, theta):
-            res = 0
-            for i in range(0, n+1):
-                res += theta[i] * x ** i 
-            return res 
-            
-        def J(x_vector, y_vector, theta):
-            error = 0
-            for i in range(0,m):
-                error += (h(x_vector[i], theta)-y_vector[i]) ** 2
-            error *= (1 / (2*m))
-            return error
-            
+        for r in range(0, m):
+            for c in range(0, n_plus_1):
+                pow_matrix[r][c] = x_vector[r] ** c
+                
         for epoch in range(0, epochs):
-            cost_before = J(x_vector, y_vector, theta)
-            if verbose: print("cost = " + str(cost_before))
-            for j in range(0, n_plus_1):
-                res = 0
-                for i in range(0,m):
-                    res += (h(x_vector[i], theta)-y_vector[i]) * x_vector[i] ** j
-                res *= (learningrate/m)
-                delta[j] = res
+            diff = (pow_matrix * theta - y_vector)
+            delta = (pow_matrix.T() * diff).scalar_product(learningrate/m)
             theta = theta - delta
-            cost_after = J(x_vector, y_vector, theta)
-            if (cost_after >= cost_before): break
         return Polynomial(theta.v)
-        
-
+            
+            
 #################################################
 ################ class Rational #################
 #################################################       
