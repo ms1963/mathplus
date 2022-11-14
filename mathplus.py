@@ -2092,7 +2092,7 @@ class Polynomial:
                 
     def fit(x_vector, y_vector, n, learningrate = 0.0001, epochs = 100):
         if len(x_vector) != len(y_vector):
-            raise ValueError ("x_vector and y_vector must have same leng8th")
+            raise ValueError ("x_vector and y_vector must have same length")
         if x_vector.is_transposed() or y_vector.is_transposed():
             raise ValueError("x_vector and y_vector must not be transposed")
         # theta has n+1 elements, x_vector and y_vector m elements
