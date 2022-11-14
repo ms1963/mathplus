@@ -1726,7 +1726,7 @@ class Polynomial:
         else:
             self.a = a           
     
-    #returns the coefficients of p with increasing i (x^i)
+    # returns the coefficients of p with increasing i (x^i)
     def coeffs(self):
         if len(self) == 0:
             return [] 
@@ -1735,6 +1735,13 @@ class Polynomial:
             for i in range(0,len(self)):
                 result.append(a[i])
             return result  
+            
+    # returns the intercept a0 of the polynomial
+    def intercept(self):
+        if len(self) == 0:
+            raise ValueError("polynomial with length > 0 expected")
+        else:
+            return self[0]
             
     # calculates the polynomial height
     def height(self):
