@@ -1,5 +1,5 @@
 
-from matrix import Matrix
+from mathplus import Matrix
 
 """
 Sample Implementation of a Graph with
