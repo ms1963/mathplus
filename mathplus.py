@@ -201,7 +201,16 @@ class Common:
                 return True
         return False
         
-            
+    # creates a list with all entries from start to stop 
+    # using step as increment. The values created are in 
+    # [start, stop[ 
+    def arange(start = 0, stop = 1, step = 1, dtype = float):
+        result = []
+        act_value = start
+        while act_value < stop:
+            result.append(act_value)
+            act_value += step
+        return result   
         
 #################################################
 ################## class Matrix #################
@@ -1083,16 +1092,6 @@ class Matrix:
             m[i][i] = list[i]
         return m
         
-    # creates a list with all entries from start to stop 
-    # using step as increment. The values created are in 
-    # [start, stop[ 
-    def arange(start = 0, stop = 1, step = 1, dtype = float):
-        result = []
-        act_value = start
-        while act_value < stop:
-            result.append(act_value)
-            act_value += step
-        return result
         
     # get a matrix filled with random numbers
     def random_matrix(shp, fromvalue, tovalue, dtype, seedval = None):
