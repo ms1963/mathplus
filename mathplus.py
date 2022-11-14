@@ -2090,7 +2090,7 @@ class Polynomial:
     # epochs: number of iterations through all training data 
     #    returns    
                 
-    def fit(x_vector, y_vector, n, learningrate = 0.0001, epochs = 100, verbose = False):
+    def fit(x_vector, y_vector, n, learningrate = 0.0001, epochs = 100):
         if len(x_vector) != len(y_vector):
             raise ValueError ("x_vector and y_vector must have same leng8th")
         if x_vector.is_transposed() or y_vector.is_transposed():
