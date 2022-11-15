@@ -2332,4 +2332,51 @@ class Rational:
         else:
             r2 = Rational.periodToRational(period, leadingzeros+getLength(fraction))
         r3 = Rational.fractionToRational(fraction, leadingzeros)
-        return r1+r2+r3
+        return r1+r2+r3  
+        
+        
+class Regression:
+  
+    def compute_multinomial(coeffs, values):
+        if len(coeffs) != 1 + len(values):
+            raise ValueError("len(coefficients) + 1 and len(x-values) must be the same")
+        res = coeffs[0]
+        for i in range(0, len(coeffs)-1):
+            res += coeffs[i+1] * values[i]
+        return res
+                
+    # x_matrix and y_vector contain the training data,  
+    # a0 + a1*x[0] + a2 * x[2] + .. + an * x[n] = y_vector[i]
+    #    m := length of x_vector and y_vector
+    # learningrate: learning rate that learning of fit() should use 
+    # epochs: number of iterations through all training data 
+    #   
+    # returns the cofficients a0, a1, .... ,an
+    #       
+    def multivariate_fit(x_matrix, y_vector, learningrate, epochs):
+        if x_matrix.dim1 != len(y_vector):
+            raise ValueError ("x_matrix.dim1 and len(y_vector) must be the same")
+        if y_vector.is_transposed():
+            raise ValueError("y_vector must not be transposed")
+        n_plus_1 = x_matrix.dim2 + 1
+        m        = x_matrix.dim1
+        # theta has n+1 elements
+        theta = Vector(n_plus_1, dtype = x_matrix.dtype, init_value=0)
+        ones = Matrix(m,1,dtype=x_matrix.dtype, init_value = 1)
+        ext_matrix = Matrix(m, n_plus_1, dtype=x_matrix.dtype)
+        
+        for r in range(0, m):
+            for c in range(1, n_plus_1):
+                if c == 0:
+                    ext_matrix[r][c] = ext_matrix.dtype(1)
+                else:
+                    ext_matrix[r][c] = x_matrix[r][c-1]
+                
+        for epoch in range(0, epochs):
+            diff = (ext_matrix * theta - y_vector)
+            delta = (ext_matrix.T() * diff).scalar_product(learningrate/m)
+            theta = theta - delta
+        theta_1_n = theta.v 
+        return theta_1_n
+        
+        

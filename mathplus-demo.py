@@ -8,7 +8,7 @@ Permissions of this strong copyleft license are conditioned on making available 
 """
 
 
-from mathplus import Vector, Matrix, Common, Polynomial, Rational
+from mathplus import Vector, Matrix, Common, Polynomial, Rational, Regression
 import math
 
 # just a show case to illustrate usage of Matrix and Vector classes
@@ -431,7 +431,7 @@ Common.print_vector(M.row_vector(0))
 print()
 Common.print_vector(M.column_vector(0))
 print()
-print("Polynomial progression")
+print("Polynomial regression")
 x = Vector.from_list([1,2,3,4,5])
 y = Vector.from_list([1,4,9,16,25])
 print("Training data x = " + str(x))
@@ -443,4 +443,20 @@ print("Now, let us compare the ground truth with the results of the returned pol
 for i in range(0,len(x)):
     print("Estimation = " + str(p.compute(x[i])))
     print("Ground truth y = " + str(y[i]))
+print()
+    
+print("Multivariate regression")
+x = Matrix.from_list([[1,3], [2,4], [3,5],[4,8], [5,10]])
+y = Vector.from_list([2,4,7,8,12])
+print("Training data: x = " + str(x))
+print("Training data: y = " + str(y))
+
+coeffs = Regression.multivariate_fit(x,y,0.00001, 100000)
+print("Coefficients determined by regression: " + str(coeffs))
+for i in range(0, len(y)):
+    print("Estimation = " + str(Regression.compute_multinomial(coeffs, x.m[i])))
+    print("Ground truth y = " + str(y[i]))
+    
+
+
 
