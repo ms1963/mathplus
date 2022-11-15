@@ -1568,7 +1568,7 @@ class Vector:
         elif self._transposed != other._transposed:
             raise ValueError("transposed and not transposed vectors cannot be subtracted from each other")
         else:
-            res = Vector(len(self), dtype = self.dtype)
+            res = Vector(len(self), dtype = self.dtype, transposed = self._transposed)
             for i in range(0, len(self)): res[i] = self[i] - other[i]
             return res
             
@@ -1584,12 +1584,21 @@ class Vector:
     def __ne__(self, other):
         return not (self == other)
         
+    # return dot x product 
+    def dot(self, other):
+        if not isinstance(other, Vector):
+            raise TypeError("wrong type of second argument")
+        elif len(self) != len(other):
+            raise ValueError("lengths of self and other are different")
+        else:
+            sum = self.dtype(0)
+            for i in range(0, len(self)):
+                sum += self[i] * other[i]
+            return sum
+            
     # get euclidean norm of vector
     def euclidean_norm(self):
-        res = self.dtype(0.0)
-        for i in range(0,len(self)):
-            res += self[i] * self[i]
-        return math.sqrt(res)
+        return math.sqrt(self.dot(self))
         
     # get regular norm of vector 
     def norm(self):
@@ -1657,7 +1666,7 @@ class Vector:
 
 
     # get a vector filled with random numbers
-    def random_vector(length, fromvalue, tovalue, dtype, seedval = None):
+    def random_vector(length, fromvalue, tovalue, dtype, transposed = False, seedval = None):
         if seedval != None:
             seed(seedval)
         v = Vector(length, dtype)
@@ -1777,7 +1786,6 @@ class Polynomial:
         if not isinstance(p, int) or p < 1:
             raise ValueError("p must be an integer >= 1")
         else:
-            print(self)
             sum = 0 
             for i in range(0, len(self)):
                 sum += abs(self.a[i])**p 
