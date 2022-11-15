@@ -227,6 +227,47 @@ class Common:
         result  = [(array[i] - mean) / maximum for i in range(0, len(array))]
         return result
         
+    # gaussian distribution: mu is the median or expectation value of a data 
+    # set, sigma its standard deviation
+    def gaussion_distribution(x, mu, sigma):
+        return 1 / (sigma * math.sqrt(2 * math.pi)) * math.exp(-0.5 * (((x-mu)/sigma) ** 2)) 
+
+    # calculate the covariance between two data series
+    # zero result => dataset don't seem to have a relation
+    # positive: if one data rises, the other one rises too 
+    # negative: if one dataset rises, the other one falls
+    def covariance(x_dataset, y_dataset):
+        if len(x_dataset) != len(y_dataset):
+            raise ValueError("both data sets must have the same number of data elements")
+        else:
+            sum = 0
+            x_mean = Common.mean(x_dataset)
+            y_mean = Common.mean(y_dataset)
+            for i in len(x_dataset):
+                sum += (x_dataset[i] - x_mean) * (y_dataset[i] - y_mean)
+            return sum/(len(x_dataset) - 1)
+            
+            
+    # calculate the correlation between two data series
+    # 0 => no link between data, 1 => perfect positive 
+    # correlation, -1 = perfect negative correlation
+    def correlation(x_dataset, y_dataset):
+        if len(x_dataset) != len(y_dataset):
+            raise ValueError("both data sets must have the same number of data elements")
+        else:
+            sum1 = 0
+            sum2 = 0
+            sum3 = 0
+            x_mean = Common.mean(x_dataset)
+            y_mean = Common.mean(y_dataset)
+            for i in len(x_dataset):
+                sum1 += (x_dataset[i] - x_mean) ** 2 
+                sum2 += (x_dataset[i] - x_mean) * (y_dataset[i] - y_mean)
+                sum3 += (y_dataset[i] - y_mean) ** 2
+            return sum2 / math.sqrt(sum1 * sum3)
+
+
+        
 #################################################
 ################## class Matrix #################
 #################################################
