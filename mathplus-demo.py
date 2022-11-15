@@ -8,7 +8,8 @@ Permissions of this strong copyleft license are conditioned on making available 
 """
 
 
-from mathplus import Vector, Matrix, Common, Polynomial, Rational, Regression
+from mathplus import Vector, Matrix, Common, Polynomial, Rational, Regression, Clustering
+
 import math
 
 # just a show case to illustrate usage of Matrix and Vector classes
@@ -457,6 +458,23 @@ for i in range(0, len(y)):
     print("Estimation = " + str(Regression.compute_multinomial(coeffs, x.m[i])))
     print("Ground truth y = " + str(y[i]))
     
-
+print()
+print("k-means clustering algorithm")
+points = []
+    
+print("creating 200 random data points for k-means clustering")
+for i in range(0,200):
+    v = Vector.random_vector(3, fromvalue = -100, tovalue = 100, dtype = float, transposed=False)
+    points.append(v.clone())
+    
+print("k-means clustering is called with random data points, cluster sie = 3")
+clusters = Clustering.k_means(points, 3)
+for i in range(0, 3):
+    print()
+    print("CLUSTER + " + str(i))
+    print("with size :" + str(len(clusters[i])))
+    print("=================================================")
+    print()
+    print(clusters[i])
 
 

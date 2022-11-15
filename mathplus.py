@@ -18,7 +18,7 @@ from __future__ import print_function
 from __future__ import division
 import math 
 from copy import deepcopy
-from random import uniform, randrange, seed
+from random import uniform, randrange, seed, shuffle
 
 #################################################
 ################## class Common #################
@@ -1669,7 +1669,7 @@ class Vector:
     def random_vector(length, fromvalue, tovalue, dtype, transposed = False, seedval = None):
         if seedval != None:
             seed(seedval)
-        v = Vector(length, dtype)
+        v = Vector(length, transposed, dtype)
         if dtype == int:
             for i in range(0, length):
                 v[i] = int(randrange(fromvalue, tovalue))
@@ -2343,6 +2343,11 @@ class Rational:
         return r1+r2+r3  
         
         
+        
+#################################################
+################ class Regression ###############
+#################################################   
+        
 class Regression:
   
     def compute_multinomial(coeffs, values):
@@ -2386,5 +2391,90 @@ class Regression:
             theta = theta - delta
         theta_1_n = theta.v 
         return theta_1_n
+
+
+    
+#################################################
+################ class Clustering ###############
+#################################################  
+class Clustering:
+    # k_means expects data points in argument points, 
+    # a cluster number k, 
+    # and a tolerance
+    # The algorithm clusters all data points    
+    # with respect to centroids until the 
+    # distance between old and new centroids 
+    # falls under the tolerance
+
+    def k_means(points, k, tolerance = 1E-5):
+        # measures the distance of a point from
+        # all centroids and return these 
+        # distances as an array
+        def measure(point, _centroid):
+            _distance = []
+            for i in range(0, len(_centroid)):
+                delta = _centroid[i] - point
+                _distance.append(delta.euclidean_norm())
+            return _distance
+    
+        # if less points than clusters, an exception is raised
+        if len(points) < k:
+            raise ValueError("number of points smaller than k")
+        elif len(points) == k: # if number of points equals clusters,
+            return points      # each point defines its own cluster
+        
+        # make a copy of data points
+        _points = deepcopy(points)
+        # set sequence of centroids to empty list
+        _centroid = []
+        # shuffle points
+        shuffle(_points)
+        # take the first k points randomly as centroids
+        for i in range(0,k): 
+            _centroid.append(_points[i])
+    
+        in_equilibrium = False
+        while not in_equilibrium:
+            # remember old centroids
+            old_centroid = deepcopy(_centroid)
+            # initialize list of clusters
+            _clusters = [[] for j in range(0, k)]
+            # for all points we got
+            for _point in _points:
+                # measure the point's distance from all centroids
+                _distances = measure(_point, _centroid)
+                # check to which centroid the point is closest
+                for i in range(0,k):
+                    # and enter the point to the cluster belonging
+                    # to the closest centroid
+                    if _distances[i] == min(_distances):
+                        _clusters[i].append(_point)
+                        # if we found closest centroid we can skip the for loop
+                        break
+            _vector_size = len(_points[0])
+    
+            # walk through all clusters
+            for i in range(0,k):
+                cluster_len = len(_clusters[i])
+                _new_centroid = Vector(_vector_size, init_value = 0)
+                # and determine a new centroid per cluster 
+                # as the mean of all coordinates in that cluster 
+                # Note: while the initial randomly selected centroids
+                # are real data points, the new ones are virtual
+                # data points
+                for point in _clusters[i]:
+                    _new_centroid += point.scalar_product(1 / cluster_len)
+                _centroid[i] = _new_centroid.clone()
+            
+            # calculate the difference between new and old centroids
+            change = 0
+            for i in range(0,k):
+                change += (old_centroid[i] - _centroid[i]).euclidean_norm()
+            # if difference is smaller than tolerance, terminate algorithm
+            if change < tolerance:
+                in_equilibrium = True
+        # and return result which are all the clusters found
+        return _clusters
+    
         
         
