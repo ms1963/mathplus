@@ -2578,7 +2578,7 @@ class Newton:
     
     def compute(self, x, y0):
         self.y0 = y0
-        for i in range(40):
+        while True:
             fun_r = self.fun(x)
             if self.fder != None:
                 fun_d = self.fder(x)
