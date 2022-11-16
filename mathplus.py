@@ -1478,6 +1478,20 @@ class Matrix:
         m = Matrix.from_list(array, dtype = self.dtype)
         return m
         
+    # this method stacks the rows or columns of a m x n-matrix
+    # on top of each other which results in a 1 x m*n row vector 
+    # (axis == 0) or in a m*n x 1 column vector
+    def vectorize(self, axis = 0):
+        array = []
+        if axis == 0:
+            for i in range(0, self.dim1):
+                array += self.row_vector(i).v
+            return Vector.from_list(array, dtype = self.dtype, transposed = True)
+        else: # axis != 0 
+            for i in range(0, self.dim2):
+                array += self.column_vector(i).v
+            return Vector.from_list(array, dtype = self.dtype, transposed = False)
+        
             
  #################################################              
  ################## class Vector #################
@@ -1858,6 +1872,7 @@ class Vector:
             v[i] = lambda_f(i, self[i])
         return v
         
+
 #################################################
 ################ class Polynomial ###############
 #################################################       

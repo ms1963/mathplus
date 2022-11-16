@@ -432,6 +432,14 @@ Common.print_vector(M.row_vector(0))
 print()
 Common.print_vector(M.column_vector(0))
 print()
+
+m = Matrix.from_list([[1,2,3], [4,5,6], [7,8,9]], dtype = float)
+print("Vectorization of matrix m = " + str(m))
+print("using axis 0 => " + str(m.vectorize(axis = 0)))
+print("using axis 1 => " + str(m.vectorize(axis = 1)))
+print()
+
+
 print("Polynomial regression")
 x = Vector.from_list([1,2,3,4,5])
 y = Vector.from_list([1,4,9,16,25])
@@ -477,7 +485,7 @@ for i in range(0, 3):
 
 print()
 print("Using the Newton method to find the solution of X**2 = 2")
-print("which means find the root of: x**2 - 2 = 0  (sqrt(2)")
+print("which means find the root of: x**2 - 2 = 0  (sqrt(2))")
 res = Newton(lambda x: x**2, lambda x: 2*x)
 print("The initial value for x is one")
 print("Result is : " + str(res.compute(1,2)))
