@@ -19,6 +19,8 @@ from __future__ import division
 import math 
 from copy import deepcopy
 from random import uniform, randrange, seed, shuffle
+from functools import reduce
+import operator
 
 #################################################
 ################## class Common #################
@@ -84,6 +86,25 @@ class Common:
             i += 6
         return True
         
+    # this function does delegate
+    def reduce_general(lmbda, array, init_val = None):
+        if init_val == None:
+            return reduce(lmbda, array)
+        else:
+            return reduce(lmbda, array, init_val)
+        
+    def sum(array, init_val = None):
+        if init_val == None:
+            return reduce(operator.add, array)
+        else:
+            return reduce(operator.add, array, init_val)
+        
+    def mul(array, init_val = None):
+        if init_val == None:
+            return reduce(operator.mul, array)
+        else:
+             return reduce(operator.mul, array, init_val)
+          
     # methods to create array with different dimensions filled
     # with init_value
     def create_1Darray(count, init_value = 0):
@@ -112,7 +133,6 @@ class Common:
             while val in new_array:
                 new_array.remove(val)
         return new_array
-        
 
     # checks the shape of an array a, for example,
     # [1,2] -> (1,2) 
