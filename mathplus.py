@@ -103,7 +103,7 @@ class Common:
         if init_val == None:
             return reduce(operator.mul, array)
         else:
-             return reduce(operator.mul, array, init_val)
+            return reduce(operator.mul, array, init_val)
           
     # methods to create array with different dimensions filled
     # with init_value
