@@ -2516,6 +2516,89 @@ class Clustering:
                 in_equilibrium = True
         # and return result which are all the clusters found
         return _clusters
+        
+        
+#################################################
+############## class Newton method ##############
+#################################################
+# Implementation of the Newton method 
+# f: a lambda or function
+# fderivative (optional) is the first derivative
+# of f
+# eps: the tolerance with which the Newton method
+# should work, i.e., when convergence is assumed
+# In the Taylor series f(x+h) = f(x) + h f'(x) + h**2/2!*f''(x) ... 
+# We stop after the first derivative: f(x+h) = f(x) + h f'(x)
+# Assuming f(x+h) should be zero, we get 0 = f(x) + h f'(x)
+# h = xnew - x => 0 = f(x) + (xnew - x)f'(x) =>
+# xnew = x - f(x)/f'(x). Note: If f'(x) is close to zero, 
+# the approximation will fail.
+# Example usage:
+# res = Newton(lambda x: x**2, lambda x: 2*x)
+# print(res.compute(1,2))
+# find a solution for: x**2 = 2 and start with x=1
+
+
+class Newton:
+    def __init__(self, f, fderivative = None, eps = 01E-10):
+        self.f = f
+        self.y0 = 0
+        self.eps = eps
+        if fderivative != None:
+            self.fder = fderivative
+        else:
+            self.fder = None
+
+    # calls the function f
+    def fun(self,x):
+        return self.f(x) - self.y0
+        
+
+    # calculates the derivative of f at x. If the user 
+    # specified a derivative of f, the this function is 
+    # used. Otherwise, an approximation is done.
+    def derivation(self, x):
+        try:
+            approx = (self.fun(x+self.eps) - self.fun(x)) / self.eps
+        except OverflowError as oe:
+            print("overflow")
+        except ZeroDivisionError as ze:
+            print("division by zero")
+        return approx
+    
+    # the work horse of the Newton method. y0 is the result the
+    # function should have. if, for example.
+    # Example:f is y = x**2 and y0 == 2, then compute tries to
+    # solve the equation x**2 = y0 which is sqrt(y0). For this 
+    # case, the call would look like: 
+    #     n = Newton(lambda x: x**2, lambda x: 2*x)
+    #     res = n.compute(1,2)
+    # the x specified as argument is the initial value 
+    # compute() should start with
+    
+    def compute(self, x, y0):
+        self.y0 = y0
+        for i in range(40):
+            fun_r = self.fun(x)
+            if self.fder != None:
+                fun_d = self.fder(x)
+            else:
+                fun_d = self.derivation(x)
+            x_old = x 
+            try:
+                x = x - fun_r / fun_d
+            except OverflowError as oe:
+                print("overflow error")
+                return None
+            except ZeroDivisionError as ze:
+                print("division by zero")
+                return None
+            if abs(x-x_old) < self.eps: break
+        return x
+    
+    
+
+
     
         
         

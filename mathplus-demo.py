@@ -8,7 +8,7 @@ Permissions of this strong copyleft license are conditioned on making available 
 """
 
 
-from mathplus import Vector, Matrix, Common, Polynomial, Rational, Regression, Clustering
+from mathplus import Vector, Matrix, Common, Polynomial, Rational, Regression, Clustering, Newton
 
 import math
 
@@ -476,6 +476,14 @@ for i in range(0, 3):
     print("=================================================")
     print()
     print(clusters[i])
+
+print()
+print("Using the Newton method to find the solution of  of X**2 = 2")
+print("which means find the root of: x**2 - 2 = 0  (sqrt(2)")
+res = Newton(lambda x: x**2, lambda x: 2*x)
+print("The initial value for x is one")
+print("Result is : " + str(res.compute(1,2)))
+
     
     
 
