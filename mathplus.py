@@ -2543,7 +2543,8 @@ class Newton:
     def __init__(self, f, fderivative = None, eps = 01E-10):
         self.f = f
         self.y0 = 0
-        self.eps = eps
+        self.eps = eps # tolerance
+        self.max_iter = 100 # maximum number of iterations
         if fderivative != None:
             self.fder = fderivative
         else:
@@ -2577,8 +2578,9 @@ class Newton:
     # compute() should start with
     
     def compute(self, x, y0):
-        self.y0 = y0
-        while True:
+        self.y0 = y0 
+        iter = 0
+        while iter < self.max_iter:
             fun_r = self.fun(x)
             if self.fder != None:
                 fun_d = self.fder(x)
@@ -2594,6 +2596,7 @@ class Newton:
                 print("division by zero")
                 return None
             if abs(x-x_old) < self.eps: break
+            iter += 1
         return x
     
     
