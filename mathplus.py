@@ -40,7 +40,50 @@ class Common:
                 else:
                     result.append(-1)
             return result
+            
+    # n!
+    def fac(n):
+        result = 1
+        for i in range(2, n+1):
+            result *= i
+        return result
     
+    # (n)  = n! // ((n-k)! * k!)
+    # (k)
+    def n_over_k(n,k):
+        if k == 0:
+            return 1
+        elif k == 1:
+            return n
+        else:
+            result = 1
+            for i in range(n, n-k, -1):
+                result *= i
+            result = result // fac(k)
+            return result
+        
+    # fibonacci series
+    def fib(n):
+        if n == 0:
+            return 0
+        elif n == 1:
+            return 1
+        else: return Common.fib(n-1) + Common.fib(n-2)
+        
+    # check whether n is prime
+    def is_prime(n):
+        if n <= 3:
+            return n >= 1
+        if  ((n % 2) == 0) or ((n % 3) == 0):
+            return False
+        i = 5
+        limit = int(math.sqrt(n))
+        while i <= limit:
+            if  ((n % i) == 0) or  ((n % (i + 2)) == 0):
+                return False
+            i += 6
+        return True
+        
     # methods to create array with different dimensions filled
     # with init_value
     def create_1Darray(count, init_value = 0):
