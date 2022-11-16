@@ -144,8 +144,8 @@ class Common:
                         result[r][c] = arr2[r][c-shp1[1]]
                 return result
                 
-    # summing all array elements on axis 0 or 1
-    def sum(arr, axis = 0):
+    # summing up all array elements on axis 0 or 1
+    def sum_2D(arr, axis = 0):
         shp = Common.shape(arr)
         result = []
         if axis == 0:
@@ -154,13 +154,23 @@ class Common:
                 for r in range(0, shp[0]):
                     sum += arr[r][c]   
                 result.append(sum)
-        else: # axis <= 0 
+        else: # axis != 0 
             for r in range(0, shp[0]):
                 sum = 0
                 for c in range (0, shp[1]):
                     sum += arr[r][c]
                 result.append(sum)
         return result
+        
+    # summing up all array elements
+    def sum_1D(arr):
+        if len(arr) == 0:
+            return 0
+        else:
+            sum = 0
+            for elem in arr:
+                sum += elem
+            return sum
         
     # calculates the mean of array elements
     def mean(arr):
@@ -266,6 +276,27 @@ class Common:
                 sum3 += (y_dataset[i] - y_mean) ** 2
             return sum2 / math.sqrt(sum1 * sum3)
 
+    # calculates expectation value for series of x-values.
+    # If weights_array is used by caller each x-value will
+    # be multiplied by the corresponding weight
+    # If no weights_array is passed to the method, weight
+    # will be 1/len(x_array)
+    def expected_value(x_array, weights_array = None):
+        if len(x_array) == 0:
+            return 0
+        if (weights_array != None) and (len(x_array) != len(weights_array)):
+            raise ValueError("x_array and weights_array must have the same length") 
+        if weights_array == None:
+            weight = 1 / len(x_array)
+            sum = 0
+            for i in range(0, len(x_array)):
+                sum += x_array[i] * weight
+            return sum
+        else:
+            sum = 0
+            for i in range(0, len(x_array)):
+                sum += x_array[i] * weights_array[i]    
+            return sum
 
         
 #################################################
@@ -2598,10 +2629,4 @@ class Newton:
             if abs(x-x_old) < self.eps: break
             iter += 1
         return x
-    
-    
 
-
-    
-        
-        
