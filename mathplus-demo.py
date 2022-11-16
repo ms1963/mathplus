@@ -467,18 +467,16 @@ for i in range(0,200):
     v = Vector.random_vector(3, fromvalue = -100, tovalue = 100, dtype = float, transposed=False)
     points.append(v.clone())
     
-print("k-means clustering is called with random data points, cluster sie = 3")
+print("k-means clustering is called with random data points, cluster size = 3")
 clusters = Clustering.k_means(points, 3)
 for i in range(0, 3):
     print()
     print("CLUSTER + " + str(i))
     print("with size :" + str(len(clusters[i])))
     print("=================================================")
-    print()
-    print(clusters[i])
 
 print()
-print("Using the Newton method to find the solution of  of X**2 = 2")
+print("Using the Newton method to find the solution of X**2 = 2")
 print("which means find the root of: x**2 - 2 = 0  (sqrt(2)")
 res = Newton(lambda x: x**2, lambda x: 2*x)
 print("The initial value for x is one")
