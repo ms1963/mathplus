@@ -239,7 +239,7 @@ class Common:
         
     # gaussian distribution: mu is the median or expectation value of a data 
     # set, sigma its standard deviation
-    def gaussion_distribution(x, mu, sigma):
+    def gaussian_distribution(x, mu, sigma):
         return 1 / (sigma * math.sqrt(2 * math.pi)) * math.exp(-0.5 * (((x-mu)/sigma) ** 2)) 
 
     # calculate the covariance between two data series
