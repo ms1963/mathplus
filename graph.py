@@ -72,7 +72,6 @@ class Graph:
             print("Sorry, this city is not available")
         else: 
             print("Travel begins in " +str(start))
-            itinery.append(current_location)
         while True:
             if len(itinery) == matrix.dim1:
                 break
