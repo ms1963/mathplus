@@ -9,9 +9,11 @@ Permissions of this strong copyleft license are conditioned on making available 
 ##############################################################
 # This is an implementation of Matrix and Vector datatypes 
 # in Python. In addition, classes for rational numbers and 
-# Polynomials are included.
-# It is pretty unncecessary given the fact that there are 
-# already much better solutions available such as pandas, numpy
+# Polynomials, and more are included.
+# It may seem unnececessary given the fact that there are 
+# already much better solutions available such as numpy,
+# but offers a pure Python solution for those who do not
+# need the full-blown functionality of numpy
 ##############################################################
 
 from __future__ import print_function
