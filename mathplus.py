@@ -109,9 +109,7 @@ class Common:
             
     def gcd(a, b):
         while b != 0:
-            t = b
-            b = a % b
-            a = t
+            a,b = b,a%b
         return a
 
     # helper method for factorization
@@ -2461,13 +2459,6 @@ method to obtain a rational representation
 of e (Euler number). 
 
 """
-
-def gcd(a, b):
-    while b != 0:
-        t = b
-        b = a % b
-        a = t
-    return a
     
 # convert number into a list of digits, for example 123 in [1,2,3]
 def getDigits(n):
@@ -2501,7 +2492,7 @@ def fac(n):
 class Rational:
     def __init__(self, nom, denom):
         assert denom != 0, "denominator must be <> 0"
-        gcd_nd = gcd(nom,denom)
+        gcd_nd = Common.gcd(nom,denom)
         self.nom = int(nom / gcd_nd)
         self.denom = int(denom / gcd_nd)
         
