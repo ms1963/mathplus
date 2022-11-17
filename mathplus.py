@@ -936,6 +936,8 @@ class Matrix:
                 
     # multiply all matrix elements with n
     def mult_n_times(self, n):
+        if not self.is_square():
+            raise ValueError("can only multiply a square matrix with itself")
         if n == 0:
             return Matrix.identity(len(self), dtype = self.dtype)
         elif n == 1:
