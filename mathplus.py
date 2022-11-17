@@ -2526,7 +2526,7 @@ class Regression:
         n_plus_1 = x_matrix.dim2 + 1
         m        = x_matrix.dim1
         # theta has n+1 elements
-        theta = Vector(n_plus_1, dtype = x_matrix.dtype, init_value=0)
+        theta = Vector(n_plus_1, dtype = x_matrix.dtype, init_value=x_matrix.dtype(0))
         ones = Matrix(m,1,dtype=x_matrix.dtype, init_value = 1)
         ext_matrix = Matrix(m, n_plus_1, dtype=x_matrix.dtype)
         
@@ -2591,7 +2591,7 @@ class Clustering:
             old_centroid = deepcopy(_centroid)
             # initialize list of clusters
             _clusters = [[] for j in range(0, k)]
-            # for all points we got
+            # iterate through all points
             for _point in _points:
                 # measure the point's distance from all centroids
                 _distances = measure(_point, _centroid)
@@ -2719,14 +2719,14 @@ class Measurement:
     def circle_perimeter(r):
         return 2 * r * math.pi
         
-    def circle_surface_area(r):
+    def circle_area(r):
         return math.pi * r**2
         
     # alpha is the angle of the segment
     def circle_segment_area(alpha, r):
         return Measurement.circle_surface_area(r) * angle/(2*math.pi)
         
-    def sphere_surface_area(r):
+    def sphere_area(r):
         return 4 * r**2 * math.pi
         
     def sphere_volume(r):
@@ -2756,45 +2756,45 @@ class Measurement:
     def cylinder_volume(r, h):
         return r**2 * h * math.pi
         
-    def cylinder_surface_area(r, h):
+    def cylinder_area(r, h):
         return 2 * Measurement.circle_surface_area(r) + h * 2 * math.pi * r
         
     def cone_volume(r, h):
         return 1/3 * math.pi * r**2 * h
         
-    def cone_surface_area(r, h):
+    def cone_area(r, h):
         l = math.sqrt(r**2 + h**2)
         return math.pi * r * l + math.pi * r**2
         
     # if all 3 lines are given:
-    def triangle_surface_area_sides(l1, l2, l3):
+    def triangle_area_sides(l1, l2, l3):
         s = 0.5*(l1 + l2 + l3)
         return math.sqrt(s * (s-l1) * (s-l2) * (s-l3))
         
     # if two lines and the angle between them is given:
-    def triangle_surface_area_sides_angle(l1, l2, angle_between_l1_and_l2):
+    def triangle_area_sides_angle(l1, l2, angle_between_l1_and_l2):
         return 0.5 * l1 * l2 * math.sin(angle_between_l1_and_l2)
         
     # if a base line and a perpendicular height is given: 
-    def triangle_surface_area_base_height(base, height):
+    def triangle_area_base_height(base, height):
         return 0.5 * base * height
         
     # b is the length of the parallelogram and h the height perpendicular
     # to b
-    def parallelogram_surface_area(b, h):
+    def parallelogram_area(b, h):
         return b * h
         
     # a, b are the parallel lines, h the height between them
-    def trapezoid_surface_area(a, b, h):
+    def trapezoid_area(a, b, h):
         return 0.5 * (a + b) * h
         
-    def rectangle_surface_area(a, b):
+    def rectangle_area(a, b):
         return a * b
         
     def square_volume(a,b,c):
         return a * b * c
         
-    def square_surface_area(a, b, c):
+    def square_area(a, b, c):
         return 2 * (a * b + b * c + a * c)
         
     def pyramid_volume(h, base_area):

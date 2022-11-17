@@ -470,8 +470,8 @@ print()
 print("k-means clustering algorithm")
 points = []
     
-print("creating 200 random data points for k-means clustering")
-for i in range(0,200):
+print("creating 60 random data points for k-means clustering")
+for i in range(0,60):
     v = Vector.random_vector(3, fromvalue = -100, tovalue = 100, dtype = float, transposed=False)
     points.append(v.clone())
     
