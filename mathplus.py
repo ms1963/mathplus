@@ -2710,3 +2710,85 @@ class Newton:
             iter += 1
         return x
 
+
+#################################################
+##############  class Measurement  ##############
+#################################################
+
+class Measurement:
+    def circle_perimeter(r):
+        return 2 * r * math.pi
+        
+    def circle_surface_area(r):
+        return math.pi * r**2
+        
+    def sphere_surface_area(r):
+        return 4 * r**2 * math.pi
+        
+    def sphere_volume(r):
+        return 4/3 * r**3 * math.pi
+        
+    def ellipse_surface_area(ra, rb):
+        return ra * rb * math.pi
+        
+    def ellipse_perimeter(ra, rb):
+        val1 = math.pi* (ra+rb)
+        val2 = math.pi * (1.5*(ra+rb)-math.sqrt(ra*rb))
+        return (val1 + val2)/2
+            
+    def ellipse_eccentricity(ra, rb):
+        if ra > rb:
+            return math.sqrt(1-(rb/ra)**2)
+        else:
+            return math.sqrt(1-(ra/rb)**2)
+            
+    def ellipse_focus(ra, rb):
+        if ra >= rb:
+            return (math.sqrt(ra**2 - rb**2),0)
+        else:
+            return (math.sqrt(rb**2 - ra**2),0)
+        
+    def cylinder_volume(r, h):
+        return r**2 * h * math.pi
+        
+    def cylinder_surface_area(r, h):
+        return 2 * Measurement.circle_surface_area(r) + h * 2 * math.pi * r
+        
+    def cone_volume(r, h):
+        return 1/3 * math.pi * r**2 * h
+        
+    def cone_surface_area(r, h):
+        l = math.sqrt(r**2 + h**2)
+        return math.pi * r * l + math.pi * r**2
+        
+    # if all 3 lines are given:
+    def triangle_surface_area_sides(l1, l2, l3):
+        s = 0.5*(l1 + l2 + l3)
+        return math.sqrt(s * (s-l1) * (s-l2) * (s-l3))
+        
+    # if two lines and the angle between them is given:
+    def triangle_surface_area_sides_angle(l1, l2, angle_between_l1_and_l2):
+        return 0.5 * l1 * l2 * math.sin(angle_between_l1_and_l2)
+        
+    # if a base line and a perpendicular height is given: 
+    def triangle_surface_area_base_height(base, height):
+        return 0.5 * base * height
+        
+    # b is the length of the parallelogram and h the height perpendicular
+    # to b
+    def parallelogram_surface_area(b, h):
+        return b * h
+        
+    # a, b are the parallel lines, h the height between them
+    def trapezoid_surface_area(a, b, h):
+        return 0.5 * (a + b) * h
+        
+    def rectangle_surface_area(a, b):
+        return a * b
+        
+    def square_volume(a,b,c):
+        return a * b * c
+        
+    def square_surface_area(a, b, c):
+        return 2 * (a * b + b * c + a * c)
+        
