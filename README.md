@@ -1,7 +1,7 @@
 # mathplus
-Just my own implementation of matrices, vectors, polynomials and rational numbers  done just for fun.
+Just my own implementation of matrices, vectors, polynomials and rational numbers and more,  done just for fun.
 
-The demo code in demo_matrix.py shows how to use the trivial library. Given the fact that libraries like pandas, numpy exist, it is obviously unnecessary to come up with a matrix and vector implementation. Nonetheless, I did it for the fun of experimentation.
+The demo code in demo_matrix.py shows how to use the library. Given the fact that libraries like pandas, numpy exist, it is obviously unnecessary to come up with yet another math library. Nonetheless, I did it for the fun of experimentation and to have a library that does not depend on code in other languages, in particular C and C++.
 
 graph.py implements a naive graph structure that uses a matrix for visualizing the edges between nodes.
 
