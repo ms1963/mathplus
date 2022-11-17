@@ -65,6 +65,46 @@ class Common:
                 result *= i
             result = result // fac(k)
             return result
+    
+    # calculate multinomial coeff. n! / (n1! * n2! * ... * nk!)
+    # with n1 + n2 + ... + nk = n        
+    def multinomial_coeff(n, *args):
+        sum = 0
+        for arg in args:
+            if arg < 0:
+                raise ValueError("negative arguments are not allowed")
+            sum += arg
+        if (sum != n):
+            return 0
+        else:
+            result = Common.fac(n)
+            for arg in args:
+                result /= Common.fac(arg)
+            return result       
+            
+    # calculating the probabilty of an event: where every arg 
+    # contains a tuple (ni,pi) with ni being the number the  
+    # event occurs multiplied with its propability pi 
+    # Result = (n! / (n1! * n2! * ... * nk!)) * p1^n1 * p2^n2 * ... * pk^nk
+    def multinomial_probability(n, *args):
+        sum1 = 0
+        sum2 = 0
+        for arg in args:
+            if arg[0] < 0: # arg[0]: count of occurrences of event i
+                raise ValueError("negative arguments n are not allowed")
+            sum1 += arg[0]
+            if arg[1] < 0:
+                raise ValueError("negative arguments p are not allowed")
+            sum2 += arg[1] # arg[1]: probability of event i
+        if (sum1 != n) or (sum2 != 1):
+            return 0
+        else:
+            result = Common.fac(n)
+            for arg in args:
+                result /= Common.fac(arg[0])
+                result *= arg[1] ** arg[0] 
+            return result
+            
         
     # fibonacci series
     def fib(n):
