@@ -2722,6 +2722,10 @@ class Measurement:
     def circle_surface_area(r):
         return math.pi * r**2
         
+    # alpha is the angle of the segment
+    def circle_segment_area(alpha, r):
+        return Measurement.circle_surface_area(r) * angle/(2*math.pi)
+        
     def sphere_surface_area(r):
         return 4 * r**2 * math.pi
         
@@ -2742,11 +2746,12 @@ class Measurement:
         else:
             return math.sqrt(1-(ra/rb)**2)
             
-    def ellipse_focus(ra, rb):
+    def ellipse_foci(ra, rb):
         if ra >= rb:
-            return (math.sqrt(ra**2 - rb**2),0)
+            xcoord = math.sqrt(ra**2 - rb**2)
         else:
-            return (math.sqrt(rb**2 - ra**2),0)
+            xcoord = math.sqrt(rb**2 - ra**2)
+        return((-coord,0),(+coord,0))
         
     def cylinder_volume(r, h):
         return r**2 * h * math.pi
@@ -2791,4 +2796,8 @@ class Measurement:
         
     def square_surface_area(a, b, c):
         return 2 * (a * b + b * c + a * c)
+        
+    def pyramid_volume(h, base_area):
+        return 1/3 * base_area * h
+        
         
