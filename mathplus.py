@@ -902,6 +902,14 @@ class Matrix:
                         return False
             return True
             
+    def is_unitary(self):
+        if not self.is_square():
+            raise ValueError("only square matrices permitted")
+        if self.det() == 0:
+            return False
+        else:
+            return self.H() == self.inverse_matrix()
+            
     # calculate the standard norm for column vectors
     def norm(self):
         n = self.dtype(0)
@@ -933,6 +941,43 @@ class Matrix:
             for c in range(0, self.dim2):
                 m.m[r][c] = abs(self.m[r][c])
         return m
+        
+    # calculate exp(t*Matrix)
+    def exp(self, t = 1):
+        max_expansion = 20
+        shape = self.shape()
+        if shape[0] != shape[1]:
+            raise ValueError("exp only defined for square matrices")
+        if t == 0:
+            return Matrix.identity(shape[0])
+        else:
+            res = Matrix.identity(shape[0]) + self.scalar_product(t)
+            for i in range(2, max_expansion + 1):
+                res += (self ** i).scalar_product(t**i/Common.fac(i))
+            return res
+            
+    # calculate sin of matrix    
+    def sin(self):
+        max_expansion = 20
+        shape = self.shape()
+        if shape[0] != shape[1]:
+            raise ValueError("sin only defined for square matrices")
+        res = Matrix.identity(shape[0])
+        for i in range(2, max_expansion + 1):
+            res +=  (self ** (2*i+1)).scalar_product((-1 ** i)/Common.fac(2*i))
+        return res
+        
+    # calculate cosine of matrix 
+    def cos(self):
+        max_expansion = 20
+        shape = self.shape()
+        if shape[0] != shape[1]:
+            raise ValueError("cos only defined for square matrices")
+        res = self.clone()
+        for i in range(1, max_expansion + 1):
+            res +=  (self ** (2*i)).scalar_product((-1 ** i)/Common.fac(2*i))
+        return res
+    
                 
     # multiply all matrix elements with n
     def mult_n_times(self, n):
@@ -953,8 +998,12 @@ class Matrix:
         dim1 = len(_list)
         if (dim1 == 0):
             raise ValueError("Initialization list must not be empty")
-            
-        dim2 = len(_list[0])
+        try:
+            dim2 = len(_list[0])
+        except TypeError:
+            m = Matrix(1,1,dtype=dtype)
+            m[0][0] = _list[0]
+            return m
         
         value_2D = []
         
