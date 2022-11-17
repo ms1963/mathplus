@@ -106,6 +106,87 @@ class Common:
             return reduce(operator.mul, array)
         else:
             return reduce(operator.mul, array, init_val)
+            
+    def gcd(a, b):
+        while b != 0:
+            t = b
+            b = a % b
+            a = t
+        return a
+
+    # helper method for factorization
+    def _brent(N):
+        if N % 2 == 0: 
+            return 2
+        y, c, m = randint(1, N-1), randint(1, N-1), randint(1, N-1)
+        g, r, q = 1, 1, 1
+        while g == 1:             
+            x = y
+            for i in range(r):
+                y = ( ( y * y ) % N + c ) %N
+            k = 0
+            while (k < r and g == 1):
+                ys = y
+                for i in range(min(m,r-k)):
+                    y = ( ( y * y ) %N + c ) %N
+                    q *= ( abs ( x - y ) ) %N
+                g = Common.gcd(q,N)
+                k = k + m
+            r = r*2
+        if g == N:
+            while True:
+                ys = ( ( ys * ys ) % N + c ) %N
+                g = Common.gcd(abs(x - ys), N)
+                if g > 1:  
+                    break
+        return g
+
+    # factorization of integers into their prime factors.
+    # the method returns a list of prime factors in ascending
+    # order
+    def factorize(n1):
+        if n1 == 0: 
+            return []
+        if n1 == 1: 
+            return [1]
+        n = n1
+        b = []
+        p = 0
+        mx = 1000000
+        while n % 2 == 0: 
+            b.append(2)
+            n //= 2
+        while n % 3 == 0:  
+            b.append(3) 
+            n //= 3
+        i = 5
+        inc = 2
+        while i <= mx:
+           while n % i ==0: 
+               b.append(i)
+               n //= i
+           i += inc
+           inc = 6 - inc
+        while n > mx:
+            p1 = n
+            while p1 != p:
+                p = p1
+                p1 = Common._brent(p)
+         
+            b.append(p1)
+            n //= p1 
+        if n != 1:
+            b.append(n)   
+        return sorted(b)
+    
+    # defactorize expects an array of factors such as [2,3,5,7]
+    # which results in 210
+    def defactorize(factoriz):
+        res = 1
+        for i in factoriz:
+            res *= i
+        return res
+
           
     # methods to create array with different dimensions filled
     # with init_value

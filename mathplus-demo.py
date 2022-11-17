@@ -507,9 +507,16 @@ print("which means find the root of: x**2 - 2 = 0  (sqrt(2))")
 res = Newton(lambda x: x**2, lambda x: 2*x)
 print("The initial value for x is one")
 print("Result is : " + str(res.compute(1,2)))
-
-    
-    
-
+print()
+print("Factorization of numbers by Common.factorize(), e.g. 210:")
+f = Common.factorize(210)
+print(f)
+print("which can be defactorized by Common.defactorize()")
+print(Common.defactorize(f))
+n = 7853 * 6947 * 5701 * 2749 * 661 * 5 * 3 * 2
+print("Another example is multiplying the prime numbers 7853 * 6947 * 5701 * 2749 * 661 * 5 * 3 * 2 = " + str(n))
+f = Common.factorize(n)
+print("Let us factorize it: " + str(f))
+print("And now back again : " + str(Common.defactorize(f)))
 
 
