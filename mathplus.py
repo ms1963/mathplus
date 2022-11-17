@@ -362,6 +362,42 @@ class Common:
             for i in range(0, len(x_array)):
                 sum += x_array[i] * weights_array[i]    
             return sum
+    
+    # calculate minima of array        
+    def argmin(array, axis = None):
+        if axis == None or Common.shape(array)[0] == 1:
+            return min(array)
+        elif axis == 0:
+            result = []
+            for i in range(0, Common.shape(array)[0]):
+                result.append(min(array[i]))
+            return result
+        elif axis == 1:
+            result = []
+            for c in range(0, Common.shape(array)[1]):
+                tmp = []
+                for r in range(0, Common.shape(array)[0]):
+                    tmp.append(array[r][c])
+                result.append(min(tmp))
+            return result
+                
+    # calculate maxima of array
+    def argmax(array, axis = 1):
+        if axis == None or Common.shape(array)[0] == 1:
+            return max(array)
+        elif axis == 0:
+            result = []
+            for i in range(0, Common.shape(array)[0]):
+                result.append(max(array[i]))
+            return result
+        elif axis == 1:
+            result = []
+            for c in range(0, Common.shape(array)[1]):
+                tmp = []
+                for r in range(0, Common.shape(array)[0]):
+                    tmp.append(array[r][c])
+                result.append(max(tmp))
+            return result
 
         
 #################################################
@@ -2670,14 +2706,14 @@ class Clustering:
                 _centroid[i] = _new_centroid.clone()
             
             # calculate the difference between new and old centroids
-            change = 0
+            change = 0            
             for i in range(0,k):
                 change += (old_centroid[i] - _centroid[i]).euclidean_norm()
             # if difference is smaller than tolerance, terminate algorithm
             if change < tolerance:
                 in_equilibrium = True
         # and return result which are all the clusters found
-        return _clusters
+        return _clusters 
         
         
 #################################################
@@ -2693,7 +2729,7 @@ class Clustering:
 # We stop after the first derivative: f(x+h) = f(x) + h f'(x)
 # Assuming f(x+h) should be zero, we get 0 = f(x) + h f'(x)
 # h = xnew - x => 0 = f(x) + (xnew - x)f'(x) =>
-# xnew = x - f(x)/f'(x). Note: If f'(x) is close to zero, 
+# xnew = x - f(x)/f'(x). Note: If f'(x) is close _clusterto zero, 
 # the approximation will fail.
 # Example usage:
 # res = Newton(lambda x: x**2, lambda x: 2*x)
