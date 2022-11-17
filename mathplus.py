@@ -2715,6 +2715,83 @@ class Clustering:
         # and return result which are all the clusters found
         return _clusters 
         
+    # k-means mini batch clustering is sensitive to the hyper
+    # parameters. Its intended use is for very large datasets.
+    # It expects:
+    # points:         the data points to be clustered
+    # k:              the number of clusters 
+    # batchsize:      the batchsize to be used (must be smaller
+    #                 than the number of data points)
+    # iterations:     number that determines how often the batches
+    #                 should be processed
+    # An internal hyperparameter in the code i the number how often
+    # the dataset should be randomly shuffled.
+    def k_means_mini_batch(points, k, batchsize, iterations = 200):
+        # measures the distance of a point from
+        # all centroids and return these 
+        # distances as an array
+        def measure(point, _centroid):
+            _distance = []
+            for i in range(0, k):
+                delta = _centroid[i] - point
+                _distance.append(delta.euclidean_norm())
+            minimum_distance = min(_distance)
+            for i in range(0, len(_centroid)):
+                if _distance[i] == minimum_distance:
+                    return i
+    
+        
+        # if less points than clusters, an exception is raised
+        if len(points) < k:
+            raise ValueError("number of points smaller than k")
+        elif len(points) == k: # if number of points equals clusters,
+            return points      # each point defines its own cluster
+        elif batchsize > len(points):
+            raise ValueError("batchsize must be smaller than dataset")
+        
+        # make a copy of data points
+        _points = deepcopy(points)
+        # set sequence of centroids to empty list
+        _centroid = []
+        # shuffle points
+        for i in range(1,10) : shuffle(_points)
+        # take the first k points randomly as centroids
+        for i in range(0,k): 
+            _centroid.append(_points[i])
+    
+        _cluster_learning_rate = [0 for i in range(0, k)]
+        _cluster_counters = [0 for i in range(0,k)]
+
+        iter = 1 
+        # initialize list of clusters
+        _clusters = [[] for j in range(0, k)]
+        
+        while iter < iterations:
+
+            shuffle(_points)
+            # batch[i] is the ith point in the batch 
+            # cluster[i] is the cluster batch[i] was assigned to
+            batch = []
+            cluster = [0 for i in range(0,batchsize)]
+            # randomly choose batchsize data points from _points
+            # cluster for these points is initialized with 0
+            for i in range(0, batchsize):
+                batch.append(_points[i])
+                cluster[i] = measure(batch[i], _centroid)
+                
+            # iterate through points in batch again   
+            for i in range(0, batchsize):
+                for j in range(0, k):
+                    if batch[i] in _clusters[j]: _clusters[j].remove(batch[i])
+                _clusters[cluster[i]].append(batch[i])
+                _cluster_counters[cluster[i]] += 1 
+                _cluster_learning_rate[cluster[i]] = 1/_cluster_counters[cluster[i]]
+                _centroid[cluster[i]] =  _centroid[cluster[i]] + (batch[i] - _centroid[cluster[i]]).scalar_product(_cluster_learning_rate[cluster[i]])
+            iter+= 1
+        # and return result which are all the clusters found
+        return _clusters
+
+        
         
 #################################################
 ############## class Newton method ##############

@@ -482,6 +482,24 @@ for i in range(0, 3):
     print("CLUSTER + " + str(i))
     print("with size :" + str(len(clusters[i])))
     print("=================================================")
+    
+print()
+print("k-means mini batch clustering algorithm")
+points = []
+    
+print("creating 100 random data points for k-means clustering")
+for i in range(0,100):
+    v = Vector.random_vector(3, fromvalue = -100, tovalue = 100, dtype = float, transposed=False)
+    points.append(v.clone())
+    
+print("k-means clustering is called with random data points, cluster size = 5, batchsize = 10")
+clusters = Clustering.k_means_mini_batch(points, 5, 10, 100)
+for i in range(0, 5):
+    print()
+    print("CLUSTER + " + str(i))
+    print("with size :" + str(len(clusters[i])))
+    print("=================================================")
+
 
 print()
 print("Using the Newton method to find the solution of X**2 = 2")
