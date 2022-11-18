@@ -2038,6 +2038,30 @@ class Vector:
         else:
             return self.cross_product(other) == 0
     
+    # proj_u(v)
+    def proj(u, v):
+        return u.scalar_product(u.dot(v)/u.dot(u))
+        
+    # orthonormalization of vectors following the 
+    # Gram-Schmidt process
+    def orthonormalize_vectors(v):
+        k = len(vector_list)
+        if k == 0:
+            return [] 
+        
+        u = [None for i in range(0,k)]
+        e = [None for i in range(0,k)]
+        if k == 1:
+            u[0] = v[0]
+            e[0] = u[0].euclidean_norm()
+            
+        for i in range(1, k):
+            u[i] = v[i]
+            for j in range(0,i):
+                u[i] = u[i] - v[i].proj(u[j], v[i])
+            e[i] = u[i].euclidean_norm()
+        return (u, e)
+    
     # get ith unit/base vector for dimension = size
     def unit_vector(size, i, dtype = float):
         v = Vector(size)
