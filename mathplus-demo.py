@@ -8,7 +8,7 @@ Permissions of this strong copyleft license are conditioned on making available 
 """
 
 
-from mathplus import Vector, Matrix, Common, Polynomial, Rational, Regression, Clustering, Newton
+from mathplus import Vector, Matrix, Common, Polynomial, Rational, Regression, Clustering, Newton, FunctionMatrix
 
 import math
 
@@ -518,5 +518,20 @@ print("Another example is multiplying the prime numbers 7853 * 6947 * 5701 * 274
 f = Common.factorize(n)
 print("Let us factorize it: " + str(f))
 print("And now back again : " + str(Common.defactorize(f)))
+print()
+print("FunctionMatrices contain functions/lambdas instead of numbers")
+m = FunctionMatrix(2,2)
 
-
+m[0,0] = FunctionMatrix.null_func
+m[0,1] = lambda x: -math.sin(x)
+m[1,0] = math.cos
+m[1,1] = FunctionMatrix.null_func
+print("An example is matrix m " + str(m))
+n = Matrix.from_list([[1,1],[1,1]])
+print("A FunctionMatrix can be muliplied with a regular Matrix n " + str(n))
+print("m @ n leads to vector multiplications where  functional elements of the FunctionMatrix are applied to the numbers of the regular matrix")
+print("The results will be added with each other to set the corresponding element in the resulting regular matrix" + str(m @ n))
+print()
+print("An application of a FunctionMatrix to a same-shape regular matrix results in applying the individual function elements of the FunctionMatrix to the corresponding elements of the regular matrix. Let us apply m to n " + str(m.apply(n)))
+print()
+print("The multiplication of one FunctionMatrix with another FunctionMatrix is a little bit more complex. Multiplication of individual elements results in function composition, while the summing up of elements results in introducing lambdas that combine the composed functions using addition. E.g. m @ m = " + str(m @ m))

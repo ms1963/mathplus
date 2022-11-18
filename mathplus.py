@@ -2080,7 +2080,227 @@ class Vector:
             v[i] = lambda_f(i, self[i])
         return v
         
+#################################################
+############## class FunctionMatrix #############
+################################################# 
 
+# The elements of an FunctionMatrix are functions instead of numbers
+# If it is applied to another number-based matrix (with the same shape), 
+# it will take the corresponding element of the regular matrix and 
+# apply the contained function to it 
+
+class FunctionMatrix:
+    # identity function
+    def id(x):
+        return x
+        
+    # null function
+    def null_func(x):
+        return 0
+        
+    # the constructor is called with the dimension of the matrix as 
+    # well as an optional init_value which per default is the lambda
+    # FunctionMatrix.null
+    def __init__(self, dim1, dim2, init_value = null_func):
+        self.m = [[init_value for i in range(0, dim1)] for j in range(0, dim2)]
+        self.dim1 = dim1
+        self.dim2 = dim2
+        
+    # deep copy of matrix is returned
+    def clone(self):
+        return deepcopy(self)
+    
+    # return own shape
+    def shape(self):
+        return(self.dim1,self.dim2)
+        
+    # retrieve number of rows
+    def dim1(self):
+        return self.dim1
+        
+    # retrieve number of columns
+    def dim2(self):
+        return self.dim2
+        
+    # check for equal dimensions
+    def is_square(self):
+        return self.dim1 == self.dim2
+        
+    # the identity matrix consists of
+    # FunctionMatrix.id in the diagonal,
+    # and FunctionMatrix.null in all
+    # remaining places.
+    def identity(size):
+        o = FunctionMatrix(size, size)
+        for r in range(0, size):
+            for c in range(0, size):
+                if r == c:
+                    o[r,c] = FunctionMatrix.id
+                else:
+                    o[r,c] = FunctionMatrix.null
+        return o
+     
+    # null matrix has all elements set to
+    # FunctionMatrix.null
+    def null_matrix(dim1, dim2):
+        o = FunctionMatrix(dim1, dim2)
+        for r in range(0, dim1):
+            for c in range(0, dim2):
+                o[r,c] = FunctionMatrix.null_func
+        return o
+        
+    # transpose of FunctionMatrix works as
+    # expected
+    def T(self):
+        o = FunctionMatrix(self.dim2, self.dim1)
+        for r in range(0, self.dim1):
+            for c in range(0, self.dim2):
+                o.m[r][c] = self.m[c][r]
+        return o
+    # FunctionMatrix fm allows to access
+    # individual functions: f = fm[r,c]   
+    def __getitem__(self, arg):
+        if isinstance(arg, tuple):
+            if len(arg) > 2: 
+                raise ValueError("maximum of 2 slices allowed")
+            else:
+                s1 = arg[0]
+                s2 = arg[1]
+                (x,y) = (isinstance(s1 ,int), isinstance(s2, int))
+                if (x,y) == (True, True): # we got instance[i,j]
+                    return self.m[s1][s2]
+                else:
+                    raise ValueError("FunctionMatrix does not support slicing")       
+        else:
+            raise TypeError("only accesses like matrix[i,j] are allowed")
+
+
+    # FunctionMatrices fm allow to set 
+    # individual elements using fm[r,c]=val
+    def __setitem__(self, arg, val):
+        if isinstance(arg, tuple):
+            if len(arg) > 2: 
+                raise ValueError("maximum of 2 slices allowed")
+            else:
+                s1 = arg[0]
+                s2 = arg[1]
+                (x,y) = (isinstance(s1 ,int), isinstance(s2, int))
+                if (x,y) == (True, True): # we got instance[i,j]
+                    self.m[s1][s2] = val
+                else: 
+                    raise ValueError("FunctionMatrix does not support slicing")
+        else:
+            raise TypeError("only accesses like matrix[i,j] are allowed")
+        
+    # multiplication of a FunctionMatrix with a 
+    # regular vector is provided by multiplying
+    # the row vectors of the FunctionMatrix with
+    # the vector. Each vector element if the
+    # FunctionMatrix is applied to the corres-
+    # ponding element of the regular vector.
+    # The results are then added to become
+    # elements of the result vector.
+    # The same thing is done multiple times
+    # when a FunctionMatrix is multiplied with
+    # a regular matrix.
+    # Multiplying a FunctionMatrix with another
+    # FunctionMatrix works different. Multi-
+    # plying functions is implemented as
+    # function conposition. Summing up elements
+    # is implemented by a lambda that combines
+    # the function compositions with a sum-up-
+    # lanbda
+    def __matmul__(self, other):
+        if isinstance(other, Matrix):
+            o = Matrix(self.dim1, other.dim2, dtype = other.dtype)
+            for r in range(0, self.dim1):
+                for c in range(0, other.dim2):
+                    sum = 0
+                    for i in range(0, self.dim2):
+                        sum += self.m[r][i](other.m[i][c])
+                    o.m[r][c] = sum
+            return o
+        elif isinstance(other, Vector):
+            if self.dim2 != len(other):
+                raise ValueError("matrix.dim2 != len(other)")
+            v = Vector(self.dim1, dtype = other.dtype)
+            for r in range(0, self.dim1):
+                sum = 0
+                for i in range(0, self.dim2):
+                    sum+= self.m[r][i](other[i])
+                v.v[r] = sum
+            return v
+        elif isinstance(other, FunctionMatrix):
+            o = FunctionMatrix(self.dim1, other.dim2)
+            for r in range(0, self.dim1):
+                for c in range(0, self.dim2):
+                    lambdas = [None for i in range(0, self.dim2)]
+                    for i in range(0, self.dim2):
+                        if i == 0:
+                            lambdas[0] = lambda x: self.m[r][i](other.m[i][c](x))
+                        else:
+                            lambdas[i] = lambda x: lambdas[i-1](x) + self.m[r][i](other.m[i][c](x))
+                o[r,c] = lambdas[self.dim2-1]
+            return o
+        else: 
+            raise TypeError("can only multiply a FunctionMatrix with a Matrix, another FunctionMatrix, or a Vector")
+                    
+    def __mul__(self, other):
+        return self.__matmul__(other)
+        
+    # summing two FunctionMatrix objects is 
+    # implemented by combining the functions
+    # in both matrices using a sum-up lambda:
+    # f1, f2  results in 
+    # lambda x: f1(x)+f2(x)
+    def __add__(self, other):
+        if not isinstance(other, FunctionMatrix):
+            raise TypeError("can only add a FunctionMatrix to an FunctionMatrix")
+        if self.shape() != other.shape():
+            raise ValueError("both matrices must have the same shape")
+        o = FunctionMatrix(self.dim1, self.dim2)
+        for r in range(0, self.dim1):
+            for c in range(0, self.dim2):
+                f1 = self.m[r][c]
+                f2 = other.m[r][c]
+                o.m[r][c] = lambda x: f1(x) + f2(x)
+        return o
+        
+    def __str__(self):
+        res = "\n[\n"
+        for r in range(0, self.dim1):
+            line = " [ "
+            for c in range(0, self.dim2):
+                line += str(self[r,c]) + "\t"
+            line += " ] "
+            res += line + "\n"
+        res += "]\n"
+        return res 
+            
+    # apply expects a equally shaped regular
+    # matrix. The functions in the Function-
+    # Matrix are element-wise applied to the
+    # corresponding elements in the regular
+    # matrix.
+    def apply(self, n):
+        if n.dim1 != self.dim1 or n.dim2 != self.dim2:
+            raise ValueError("n must have the same dimensions like FunctionMatrix")
+        result = Matrix(self.dim1, self.dim2)
+        for r in range(0, self.dim1):
+            for c in range(0, self.dim2):
+                result.m[r][c] = self.m[r][c](n.m[r][c])
+        return result
+    # initialize a FunctionMatrix using
+    # a list. The list shape is mapped to the
+    # Matrix shape.
+    def from_list(array):
+        shape = Common.shape(array)
+        o = FunctionMatrix(shape[0], shape[1])
+        for r in range (0, shape[0]):
+            for c in range(0, shape[1]):
+                o.m[r][c] = array[r][c]
+        return o
+        
 #################################################
 ################ class Polynomial ###############
 #################################################       
