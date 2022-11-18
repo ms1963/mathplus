@@ -1065,6 +1065,11 @@ class Matrix:
         else:
             return self.H() == self.inverse_matrix()
             
+    def is_orthonormal(self):
+        if not self.is_square():
+            raise ValueError("orthomality is only defined for square matrices")
+        return self.T() @ self == Matrix.identity(self.dim1)
+            
     # calculate the standard norm for column vectors
     def norm(self):
         n = self.dtype(0)
