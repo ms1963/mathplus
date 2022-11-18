@@ -2038,12 +2038,17 @@ class Vector:
         else:
             return self.cross_product(other) == 0
     
-    # proj_u(v)
+    # proj_u(v) := <u, u>/<v, v> * u 
+    # <u, v> is the dot product/inner product
     def proj(u, v):
         return u.scalar_product(u.dot(v)/u.dot(u))
         
     # orthonormalization of vectors following the 
-    # Gram-Schmidt process
+    # Gram-Schmidt Process.
+    # Input v  -> a list of k vectors
+    # returns a tupel (u, e) where u denotes a  
+    # system of k orthogonal vectors and e is the 
+    # set of k corresponding normalized vectors
     def orthonormalize_vectors(v):
         k = len(vector_list)
         if k == 0:
@@ -2053,13 +2058,13 @@ class Vector:
         e = [None for i in range(0,k)]
         if k == 1:
             u[0] = v[0]
-            e[0] = u[0].euclidean_norm()
+            e[0] = u[0].scalar_product(1 / u[0].euclidean_norm())
             
         for i in range(1, k):
             u[i] = v[i]
             for j in range(0,i):
                 u[i] = u[i] - v[i].proj(u[j], v[i])
-            e[i] = u[i].euclidean_norm()
+            e[i] = u[i].scalar_product(1 / u[i].euclidean_norm())
         return (u, e)
     
     # get ith unit/base vector for dimension = size
