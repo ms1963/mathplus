@@ -424,7 +424,18 @@ class Common:
     # gaussian distribution: mu is the median or expectation value of a data 
     # set, sigma its standard deviation
     def gaussian_distribution(x, mu, sigma):
-        return 1 / (sigma * math.sqrt(2 * math.pi)) * math.exp(-0.5 * (((x-mu)/sigma) ** 2)) 
+        return (1 / (sigma * math.sqrt(2 * math.pi))) * math.exp(-0.5 * (((x-mu)/sigma) ** 2)) 
+
+    # the different gaussian kernels for 1D, 2D, multidiemsional cases
+    def gaussian_kernel_1D(x, sigma):
+        return  (1 / (sqrt(2 * math.pi) * sigma)) * math.exp(- x**2/(2 * sigma ** 2)) 
+
+    def gaussian_kernel_2D(x, y, sigma):
+        return (1 / (2 * math.pi * sigma ** 2)) * math.exp(- (x**2 + y**2) / (2 * sigma ** 2))
+
+    # dimension == len(xvect)
+    def gaussian_kernel_multiD(xvect, sigma):
+        return (1 / ((sqrt(2 * math.pi) * sigma)) ** len(xvect)) * math.exp(- (xvect.euclidean_norm() ** 2) / (2 * sigma **2))
 
     # calculate the covariance between two data series
     # zero result => dataset don't seem to have a relation
