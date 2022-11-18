@@ -254,6 +254,10 @@ print("the eigenvalues are " + str(eigenvalues))
 print("and the eigenvectors are :")
 for ev in eigenvectors: print(ev)
 
+print()
+print("We can also compute the characteristic polynomial of m")
+print("Its coefficients in ascending order from x^0 to x^2 are: " + str(m.char_poly()))
+print()
 
 print("Create diagonal matrix from [1,2,3]")
 m = Matrix.diagonal_matrix([1,2,3], dtype = int)

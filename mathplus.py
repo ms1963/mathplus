@@ -1147,7 +1147,7 @@ class Matrix:
         if not self.is_square():
             raise ValueError("can only multiply a square matrix with itself")
         if n == 0:
-            return Matrix.identity(len(self), dtype = self.dtype)
+            return Matrix.identity(self.dim1, dtype = self.dtype)
         elif n == 1:
             return self
         else:
@@ -1449,6 +1449,36 @@ class Matrix:
             diff = abs(A_new - A_orig).frobenius_norm()
             i += 1
         return (A_new.diagonal(), A_new.all_column_vectors())
+        
+    # computing the characteristic polynomial of a matrix
+    # using the Faddeev–LeVerrier algorithm
+    # M0 = 0                    ,   cn = 1 
+    # M1 = I                    ,   cn-1 = -tr(A)
+    # ....
+    # Mm = Sum cn-m+k * A^k-1   , cn-m = -1/m * Sum cn-m+k * tr(A^k)
+    #     k = 1,..,m                          k = 1, .., m
+    # results are returned as a coefficient list with c0 to cn 
+    # going from left to right 
+    # It can be directly used in class Polynomial to create a polynomial 
+    # such as in:
+    #     coeffs = char_poly(M)
+    #     p = Polynomial(coeffs)
+
+    def char_poly(self):
+        if not self.is_square():
+            raise ValueError("characteristic polynomials do only exist for square matrices")
+        n = self.dim1
+        if n == 1:
+            return -self.tr()
+        coeff_list = [0 for i in range(0, n+1)]
+        coeff_list[n]   = 1 # cn
+        coeff_list[n-1] = -self.tr()
+        for m in range(2,n+1):
+            sum = 0
+            for k in range(1, m+1):
+                sum += (self ** k).tr() * coeff_list[n-m+k] 
+            coeff_list[n-m] = -1/m * sum
+        return coeff_list
         
     # creates a diagonal matrix with the list 
     # elements populating the diagonal
