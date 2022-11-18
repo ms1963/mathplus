@@ -901,7 +901,10 @@ class Matrix:
             raise ValueError("matrix must be quadratic")
         if len(vector) != self.dim2:
             raise ValueError("dimensions of matrix and vector do not match")
-        return self.inverse_matrix() * vector
+        if not self.is_orthonormal():
+            return self.inverse_matrix() * vector
+        else:
+            return self.T() * vector
             
         
     # get row vector for row
