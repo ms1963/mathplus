@@ -2050,20 +2050,20 @@ class Vector:
     # system of k orthogonal vectors and e is the 
     # set of k corresponding normalized vectors
     def orthonormalize_vectors(v):
-        k = len(vector_list)
+        k = len(v)
         if k == 0:
             return [] 
         
-        u = [None for i in range(0,k)]
-        e = [None for i in range(0,k)]
-        if k == 1:
+        u = [None for i in range(0, k)]
+        e = [None for i in range(0, k)]
+        if k >= 1:
             u[0] = v[0]
             e[0] = u[0].scalar_product(1 / u[0].euclidean_norm())
-            
+        
         for i in range(1, k):
             u[i] = v[i]
             for j in range(0,i):
-                u[i] = u[i] - v[i].proj(u[j], v[i])
+                u[i] = u[i] - Vector.proj(u[j], v[i])
             e[i] = u[i].scalar_product(1 / u[i].euclidean_norm())
         return (u, e)
     
