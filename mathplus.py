@@ -1484,7 +1484,7 @@ class Matrix:
         m.m[1][1] =  dtype(math.cos(angle))
         return m
         
-    def rotation3d_x(angle_x, dtype=float):
+    def rotation3D_x(angle_x, dtype=float):
         m1 = Matrix(3,3,dtype)
         m1.m[0][0] = dtype(1)
         m1.m[0][1] = dtype(0)
@@ -1497,7 +1497,7 @@ class Matrix:
         m1.m[2][2] = dtype(math.cos[angle_x])
         return m1
         
-    def rotation3d_y(angle_y, dtype=float):
+    def rotation3D_y(angle_y, dtype=float):
         m2 = Matrix(3,3,dtype)
         m2.m[0][0] = dtype(math.cos(angle_y))
         m2.m[0][1] = dtype(0)
@@ -1510,7 +1510,7 @@ class Matrix:
         m2.m[2][2] = dtype(math.cos(angle_y))
         return m2
         
-    def rotation3d_z(angle_z, dtype = float):
+    def rotation3D_z(angle_z, dtype = float):
         m3 = Matrix(3,3,dtype)
         m3.m[0][0] = dtype(math.cos(angle_z))
         m3.m[0][1] = dtype(-math.sin(angle_z))
@@ -1524,9 +1524,9 @@ class Matrix:
         return m3
         
     def rotation3D(angle_x, angle_y, angle_z, dtype = float):
-        rot_x = Matrix.rotation3d_z(angle_x, dtype)
-        rot_y = Matrix.rotation3d_y(angle_y, dtype)
-        rot_z = Matrix.rotation3d_z(angle_z, dtype)
+        rot_x = Matrix.rotation3D_z(angle_x, dtype)
+        rot_y = Matrix.rotation3D_y(angle_y, dtype)
+        rot_z = Matrix.rotation3D_z(angle_z, dtype)
         return rot_z @ rot_y @ rot_x
     
     # remove a row from self and return result as a new matrix 
