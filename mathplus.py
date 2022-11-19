@@ -2361,12 +2361,12 @@ class FunctionMatrix:
     # corresponding elements in the regular
     # matrix.
     def apply(self, n):
-        if n.dim1 != self.dim1 or n.dim2 != self.dim2:
+        if self.shape() != n.shape():
             raise ValueError("n must have the same dimensions like FunctionMatrix")
         result = Matrix(self.dim1, self.dim2)
         for r in range(0, self.dim1):
             for c in range(0, self.dim2):
-                result.m[r][c] = self.m[r][c](n.m[r][c])
+                result[r,c] = self[r,c](n[r,c])
         return result
         
     # initialize a FunctionMatrix using
