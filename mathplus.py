@@ -161,6 +161,20 @@ class Common:
             a,b = b,a%b
         return a
         
+    # calculate gcd for multiple numbers
+    def gcdmult(args):
+        if len(args) == 1:
+            return args[0]
+        elif len(args) == 2:
+            return Common.gcd(args[0], args[1])
+        elif len(args) == 0:
+            return None
+        else:
+            g = Common.gcd(args[0], args[1])
+            for i in range(2, len(args)):
+                g = Common.gcd(g, args[i])
+            return g
+        
     # least common multiple
     def lcm(a, b):
         return abs(a*b)/gcd(a,b)
@@ -2530,27 +2544,6 @@ class FunctionMatrix:
 #################################################       
 
 class Polynomial:
-    def _gcd(a, b):
-        while b != 0:
-            t = b
-            b = a % b
-            a = t
-        return a
-    
-    # calculate gcd for multiple numbers
-    def _gcdmult(args):
-        if len(args) == 1:
-            return args[0]
-        elif len(args) == 2:
-            return Polynomial._gcd(args[0], args[1])
-        elif len(args) == 0:
-            return None
-        else:
-            g = Polynomial._gcd(args[0], args[1])
-            for i in range(2, len(args)):
-                g = Polynomial._gcd(g, args[i])
-            return g
-    
     # the list a contains the coefficients of the 
     # polynomial starting with a0, a1, ... 
     # p(x) is then a0 + a1*x + a2*x^2 + a3*x^3 + ...
@@ -2622,7 +2615,7 @@ class Polynomial:
     
     # divide coefficients by common gcd (=> _gcd_mult())
     def normalize_gcd(self):
-        g = Polynomial._gcdmult(self.a)
+        g = Common.gcdmult(self.a)
         if g == 1:
             return deepcopy(self)
         else:
