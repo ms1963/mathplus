@@ -395,7 +395,16 @@ class Common:
         if len(a) % 2 == 1:
             return a[len_a // 2]
         else:
-            return (a[(len_a - 1)//2]+a[(len_a+1)//2])/2
+            return (a[(len_a - 1)//2]+a[(len_a+1)//2])/2 
+            
+    # x is the number, mu is the mean, sigma the standard deviation
+    def z_score(x, mu, sigma):
+        return (x - mu)/sigma
+        
+    # sigma is the standard deviation, mu the mean
+    def variation_coeff(sigma, mu):
+        return sigma/mu
+        
             
     # checks whether condition cond (lambda or function type)
     # holds for all elements of an array
@@ -1471,6 +1480,40 @@ class Matrix:
             diff = abs(A_new - A_orig).frobenius_norm()
             i += 1
         return (A_new.diagonal(), A_new.all_column_vectors())
+        
+    # LU decomposition of square matrices using Gaussian decomposition
+    def lu_decomposition(self):
+        m, n = self.shape()
+        if not self.is_square():
+            raise ValueError("LU decomposition only defined for square matrices")
+    
+        l = self.clone()
+        u = Matrix(n, n, dtype = self.dtype, init_value=self.dtype(0))
+    
+        # compute l, u in-place in l
+        for k in range(0, n-1):
+            if l[k,k] == 0:
+                break
+            
+            for i in range(k+1,n):
+                l[i,k] = l[i,k]/l[k,k]
+            
+            for j in range(k+1, n):
+                for i in range(k+1, n):
+                    l[i,j] -= l[i,k] * l[k,j]
+                
+        # separate result in l and u            
+        for r in range(0,n):
+            for c in range(0,n):
+                if r > c:
+                    u[r,c] = 0
+                elif r == c:
+                    u[r,c] = l[r,c]
+                    l[r,c] = 1
+                else:
+                    u[r,c] = l[r,c]
+                    l[r,c] = 0
+        return l, u    
         
     # computing the characteristic polynomial of a matrix
     # using the Faddeev–LeVerrier algorithm
