@@ -577,7 +577,17 @@ class Common:
                 if lambda_f(array[i][j]):
                     result.append(array[i][j])
         return result
-                
+    
+    # same as filter, but returns as a list all indices
+    # where the condtion lambda_f holds            
+    def find_where(lambda_f, array):
+        result = [] 
+        dim1, dim2 = Common.shape(array)
+        for i in range(0, dim1):
+            for j in range(0, dim2):
+                if lambda_f(array[i][j]):
+                    result.append((i,j))
+        return result
             
 
         
@@ -1361,6 +1371,12 @@ class Matrix:
     # predicate lambda_f as a list
     def filter(self, lambda_f):
         return Common.filter(lambda_f, self.m)
+        
+    # same as filter, but does not return the elements 
+    # but the index-locations where the condition lambda_f
+    # holds as a list
+    def find_where(self, lambda_f):
+        return Common.find_where(lambda_f, self.m)
         
     def swap_rows(self, i1, i2):
         if not i1 in range(0, self.dim1) or not i2 in range(0, self.dim1):
@@ -2316,6 +2332,16 @@ class Vector:
             if lambda_f(self.v[i]):
                 res.append(self.v[i])
         return res
+        
+    # identical to filter, but returns not elements
+    # found but there indices as a list
+    def find_where(self, lambda_f):
+        res = []
+        for i in range(0, len(self)):
+            if lambda_f(self.v[i]):
+                res.append(i)
+        return res
+        
         
 #################################################
 ############## class FunctionMatrix #############
