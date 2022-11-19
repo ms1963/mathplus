@@ -548,6 +548,7 @@ class Common:
                     tmp.append(array[r][c])
                 result.append(max(tmp))
             return result
+            
 
         
 #################################################
@@ -576,6 +577,10 @@ class Matrix:
     # get the shape of the matrix, i.e. its numbers of rows and columns
     def shape(self):
         return (self.dim1, self.dim2)
+        
+    # returns the total number of elements in matrix
+    def size(self):
+        return self.dim1 * self.dim2
         
     # tr() denotes the trace of a matrix which is the elements
     # on the main diagonal summed up. tr() is only defines for
@@ -1293,6 +1298,26 @@ class Matrix:
                 m.m[r][c] = lambda_f(self.m[r][c])
         return m
         
+    # apply lambda_f to a single column of the matrix. returns new matrix 
+    # with changed column
+    def map_column(self, column, lambda_f):
+        m = Matrix(self.dim1, self.dim2, dtype = self.dtype)
+        if column > self.dim2:
+            raise ValueError("column " + str(column) + " does not exist")
+        for r in range(0, self.dim1):
+            m.m[r][column] = lambda_f(self.m[r][column])
+        return m
+        
+    # apply lambda_f to a single row of the matrix. returns new matrix 
+    # with changed row
+    def map_row(self, row, lambda_f):
+        m = Matrix(self.dim1, self.dim2, dtype = self.dtype)
+        if row > self.dim1:
+            raise ValueError("row " + str(row) + " does not exist")
+        for c in range(0, self.dim2):
+            m.m[row][c] = lambda_f(self.m[row][c])
+        return m
+        
     # like map, but with lambda getting called with
     # row, col, value at (row,col) 
     def map2(self, lambda_f):
@@ -1863,7 +1888,11 @@ class Vector:
             return (len(self), True)
         else:
             return (len(self), False)
-            
+    
+    # returns number of elements in vector (same as len(vector))        
+    def size(self):
+        return len(self)
+        
     # change format string. used by __str__            
     def set_format(s):
         Matrix.fstring = s
