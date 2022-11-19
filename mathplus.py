@@ -23,6 +23,8 @@ from copy import deepcopy
 from random import uniform, randrange, seed, shuffle
 from functools import reduce
 import operator
+import numpy as np # used to transfer array between 
+                   # mathplus and numpy
 
 #################################################
 ################## class Common #################
@@ -3519,3 +3521,52 @@ class Measurement:
         return 1/3 * base_area * h
         
         
+#################################################
+################  class Transfer  ###############
+#################################################
+
+# Functionality to transfer arrays, Vectors, Matrices 
+# between mathplus and other libraries, primarily numpy
+        
+class Transfer:
+    def numpy_to_array(nparray):
+        return nparray.tolist()
+        
+    def array_to_numpy(array):
+        return np.array(array)
+        
+    def matrix_to_numpy(m):
+        return Transfer.array_to_numpy(m.m)
+        
+    def vector_to_numpy(v):
+        if not v.is_transposed():
+            return Transfer.array_to_numpy(v.v)
+        else:
+            list = [] 
+            for i in range(0, len(v)):
+                list.append([v[i]])
+            return Transfer.array_to_numpy(list)
+        
+    def numpy_to_matrix(nparray):
+        npshp = nparray.shape
+        if len(npshp) > 2:
+            raise ValueError("mathplus only support one or two dimensions")
+        return Matrix.from_list(nparray.tolist())
+        
+    def numpy_to_vector(nparray):
+        npshp = nparray.shape
+        if len(npshp) > 2:
+            raise ValueError("mathplus only supports one or two dimensions")
+        elif len(npshp) == 2:
+            if npshp[0] != 1 and npshp[1] != 1:
+                raise ValueError("cannot convert two-dimensional numpy-array to a vector")
+            elif npshp[0] == 1:
+                return Vector_from_list(nparray[0])
+            else: # npshp[1] == 1 => use transposed vector 
+                list = []
+                for i in range(0, npshp[0]):
+                    list.append(nparray[i, 0])
+                return Vector.from_list(list, transposed = True)
+        else: # len(npshp) == 1 
+            return Vector.from_list(nparray.tolist())
+            
