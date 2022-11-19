@@ -128,29 +128,40 @@ class Common:
             i += 6
         return True
         
-    # this function does delegate
+    # this function does delegate to reduce() 
+    # the lmbda is applied to all elements of 
+    # array with init_val being the aggregator
     def reduce_general(lmbda, array, init_val = None):
         if init_val == None:
             return reduce(lmbda, array)
         else:
             return reduce(lmbda, array, init_val)
         
+    # calculate the sum of all elements in an array 
+    # using init_val as the base value
     def sum(array, init_val = None):
         if init_val == None:
             return reduce(operator.add, array)
         else:
             return reduce(operator.add, array, init_val)
         
+    # calculate the product of all elements in an array 
+    # using init_val as the base value
     def mul(array, init_val = None):
         if init_val == None:
             return reduce(operator.mul, array)
         else:
             return reduce(operator.mul, array, init_val)
             
+    # greatest common divisor
     def gcd(a, b):
         while b != 0:
             a,b = b,a%b
         return a
+        
+    # least common multiple
+    def lcm(a, b):
+        return abs(a*b)/gcd(a,b)
 
     # helper method for factorization
     def _brent(N):
