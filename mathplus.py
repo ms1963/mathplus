@@ -2180,7 +2180,7 @@ class FunctionMatrix:
     # well as an optional init_value which per default is the lambda
     # FunctionMatrix.null
     def __init__(self, dim1, dim2, init_value = null_func):
-        self.m = [[init_value for i in range(0, dim1)] for j in range(0, dim2)]
+        self.m = [[init_value for i in range(0, dim2)] for j in range(0, dim1)]
         self.dim1 = dim1
         self.dim2 = dim2
         
@@ -2368,6 +2368,7 @@ class FunctionMatrix:
             for c in range(0, self.dim2):
                 result.m[r][c] = self.m[r][c](n.m[r][c])
         return result
+        
     # initialize a FunctionMatrix using
     # a list. The list shape is mapped to the
     # Matrix shape.
