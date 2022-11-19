@@ -3529,7 +3529,7 @@ class Transfer:
         return np.array(array)
         
     def matrix_to_numpy(m):
-        return Transfer.array_to_numpy(m.m)
+        return np.asmatrix(Transfer.array_to_numpy(m.m))
         
     def vector_to_numpy(v):
         if not v.is_transposed():
