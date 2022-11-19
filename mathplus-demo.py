@@ -8,7 +8,7 @@ Permissions of this strong copyleft license are conditioned on making available 
 """
 
 
-from mathplus import Vector, Matrix, Common, Polynomial, Rational, Regression, Clustering, Newton, FunctionMatrix
+from mathplus import Vector, Matrix, Common, Polynomial, Rational, Regression, Clustering, Newton, FunctionMatrix, Transfer
 
 import math
 
@@ -547,3 +547,18 @@ print()
 print("An application of a FunctionMatrix to a same-shape regular matrix results in applying the individual function elements of the FunctionMatrix to the corresponding elements of the regular matrix. Let us apply m to n " + str(m.apply(n)))
 print()
 print("The multiplication of one FunctionMatrix with another FunctionMatrix is a little bit more complex. Multiplication of individual elements results in function composition, while the summing up of elements results in introducing lambdas that combine the composed functions using addition. E.g. m @ m = " + str(m @ m))
+print()
+print("The Transfer category allows to exchange data between mathplus and numpy")
+m = Matrix.from_list([[11,12,13,14,15],[21,22,23,24,25],[31,32,33,34,35],[41,42,43,44,45],[51,52,53,54,55]])          
+print("Let m be the following matrix " + str(m))
+n = Transfer.matrix_to_numpy(m)
+print("Transfering it no numpy creates the numpy array n = " + str(n))
+m = Transfer.numpy_to_matrix(n)
+print("Transfering it back to mathplus ends up in m " + str(m))
+print()
+v= Vector.from_list([1,2,3,4], transposed=True)
+print("The same holds for Vectors. Let v be transposed vector: " + str(v))
+nv = Transfer.vector_to_numpy(v)
+print("After transfering it to numpy we get " + str(nv))
+print("Transferring it back to mathplus results in : " + str(Transfer.numpy_to_vector(nv)))
+
