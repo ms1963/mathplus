@@ -890,6 +890,30 @@ class Matrix:
                 det += factor * self.m[0][c] * self.minor(0, c).det()
             return det 
     
+    
+    # sets all elements below the specified diag to 0 
+    # diag = 0 is the main axis        
+    def upper_triangle(self, diag = 0):
+        dim1, dim2 = self.shape()
+        res = self.clone()
+        max_axis = min(dim1,dim2)
+        for r in range(0, dim1):
+            for c in range(0, dim2):
+                if (c - diag) > r: 
+                    res[r,c] = 0
+        return res
+        
+    # sets all elements above the specified diag to 0 
+    # diag = 0 is the main axis        
+    def lower_triangle(self, diag = 0):
+        dim1, dim2 = self.shape()
+        res = self.clone()
+        max_axis = min(dim1,dim2)
+        for r in range(0, dim1):
+            for c in range(0, dim2):
+                if (r - diag) > c: 
+                    res[r,c] = 0
+        return res
     # calculates cofactor of position i,j
     def cofactor(self, i, j):
         cof_ij = self.minor(i,j).det()
@@ -981,13 +1005,21 @@ class Matrix:
         return m   
         
     # returns the diagonal of a square matrix as a list
-    def diagonal(self):
-        shp = self.shape()
-        if shp[1] != shp[0]:
-            raise ValueError("diagonal only available in square matrix")
+    # diag == 0 => main diagonal
+    # diag = -1 => diagonal one step below the main diagonal
+    # diag =  1 => diagonal one step above the main diagonal
+    # ... 
+    # diag must exist, otherwise a ValueError is thrown
+    def diagonal(self, diag = 0):
+        dim1, dim2 = self.shape()
+        max_diag = min(dim1, dim2) - 1
+        if (abs(diag) > max_diag):
+            raise ValueError("diag must be in [" + str(-max_diag) + "," + str(max_diag) + "]")
         list = []
-        for i in range(0, shp[1]):
-            list.append(self.m[i][i])
+        for r in range(0, dim1):
+            for c in range(0,dim2):
+                if c - diag == r:
+                    list.append(self[r,c])
         return list
         
     # add two matrices with each other
