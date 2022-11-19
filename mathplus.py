@@ -549,6 +549,20 @@ class Common:
                 result.append(max(tmp))
             return result
             
+    # the predicate function/lambda is applied to all 
+    # elements in the array. All elements satisfying the 
+    # predicate are appended to the result list 
+    # returns result list
+    def filter(lambda_f, array):
+        result = [] 
+        dim1, dim2 = Common.shape(array)
+        for i in range(0, dim1):
+            for j in range(0, dim2):
+                if lambda_f(array[i][j]):
+                    result.append(array[i][j])
+        return result
+                
+            
 
         
 #################################################
@@ -1326,6 +1340,11 @@ class Matrix:
             for c in range(0, self.dim2):
                 m.m[r][c] = lambda_f(r, c, self.m[r][c])
         return m
+        
+    # filter returns  all matrix elements that satisfy the 
+    # predicate lambda_f as a list
+    def filter(self, lambda_f):
+        return Common.filter(lambda_f, self.m)
         
     def swap_rows(self, i1, i2):
         if not i1 in range(0, self.dim1) or not i2 in range(0, self.dim1):
@@ -2271,7 +2290,16 @@ class Vector:
         v = Vector(len(self), dtype = self.dtype)
         for i in range(0, len(self)):
             v[i] = lambda_f(i, self[i])
-        return v
+        return v 
+        
+    # filter returns  all vector elements that satisfy the 
+    # predicate lambda_f as a list
+    def filter(self, lambda_f):
+        res = []
+        for i in range(0, len(self)):
+            if lambda_f(self.v[i]):
+                res.append(self.v[i])
+        return res
         
 #################################################
 ############## class FunctionMatrix #############
