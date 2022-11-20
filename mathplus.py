@@ -130,6 +130,13 @@ class Common:
             i += 6
         return True
         
+    # compute conjugate of complex numbers
+    def conj(num):
+        if isinstance(num, complex):
+            return complex(num.real, -num.imag)
+        else:
+            return num
+        
     # this function does delegate to reduce() 
     # the lmbda is applied to all elements of 
     # array with init_val being the aggregator
@@ -1623,6 +1630,33 @@ class Matrix:
                     l[r,c] = 0
         return l, u    
         
+        
+    # the Cholesky decomposition tries to find a matrix L 
+    # for the symmetric / hermitian and positive matrix A 
+    # so that A = L@L.T 
+    def cholesky_decomposition(self):
+        a = self
+        if not a.is_square():
+            raise ValueError("Cholesky decomposition only defined for square matrices")
+        if not a.is_hermitian():
+            raise ValueError("matrix must be symmetric or hermitian")
+        n = a.dim1
+        l = Matrix(n, n, dtype = a.dtype)
+        for i in range(n):
+            for j in range(i+1):
+                sum = 0
+                for k in range(j):
+                    sum += l[i,k] * Common.conj(l[j,k])
+                if (i == j):
+                    if sum > a[i,i]:
+                        raise ValueError("matrix is not positive definite")
+                    else:
+                        l[i,j] = math.sqrt(a[i,i] - sum)
+                else:
+                    l[i,j] = (1.0 / l[j,j] * (a[i,j] - sum))
+        return l
+        
+
     # computing the characteristic polynomial of a matrix
     # using the Faddeev–LeVerrier algorithm
     # M0 = 0                    ,   cn = 1 
