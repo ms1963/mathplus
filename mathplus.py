@@ -456,6 +456,42 @@ class Common:
             act_value += step
         return result   
         
+    # creates a linear distribution from start point startp to endpoint endp
+    # consisting of size elements with the specified datatype dtype, If 
+    # with_endp is set to True the distribution will contain the endpoint.
+    def lin_distribution(startp, endp, size, with_endp = False, dtype = float):
+        array = []
+        if size == 1:
+            sz = 1
+        else:
+            sz = size - 1 if with_endp else size
+        
+        if dtype == int:
+            tmp = float((endp-startp) / sz)
+            if sz > abs(endp-startp) or tmp - math.floor(tmp) > 0:
+                raise ValueError("cannot create an equidistant distibution of integers in this interval")
+        incr =(endp-startp)/sz
+    
+        for i in range(0, size):
+            array.append(dtype(startp + i * incr))
+        return array
+        
+    # creates a logarithmic distribution of size elements starting 
+    # with base ** startp and ending with base ** endp (if with_endp 
+    # is set to True)
+    def log_distribution(startp, endp, size, base = 10.0, with_endp = True, dtype = float):
+        array = []
+        if size == 1:
+            sz = 1
+        else:
+            sz = size - 1 if with_endp else size
+        
+        incr =(endp-startp)/sz
+    
+        for i in range(0, size):
+            array.append(dtype(base ** (startp + i * incr)))
+        return array
+        
     # calculate the mean-normalized form of the 
     # input array: 
     def mean_normalization(array):
