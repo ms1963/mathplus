@@ -574,7 +574,6 @@ class Common:
             
     # Implementation of Fast Fourier Transform using Cooley-Tukey 
     # iterative in-place algorithm (radix-2 DIT). Number 
-    # 
     # buffer must contain 2^n complex numbers.
     # Note: the algorithm operates in-place, i.e., the input buffer 
     # is overwritten
@@ -591,7 +590,6 @@ class Common:
             return ((n_reversed << ctr) & ((1 << bits) - 1))
             
         bits = int(math.log(len(buffer), 2))
-        j = 1
         for j in range(1, len(buffer)):
             swap_pos = bitreverse(j, bits)
             if swap_pos <= j:
