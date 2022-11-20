@@ -20,7 +20,7 @@ class Graph:
         self.dict = {}   # stores all edges that exit the node
                          # together with a weight
         self.proj = {}   # stores the association between the node name
-                         # and the integer assigned to it
+                         # and an integer
         self.reverse_proj = {} # stores the association between an integer
                                # and the node name
     
@@ -67,18 +67,18 @@ class Graph:
     def travel(self, start):
         matrix = self.compute_reachability(1)
         current_location = self.proj[start]
-        itinery = []
+        itinerary = []
         if not start in self.proj.keys():
             print("Sorry, this city is not available")
         else: 
             print("Travel begins in " +str(start))
         while True:
-            if len(itinery) == matrix.dim1:
+            if len(itinerary) == matrix.dim1:
                 break
-            itinery.append(current_location)
+            itinerary.append(current_location)
             found = False
             for c in range(0, matrix.dim2):
-                if (matrix[current_location][c] != 0) and (c not in itinery):
+                if (matrix[current_location][c] != 0) and (c not in itinerary):
                     print("I am enjoying my trip from " + str(self.reverse_proj[current_location]) + " to " + str(self.reverse_proj[c]))
                     current_location = c
                     found = True
