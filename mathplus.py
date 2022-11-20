@@ -1400,6 +1400,22 @@ class Matrix:
                 for c in range(0, shape[1]):
                     m.m[r][c] = dtype(list[r * shape[1] + c])
             return m
+            
+    # if a pattern as an array is passed to from_pattern
+    # then rows are assembled by concatenating the pattern
+    # d2 x to build a row which is then repeated d1 times 
+    # to build the matrix returned to the caller.
+    # for example, Matrix.from_pattern(2,3,[1,2]) leads to 
+    #     [[1,2,1,2,1,2],  
+    #      [1,2,1,2,1,2]]
+    #
+    def from_pattern(d1, d2, pattern):
+        if len(pattern) == 0:
+            raise ValueError("pattern must not be empty")
+        row = []
+        for i in range(d2): row += pattern
+        mat = [row for j in range(d1)]
+        return Matrix.from_list(mat)
         
     def reshape(self, shape, dtype = float):
         if shape == None : 
@@ -1412,7 +1428,6 @@ class Matrix:
             list = self.to_flat_list()
             return Matrix.from_flat_list(list, shape, dtype = self.dtype)
             
-        
     # map applies lambda to each element of matrix
     def map(self, lambda_f):
         m = Matrix(self.dim1, self.dim2, dtype = self.dtype)
