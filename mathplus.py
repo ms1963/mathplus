@@ -3040,7 +3040,8 @@ class Polynomial:
     # degree: degree of polynomial_to_be_searched
     # learningrate: learning rate that learning of fit() should use 
     # epochs: number of iterations through all training data 
-    #    returns    
+    #    returns a Polynomial which can be used to predict results
+    #    of other argument values
                 
     def fit(x_vector, y_vector, n, learningrate = 0.0001, epochs = 1000):
 
@@ -3303,6 +3304,9 @@ class Regression:
     #   
     # returns the cofficients a0, a1, .... ,an
     #       
+    # These coefficients can be used in combination with the 
+    # function compute_multinomial to predict results for  
+    # other value vectors
     def multivariate_fit(x_matrix, y_vector, learningrate, epochs):
         if x_matrix.dim1 != len(y_vector):
             raise ValueError ("x_matrix.dim1 and len(y_vector) must be the same")
