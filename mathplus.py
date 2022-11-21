@@ -347,7 +347,49 @@ class Common:
     def remove_duplicates(arr):
         return list(set(arr))
         
-        
+    # This method sorts the passed array in-situ
+    # It return an array of indices that shows
+    # which element of the unsorted array was 
+    # moved to which index due to sorting
+    # for example,       
+    #     array = [4,1,3,2,1,3,0]
+    #     will end up in [0, 1, 1, 2, 3, 3, 4]
+    #     after sort()
+    # The returned index array looks like:
+    #     [6, 1, 4, 3, 2, 5, 0]
+    # Due to sorting the element formerly located
+    # at index 6 is now at index 0 after sorting 
+    # and the lement formerly located at position 0 
+    # is at position 6 after sort()
+    # if in_situ = False, the sort will be 
+    # conducted on a copy of a so that a remains
+    # unchanged
+    def sort(a, in_situ = True):
+        def partition(a, indices, left, right):
+            pivot = a[right]
+            i = left
+            j = right - 1
+            
+            while i < j:
+                while i < j and a[i] <= pivot: i += 1
+                while j > i and a[j] >  pivot: j -= 1
+                if a[i] > pivot:
+                    a[i],a[right] = a[right],a[i]
+                    indices[i], indices[right] = indices[right], indices[i]
+                else:
+                    i = right
+            return i
+            
+        def quicksort(a, indices, left, right):
+            if left < right:
+                idx = partition(a, indices, left, right)
+                quicksort(a, indices, left, idx - 1)
+                quicksort(a, indices, idx + 1, right)        
+        if not in_situ:
+            a = deepcopy(a)
+        indices = [i for i in range(len(a))]
+        quicksort(a, indices, 0, len(a)-1)
+        return indices
         
     # determines how many items are covered by a 
     # slice slc applied to array        
