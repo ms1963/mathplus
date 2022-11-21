@@ -303,6 +303,46 @@ class Common:
             return(len(a), length)
         else: 
             return(1,len(a))
+            
+    # diff_2d takes in each row a[r,c]-a[r,c-1] for c in 1 .. len(row)
+    # if the original array has dimension dim1 x dim2, then the result
+    # will have dimension dim1 x (dim2 - 1)
+    def diff_2D(arr):
+        dim1, dim2 = Common.shape(arr)
+        result = []
+        for r in range(dim1):
+            row = []
+            for c in range(1, dim2):
+                row.append(arr[r][c] - arr[r][c-1])
+            result.append(row)
+        return result
+        
+    # same as diff_2D but for a one-dimensional array. The 
+    # result has the length: len(arr) - 1
+    def diff_1D(arr):
+        result = []
+        for i in range(1, len(arr)):
+            result.append(arr[i]-arr[i-1])
+        return result
+    
+    # mul_2d multiplies each element of arr with 2    
+    def mul_2D(num, arr):
+        dim1, dim2 = Common.shape(arr)
+        result = []
+        for r in range(dim1):
+            row = []
+            for c in range(0, dim2):
+                row.append(num * arr[r][c])
+            result.append(row)
+        return result
+        
+    # same as mul_2D, but for a one-dimensional array
+    def mul_1D(num, arr):
+        result = []
+        for i in range(0, len(arr)):
+            result.append(num * arr[i])
+        return result
+        
         
     # determines how many items are covered by a 
     # slice slc applied to array        
