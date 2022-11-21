@@ -28,7 +28,11 @@ import numpy as np # used to transfer array between
 
 #################################################
 ################## class Common #################
-#################################################
+################################################# 
+"""
+as the name suggests, Common provides more general
+functionality used by other modules.
+"""
 class Common:          
     # n!
     def fac(n):
@@ -379,8 +383,14 @@ class Common:
             N = N << 1
             
 #################################################
-################## class Array #################
-#################################################
+################## class Array ##################
+################################################# 
+"""
+Array contains functionality for dealing with 
+Python arrays (aka. lists).
+
+"""
+
 class Array:
 
     # returns the signs for a list of numbers
