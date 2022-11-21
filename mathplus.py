@@ -343,6 +343,11 @@ class Common:
             result.append(num * arr[i])
         return result
         
+    # remove duplicates from a one-dimensional array 
+    def remove_duplicates(arr):
+        return list(set(arr))
+        
+        
         
     # determines how many items are covered by a 
     # slice slc applied to array        
