@@ -8,7 +8,7 @@ Permissions of this strong copyleft license are conditioned on making available 
 """
 
 
-from mathplus import Vector, Matrix, Common, Polynomial, Rational, Regression, Clustering, Newton, FunctionMatrix, Transfer
+from mathplus import Array, Vector, Matrix, Common, Polynomial, Rational, Regression, Clustering, Newton, FunctionMatrix, Transfer
 
 import math
 
@@ -288,8 +288,8 @@ m = Matrix.diagonal_matrix([1,2,3], dtype = int)
 print(m)
 
 
-print("Using Common.arange(start = 0, stop = 5, step = 0.5, dtype = float) ")
-print(Common.arange(start = 0, stop = 5, step = 0.5, dtype = int))
+print("Using Array.arange(start = 0, stop = 5, step = 0.5, dtype = float) ")
+print(Array.arange(start = 0, stop = 5, step = 0.5, dtype = int))
 print()
 
 
@@ -454,11 +454,11 @@ print("but obviously a projection from 3D space to 2D space cannot be invertible
 print()
 print("Printing matrices and vectors with print_matrix respectively print_vector")
 print()
-Common.print_matrix(M)
+Array.print_matrix(M)
 print()
-Common.print_vector(M.row_vector(0))
+Array.print_vector(M.row_vector(0))
 print()
-Common.print_vector(M.column_vector(0))
+Array.print_vector(M.column_vector(0))
 print()
 
 m = Matrix.from_list([[1,2,3], [4,5,6], [7,8,9]], dtype = float)

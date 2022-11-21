@@ -29,24 +29,7 @@ import numpy as np # used to transfer array between
 #################################################
 ################## class Common #################
 #################################################
-class Common:
-
-    # returns the signs for a list of numbers
-    # for example, [2, -6, 0, 3] => [1, -1, 0, 1]
-    def sign(list):
-        if list ==  []: 
-            return [] 
-        else:
-            result = [] 
-            for elem in list:
-                if elem == 0:
-                    result.append(0)
-                elif elem > 0:
-                    result.append(1)
-                else:
-                    result.append(-1)
-            return result
-            
+class Common:          
     # n!
     def fac(n):
         result = 1
@@ -107,7 +90,13 @@ class Common:
                 result *= arg[1] ** arg[0] 
             return result
             
-        
+    # n!
+    def fac(n):
+        result = 1
+        for i in range(2, n+1):
+            result *= i
+        return result
+
     # fibonacci series
     def fib(n):
         if n == 0:
@@ -136,31 +125,6 @@ class Common:
             return complex(num.real, -num.imag)
         else:
             return num
-        
-    # this function does delegate to reduce() 
-    # the lmbda is applied to all elements of 
-    # array with init_val being the aggregator
-    def reduce_general(lmbda, array, init_val = None):
-        if init_val == None:
-            return reduce(lmbda, array)
-        else:
-            return reduce(lmbda, array, init_val)
-        
-    # calculate the sum of all elements in an array 
-    # using init_val as the base value
-    def sum(array, init_val = None):
-        if init_val == None:
-            return reduce(operator.add, array)
-        else:
-            return reduce(operator.add, array, init_val)
-        
-    # calculate the product of all elements in an array 
-    # using init_val as the base value
-    def mul(array, init_val = None):
-        if init_val == None:
-            return reduce(operator.mul, array)
-        else:
-            return reduce(operator.mul, array, init_val)
             
     # greatest common divisor
     def gcd(a, b):
@@ -213,6 +177,44 @@ class Common:
                     break
         return g
 
+   # Implementation of Fast Fourier Transform using Cooley-Tukey 
+    # iterative in-place algorithm (radix-2 DIT). Number 
+    # buffer must contain 2^n complex numbers.
+    # Note: the algorithm operates in-place, i.e., the input buffer 
+    # is overwritten
+    def fft(buffer):
+        def bitreverse(num, bits):
+            n = num
+            n_reversed = n
+            ctr = bits - 1
+            n = n >> 1
+            while n > 0:
+                n_reversed = (n_reversed << 1) | (n & 1)
+                ctr -= 1
+                n = n >> 1
+            return ((n_reversed << ctr) & ((1 << bits) - 1))
+            
+        bits = int(math.log(len(buffer), 2))
+        for j in range(1, len(buffer)):
+            swap_pos = bitreverse(j, bits)
+            if swap_pos <= j:
+                continue
+            (buffer[j], buffer[swap_pos]) = (buffer[swap_pos], buffer[j]) 
+
+        N = 2
+        while N <= len(buffer):
+            for i in range(0, len(buffer), N):
+                for k in range(0, N // 2):
+                    even_idx = i + k
+                    odd_idx = i + k + (N // 2)
+                    even, odd = buffer[even_idx], buffer[odd_idx]
+                    term = -2 * math.pi * k / float(N)
+                    exp = complex(math.cos(term), math.sin(term)) * odd
+                    buffer[even_idx], buffer[odd_idx] = even + exp, even - exp
+            
+            N = N << 1
+            
+
     # factorization of integers into their prime factors.
     # the method returns a list of prime factors in ascending
     # order
@@ -259,6 +261,170 @@ class Common:
             res *= i
         return res
 
+    # x is the number, mu is the mean, sigma the standard deviation
+    def z_score(x, mu, sigma):
+        return (x - mu)/sigma
+        
+    # sigma is the standard deviation, mu the mean
+    def variation_coeff(sigma, mu):
+        return sigma/mu
+            
+    # gaussian distribution: mu is the median or expectation value of a data 
+    # set, sigma its standard deviation
+    def gaussian_distribution(x, mu, sigma):
+        return (1 / (sigma * math.sqrt(2 * math.pi))) * math.exp(-0.5 * (((x-mu)/sigma) ** 2)) 
+
+    # the different gaussian kernels for 1D, 2D, multidiemsional cases
+    def gaussian_kernel_1D(x, sigma):
+        return  (1 / (sqrt(2 * math.pi) * sigma)) * math.exp(- x**2/(2 * sigma ** 2)) 
+
+    def gaussian_kernel_2D(x, y, sigma):
+        return (1 / (2 * math.pi * sigma ** 2)) * math.exp(- (x**2 + y**2) / (2 * sigma ** 2))
+
+    # dimension == len(xvect)
+    def gaussian_kernel_multiD(xvect, sigma):
+        return (1 / ((sqrt(2 * math.pi) * sigma)) ** len(xvect)) * math.exp(- (xvect.euclidean_norm() ** 2) / (2 * sigma **2))
+
+    # calculate the covariance between two data series
+    # zero result => dataset don't seem to have a relation
+    # positive: if one data rises, the other one rises too 
+    # negative: if one dataset rises, the other one falls
+    def covariance(x_dataset, y_dataset):
+        if len(x_dataset) != len(y_dataset):
+            raise ValueError("both data sets must have the same number of data elements")
+        else:
+            sum = 0
+            x_mean = Array.mean(x_dataset)
+            y_mean = Array.mean(y_dataset)
+            for i in len(x_dataset):
+                sum += (x_dataset[i] - x_mean) * (y_dataset[i] - y_mean)
+            return sum/(len(x_dataset) - 1)
+            
+            
+    # calculate the correlation between two data series
+    # 0 => no link between data, 1 => perfect positive 
+    # correlation, -1 = perfect negative correlation
+    def correlation(x_dataset, y_dataset):
+        if len(x_dataset) != len(y_dataset):
+            raise ValueError("both data sets must have the same number of data elements")
+        else:
+            sum1 = 0
+            sum2 = 0
+            sum3 = 0
+            x_mean = Array.mean(x_dataset)
+            y_mean = Array.mean(y_dataset)
+            for i in len(x_dataset):
+                sum1 += (x_dataset[i] - x_mean) ** 2 
+                sum2 += (x_dataset[i] - x_mean) * (y_dataset[i] - y_mean)
+                sum3 += (y_dataset[i] - y_mean) ** 2
+            return sum2 / math.sqrt(sum1 * sum3)
+
+    # calculates expectation value for series of x-values.
+    # If weights_array is used by caller each x-value will
+    # be multiplied by the corresponding weight
+    # If no weights_array is passed to the method, weight
+    # will be 1/len(x_array)
+    def expected_value(x_array, weights_array = None):
+        if len(x_array) == 0:
+            return 0
+        if (weights_array != None) and (len(x_array) != len(weights_array)):
+            raise ValueError("x_array and weights_array must have the same length") 
+        if weights_array == None:
+            weight = 1 / len(x_array)
+            sum = 0
+            for i in range(0, len(x_array)):
+                sum += x_array[i] * weight
+            return sum
+        else:
+            sum = 0
+            for i in range(0, len(x_array)):
+                sum += x_array[i] * weights_array[i]    
+            return sum
+            
+    # Implementation of Fast Fourier Transform using Cooley-Tukey 
+    # iterative in-place algorithm (radix-2 DIT). Number 
+    # buffer must contain 2^n complex numbers.
+    # Note: the algorithm operates in-place, i.e., the input buffer 
+    # is overwritten
+    def fft(buffer):
+        def bitreverse(num, bits):
+            n = num
+            n_reversed = n
+            ctr = bits - 1
+            n = n >> 1
+            while n > 0:
+                n_reversed = (n_reversed << 1) | (n & 1)
+                ctr -= 1
+                n = n >> 1
+            return ((n_reversed << ctr) & ((1 << bits) - 1))
+            
+        bits = int(math.log(len(buffer), 2))
+        for j in range(1, len(buffer)):
+            swap_pos = bitreverse(j, bits)
+            if swap_pos <= j:
+                continue
+            (buffer[j], buffer[swap_pos]) = (buffer[swap_pos], buffer[j]) 
+
+        N = 2
+        while N <= len(buffer):
+            for i in range(0, len(buffer), N):
+                for k in range(0, N // 2):
+                    even_idx = i + k
+                    odd_idx = i + k + (N // 2)
+                    even, odd = buffer[even_idx], buffer[odd_idx]
+                    term = -2 * math.pi * k / float(N)
+                    exp = complex(math.cos(term), math.sin(term)) * odd
+                    buffer[even_idx], buffer[odd_idx] = even + exp, even - exp
+            
+            N = N << 1
+            
+#################################################
+################## class Array #################
+#################################################
+class Array:
+
+    # returns the signs for a list of numbers
+    # for example, [2, -6, 0, 3] => [1, -1, 0, 1]
+    def sign(list):
+        if list ==  []: 
+            return [] 
+        else:
+            result = [] 
+            for elem in list:
+                if elem == 0:
+                    result.append(0)
+                elif elem > 0:
+                    result.append(1)
+                else:
+                    result.append(-1)
+            return result
+            
+ 
+        
+    # this function does delegate to reduce() 
+    # the lmbda is applied to all elements of 
+    # array with init_val being the aggregator
+    def reduce_general(lmbda, array, init_val = None):
+        if init_val == None:
+            return reduce(lmbda, array)
+        else:
+            return reduce(lmbda, array, init_val)
+        
+    # calculate the sum of all elements in an array 
+    # using init_val as the base value
+    def sum(array, init_val = None):
+        if init_val == None:
+            return reduce(operator.add, array)
+        else:
+            return reduce(operator.add, array, init_val)
+        
+    # calculate the product of all elements in an array 
+    # using init_val as the base value
+    def mul(array, init_val = None):
+        if init_val == None:
+            return reduce(operator.mul, array)
+        else:
+            return reduce(operator.mul, array, init_val)
           
     # methods to create array with different dimensions filled
     # with init_value
@@ -308,7 +474,7 @@ class Common:
     # if the original array has dimension dim1 x dim2, then the result
     # will have dimension dim1 x (dim2 - 1)
     def diff_2D(arr):
-        dim1, dim2 = Common.shape(arr)
+        dim1, dim2 = Array.shape(arr)
         result = []
         for r in range(dim1):
             row = []
@@ -327,7 +493,7 @@ class Common:
     
     # mul_2d multiplies each element of arr with 2    
     def mul_2D(num, arr):
-        dim1, dim2 = Common.shape(arr)
+        dim1, dim2 = Array.shape(arr)
         result = []
         for r in range(dim1):
             row = []
@@ -424,8 +590,8 @@ class Common:
             
     # concatenate two rectangular arrays on axis 0 or 1 
     def concatenate(arr1, arr2, axis = 0):
-        shp1 = Common.shape(arr1)
-        shp2 = Common.shape(arr2)
+        shp1 = Array.shape(arr1)
+        shp2 = Array.shape(arr2)
         if axis == 0:
             if shp1[1] != shp2[1]:
                 raise ValueError("cannot concatenate array with different number of columns on axis 0")
@@ -451,7 +617,7 @@ class Common:
                 
     # summing up all array elements on axis 0 or 1
     def sum_2D(arr, axis = 0):
-        shp = Common.shape(arr)
+        shp = Array.shape(arr)
         result = []
         if axis == 0:
             for c in range(0, shp[1]):
@@ -487,7 +653,7 @@ class Common:
     # calculates the standard deviation of array elemments
     def std_dev(arr):
         sum = 0
-        mu = Common.mean(arr)
+        mu = Array.mean(arr)
         for i in range(0, len(arr)):
             sum += (arr[i] - mu) ** 2
         res = math.sqrt(sum / len(arr))
@@ -495,7 +661,7 @@ class Common:
         
     # calculates the variance of array elements
     def variance(arr):
-        return Common.std_dev(arr) ** 2
+        return Array.std_dev(arr) ** 2
         
     # calculates the median of array elements
     def median(arr):
@@ -506,15 +672,6 @@ class Common:
             return a[len_a // 2]
         else:
             return (a[(len_a - 1)//2]+a[(len_a+1)//2])/2 
-            
-    # x is the number, mu is the mean, sigma the standard deviation
-    def z_score(x, mu, sigma):
-        return (x - mu)/sigma
-        
-    # sigma is the standard deviation, mu the mean
-    def variation_coeff(sigma, mu):
-        return sigma/mu
-        
             
     # checks whether condition cond (lambda or function type)
     # holds for all elements of an array
@@ -583,152 +740,42 @@ class Common:
     # input array: 
     def mean_normalization(array):
         maximum = max(array)
-        mean    = Common.mean(array)
+        mean    = Array.mean(array)
         result  = [(array[i] - mean) / maximum for i in range(0, len(array))]
         return result
-        
-    # gaussian distribution: mu is the median or expectation value of a data 
-    # set, sigma its standard deviation
-    def gaussian_distribution(x, mu, sigma):
-        return (1 / (sigma * math.sqrt(2 * math.pi))) * math.exp(-0.5 * (((x-mu)/sigma) ** 2)) 
-
-    # the different gaussian kernels for 1D, 2D, multidiemsional cases
-    def gaussian_kernel_1D(x, sigma):
-        return  (1 / (sqrt(2 * math.pi) * sigma)) * math.exp(- x**2/(2 * sigma ** 2)) 
-
-    def gaussian_kernel_2D(x, y, sigma):
-        return (1 / (2 * math.pi * sigma ** 2)) * math.exp(- (x**2 + y**2) / (2 * sigma ** 2))
-
-    # dimension == len(xvect)
-    def gaussian_kernel_multiD(xvect, sigma):
-        return (1 / ((sqrt(2 * math.pi) * sigma)) ** len(xvect)) * math.exp(- (xvect.euclidean_norm() ** 2) / (2 * sigma **2))
-
-    # calculate the covariance between two data series
-    # zero result => dataset don't seem to have a relation
-    # positive: if one data rises, the other one rises too 
-    # negative: if one dataset rises, the other one falls
-    def covariance(x_dataset, y_dataset):
-        if len(x_dataset) != len(y_dataset):
-            raise ValueError("both data sets must have the same number of data elements")
-        else:
-            sum = 0
-            x_mean = Common.mean(x_dataset)
-            y_mean = Common.mean(y_dataset)
-            for i in len(x_dataset):
-                sum += (x_dataset[i] - x_mean) * (y_dataset[i] - y_mean)
-            return sum/(len(x_dataset) - 1)
             
-            
-    # calculate the correlation between two data series
-    # 0 => no link between data, 1 => perfect positive 
-    # correlation, -1 = perfect negative correlation
-    def correlation(x_dataset, y_dataset):
-        if len(x_dataset) != len(y_dataset):
-            raise ValueError("both data sets must have the same number of data elements")
-        else:
-            sum1 = 0
-            sum2 = 0
-            sum3 = 0
-            x_mean = Common.mean(x_dataset)
-            y_mean = Common.mean(y_dataset)
-            for i in len(x_dataset):
-                sum1 += (x_dataset[i] - x_mean) ** 2 
-                sum2 += (x_dataset[i] - x_mean) * (y_dataset[i] - y_mean)
-                sum3 += (y_dataset[i] - y_mean) ** 2
-            return sum2 / math.sqrt(sum1 * sum3)
-
-    # calculates expectation value for series of x-values.
-    # If weights_array is used by caller each x-value will
-    # be multiplied by the corresponding weight
-    # If no weights_array is passed to the method, weight
-    # will be 1/len(x_array)
-    def expected_value(x_array, weights_array = None):
-        if len(x_array) == 0:
-            return 0
-        if (weights_array != None) and (len(x_array) != len(weights_array)):
-            raise ValueError("x_array and weights_array must have the same length") 
-        if weights_array == None:
-            weight = 1 / len(x_array)
-            sum = 0
-            for i in range(0, len(x_array)):
-                sum += x_array[i] * weight
-            return sum
-        else:
-            sum = 0
-            for i in range(0, len(x_array)):
-                sum += x_array[i] * weights_array[i]    
-            return sum
-            
-    # Implementation of Fast Fourier Transform using Cooley-Tukey 
-    # iterative in-place algorithm (radix-2 DIT). Number 
-    # buffer must contain 2^n complex numbers.
-    # Note: the algorithm operates in-place, i.e., the input buffer 
-    # is overwritten
-    def fft(buffer):
-        def bitreverse(num, bits):
-            n = num
-            n_reversed = n
-            ctr = bits - 1
-            n = n >> 1
-            while n > 0:
-                n_reversed = (n_reversed << 1) | (n & 1)
-                ctr -= 1
-                n = n >> 1
-            return ((n_reversed << ctr) & ((1 << bits) - 1))
-            
-        bits = int(math.log(len(buffer), 2))
-        for j in range(1, len(buffer)):
-            swap_pos = bitreverse(j, bits)
-            if swap_pos <= j:
-                continue
-            (buffer[j], buffer[swap_pos]) = (buffer[swap_pos], buffer[j]) 
-
-        N = 2
-        while N <= len(buffer):
-            for i in range(0, len(buffer), N):
-                for k in range(0, N // 2):
-                    even_idx = i + k
-                    odd_idx = i + k + (N // 2)
-                    even, odd = buffer[even_idx], buffer[odd_idx]
-                    term = -2 * math.pi * k / float(N)
-                    exp = complex(math.cos(term), math.sin(term)) * odd
-                    buffer[even_idx], buffer[odd_idx] = even + exp, even - exp
-            
-            N = N << 1
-            
-    
     # calculate minima of array        
     def argmin(array, axis = None):
-        if axis == None or Common.shape(array)[0] == 1:
+        if axis == None or Array.shape(array)[0] == 1:
             return min(array)
         elif axis == 0:
             result = []
-            for i in range(0, Common.shape(array)[0]):
+            for i in range(0, Array.shape(array)[0]):
                 result.append(min(array[i]))
             return result
         elif axis == 1:
             result = []
-            for c in range(0, Common.shape(array)[1]):
+            for c in range(0, Array.shape(array)[1]):
                 tmp = []
-                for r in range(0, Common.shape(array)[0]):
+                for r in range(0, Array.shape(array)[0]):
                     tmp.append(array[r][c])
                 result.append(min(tmp))
             return result
                 
     # calculate maxima of array
     def argmax(array, axis = 1):
-        if axis == None or Common.shape(array)[0] == 1:
+        if axis == None or CommArrayon.shape(array)[0] == 1:
             return max(array)
         elif axis == 0:
             result = []
-            for i in range(0, Common.shape(array)[0]):
+            for i in range(0, Array.shape(array)[0]):
                 result.append(max(array[i]))
             return result
         elif axis == 1:
             result = []
-            for c in range(0, Common.shape(array)[1]):
+            for c in range(0, Array.shape(array)[1]):
                 tmp = []
-                for r in range(0, Common.shape(array)[0]):
+                for r in range(0, Array.shape(array)[0]):
                     tmp.append(array[r][c])
                 result.append(max(tmp))
             return result
@@ -739,7 +786,7 @@ class Common:
     # returns result list
     def filter(lambda_f, array):
         result = [] 
-        dim1, dim2 = Common.shape(array)
+        dim1, dim2 = Array.shape(array)
         for i in range(0, dim1):
             for j in range(0, dim2):
                 if lambda_f(array[i][j]):
@@ -750,7 +797,7 @@ class Common:
     # where the condtion lambda_f holds            
     def find_where(lambda_f, array):
         result = [] 
-        dim1, dim2 = Common.shape(array)
+        dim1, dim2 = Array.shape(array)
         for i in range(0, dim1):
             for j in range(0, dim2):
                 if lambda_f(array[i][j]):
@@ -903,8 +950,8 @@ class Matrix:
         if isinstance(arg, slice): # we got instance[i:j:s]
             if not isinstance(val, list):
                 raise TypeError("argument must be a list")
-            slclen =   Common.slice_length(arg, [0 for i in range(0,self.dim1)])
-            dim1, dim2  = Common.shape(val)
+            slclen =   Array.slice_length(arg, [0 for i in range(0,self.dim1)])
+            dim1, dim2  = Array.shape(val)
             if (slclen != dim1) or (dim2 != self.dim2):
                 raise ValueError("an array with " + str(slclen) + " rows and " + str(self.dim2) + " columns expected as argument")
             # set specified rows of matrix as 2-dim 
@@ -937,8 +984,8 @@ class Matrix:
                 elif (x,y) == (True, False): # we got instance[i,k:l]
                     if not isinstance(val, list):
                         raise TypeError("list expected as argument")
-                    length_required = Common.slice_length(s2, self.m[s1])
-                    dim1, dim2 = Common.shape(val)
+                    length_required = Array.slice_length(s2, self.m[s1])
+                    dim1, dim2 = Array.shape(val)
                     if dim1 != 1:
                         raise ValueError("one dimensional array required as argument")
                     if length_required != dim2:
@@ -960,10 +1007,10 @@ class Matrix:
                         self.m[s1][i] = val[r]
                         r += 1
                 elif (x,y) == (False, True): # we got instance[k:l, j]
-                    length_required = Common.slice_length(s1,self.column_vector(0))
+                    length_required = Array.slice_length(s1,self.column_vector(0))
                     if not isinstance(val, list):
                         raise TypeError("list expected as argument")
-                    dim1, dim2 = Common.shape(val)
+                    dim1, dim2 = Array.shape(val)
                     if dim1 != 1:
                         raise ValueError("one dimensional array required as argument")
                     if dim2 != length_required:
@@ -1003,9 +1050,9 @@ class Matrix:
                 else: # (False, False) # we got instance[i1:2,j1:j2]
                     if not isinstance(val, list):
                         raise TypeError("list expected as argument")
-                    length1_required = Common.slice_length(s1, self.column_vector(0).v)
-                    length2_required = Common.slice_length(s2, self.row_vector(0).v)
-                    if (length1_required, length2_required) != Common.shape(val):
+                    length1_required = Array.slice_length(s1, self.column_vector(0).v)
+                    length2_required = Array.slice_length(s2, self.row_vector(0).v)
+                    if (length1_required, length2_required) != Array.shape(val):
                         raise ValueError("list with shape " + str(length1_required) + " x " + str(length2_required) + " expected as argument")                            
                         
                     if s1 == None:
@@ -1029,7 +1076,7 @@ class Matrix:
             # set single row of matrix as a list
             if not isinstance(val, list):
                 raise ValueError("list expected as argument")
-            dim1, dim2 = Common.shape(val)
+            dim1, dim2 = Array.shape(val)
             if dim1 != 1 or dim2 != self.dim2:
                 raise ValueError("argument has not the right dimensions (1," + str(self.dim2))
             self.m[arg] = val
@@ -1553,13 +1600,13 @@ class Matrix:
     # filter returns  all matrix elements that satisfy the 
     # predicate lambda_f as a list
     def filter(self, lambda_f):
-        return Common.filter(lambda_f, self.m)
+        return Array.filter(lambda_f, self.m)
         
     # same as filter, but does not return the elements 
     # but the index-locations where the condition lambda_f
     # holds as a list
     def find_where(self, lambda_f):
-        return Common.find_where(lambda_f, self.m)
+        return Array.find_where(lambda_f, self.m)
         
     def swap_rows(self, i1, i2):
         if not i1 in range(0, self.dim1) or not i2 in range(0, self.dim1):
@@ -2098,12 +2145,12 @@ class Matrix:
     # this methods determines the sum of all columns or 
     # rows depending on axis
     def sum(self, axis = 0):
-        return Common.sum(self.m, axis)
+        return Array.sum(self.m, axis)
         
     # concatenation of the rows or columns of matrix other
     # to matrix self depending on axis
     def concatenate(self, other, axis = 0):
-        array = Common.concatenate(self.m, other.m, axis)
+        array =  Array.concatenate(self.m, other.m, axis)
         m = Matrix.from_list(array, dtype = self.dtype)
         return m
         
@@ -2517,7 +2564,7 @@ class Vector:
             yield self.v[i]
     
     def mean(self):
-        return Common.mean(self.v)
+        return Array.mean(self.v)
         
     # map applies lambda to each element of vector
     def map(self, lambda_f):
@@ -2768,7 +2815,7 @@ class FunctionMatrix:
     # a list. The list shape is mapped to the
     # Matrix shape.
     def from_list(array):
-        shape = Common.shape(array)
+        shape = Array.shape(array)
         o = FunctionMatrix(shape[0], shape[1])
         for r in range (0, shape[0]):
             for c in range(0, shape[1]):
