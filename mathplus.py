@@ -855,6 +855,29 @@ class Array:
                 if lambda_f(array[i][j]):
                     result.append((i,j))
         return result
+        
+    # apply_1D applies a function to all elements 
+    # of a 1D array
+    def apply_1D(lambda_f, array):
+        result = []
+        for i in range(len(array)):
+            result.append(lambda_f(array[i]))
+        return result
+            
+    # apply_2D applies a function to all elements
+    # of a 2D array
+    def apply_2D(lambda_f, array):
+        d1,d2 = Array.shape(array)
+        result = []
+        for i in range(d1):
+            row = []
+            for j in range(d2):
+                row.append(lambda_f(array[i][j]))
+            result.append(row)
+        return result
+                
+        
+            
             
 
         
