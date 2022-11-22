@@ -753,6 +753,12 @@ class Array:
         mean    = Array.mean(array)
         result  = [(array[i] - mean) / maximum for i in range(0, len(array))]
         return result
+        
+    def euclidean_norm(array):
+        sum = 0
+        for i in range(len(array)):
+            sum += array[i] ** 2
+        return sum / len(array)
             
     # calculate minima of array        
     def argmin(array, axis = None):
@@ -1231,6 +1237,39 @@ class Matrix:
         else:
             return self.T() * vector
             
+    # requires a tridiagonal matrix a vector with len(vector)=matrix.dim1
+    # returns the solution x of the equation matrix@x = vector
+    def thomas_algorithm(self, d):
+        if not self.is_tridiagonal():
+            raise ValueError("thomas algorithm works with tridiagonal matrices only")
+        n, _ = self.shape()
+        if len(d) != n:
+            raise ValueError("vector must have same length as self.dim1")
+        if self.det() == 0:
+            raise ValueError("matrix must be invertible")
+        
+        c_ = [0 for i in range(n)]
+        d_ = [0 for i in range(n)]
+        x  = [0 for i in range(n)]
+        a  = [0] + self.diagonal(-1)
+        b  = self.diagonal(0)
+        c  = self.diagonal(+1) + [0]
+        
+        # forward propagation
+        c_[0] = c[0]/b[0]
+        d_[0] = d[0]/b[0]
+        for i in range(1,n-1):
+            c_[i] = c[i] / (b[i] - c_[i-1]*a[i])
+            d_[i] = (d[i]-d_[i-1] * a[i]) / (b[i]-c_[i-1]*a[i])
+        d_[n-1] = (d[n-1]-d_[n-2] * a[n-1]) / (b[n-1]-c_[n-2]*a[n-1])
+                    
+        # backward propagation
+        x[n-1] = d_[n-1]
+        for i in range(n-2, -1, -1):
+            x[i] = d_[i]-c_[i]*x[i+1]
+            
+        return Vector.from_list(x)
+                    
         
     # get row vector for row
     def row_vector(self, row):
@@ -1282,7 +1321,7 @@ class Matrix:
     # diag must exist, otherwise a ValueError is thrown
     def diagonal(self, diag = 0):
         dim1, dim2 = self.shape()
-        max_diag = min(dim1, dim2) - 1
+        max_diag = min(dim1, dim2)-1
         if (abs(diag) > max_diag):
             raise ValueError("diag must be in [" + str(-max_diag) + "," + str(max_diag) + "]")
         list = []
@@ -1291,6 +1330,19 @@ class Matrix:
                 if c - diag == r:
                     list.append(self[r,c])
         return list
+        
+    # checks whether matrix is in tridiagonal form
+    def is_tridiagonal(self):
+        if not self.is_square():
+            raise ValueError("is_tridiagonal only defined for square matrices")
+        dim1, dim2 = self.shape()
+        for d in range(-dim1+1, dim1):
+            n = Array.euclidean_norm(self.diagonal(d))
+            if not d in range(-1,2) and n != 0:
+                return False
+            else: 
+                continue
+        return True
         
     # add two matrices with each other
     #  if their sizes are not the same, a ValueError is raised
