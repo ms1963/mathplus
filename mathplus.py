@@ -446,6 +446,42 @@ class Array:
 
     def create_3Darray(dim1count, dim2count, dim3count, init_value = 0):
         return [[[init_value for i in range(0, dim3count)] for j in range(0, dim2count)] for k in range(dim1count)]
+
+    # split_1D splits a one-dimensional array in arg pieces if 
+    # arg is an integer, or at the specified positions if arg 
+    # is a list or tupel
+    def split_1D(array, arg):
+        n = len(array)
+        if isinstance(arg, int):
+            if arg == 0 or n % arg != 0:
+                raise ValueError("equal split of array with size = " + str(n) + " impossible with arg = " + str(arg))
+            else:
+                result = []
+                i = 0
+                while i < n:
+                    arr = []
+                    for j in range(n // arg):
+                        arr.append(array[i + j])
+                    i += n // arg
+                    result.append(arr)
+            return result
+        elif isinstance(arg, tuple) or isinstance(arg, list):
+            last_pos = 0
+            split_indices = [0]
+            for pos in arg:
+                if pos < 0 or pos >= n:
+                    raise ValueError("attempt to split array of size at nonexistent position " + str(pos))
+                split_indices.append(pos)
+            split_indices.append(len(array))
+            split_indices = list(set(split_indices))
+            split_indices.sort()
+            result = []
+            for i in range(len(split_indices)-1):
+                tmp = []
+                for j in range(split_indices[i], split_indices[i+1]):
+                    tmp.append(array[j])
+                result.append(tmp)
+            return result
     
     # delete elements from an array with indices of elements           
     # to delete given in indices
@@ -501,7 +537,7 @@ class Array:
             result.append(arr[i]-arr[i-1])
         return result
     
-    # mul_2d multiplies each element of arr with 2    
+    # mul_2d multiplies each element of arr with num  
     def mul_2D(num, arr):
         dim1, dim2 = Array.shape(arr)
         result = []
