@@ -1237,7 +1237,7 @@ class Matrix:
         else:
             return self.T() * vector
             
-    # requires a tridiagonal matrix a vector with len(vector)=matrix.dim1
+    # requires a tridiagonal matrix a vector with len(vector)==matrix.dim1
     # returns the solution x of the equation matrix@x = vector
     def thomas_algorithm(self, d):
         if not self.is_tridiagonal():
@@ -1270,6 +1270,36 @@ class Matrix:
             
         return Vector.from_list(x)
                     
+    # The Jacobi method is an approximation approach to solve 
+    # a linear equation system. As termination criterion this 
+    # implimentation uses the change of the result vector between 
+    # different iterations. If the tolerance is achieved the 
+    # method returns the result. If after max_iter iterations
+    # the required tolerance is not achieved then None is returned.
+    def jacobi_method(self, b, tolerance = 1E-20, max_iter = 100):
+        _max_iter = max_iter
+        _tolerance = 1E-20
+        n,_ = self.shape()
+        if not self.is_square():
+            raise ValueError("only square matrices can be used")
+        if len(b) != n:
+            raise ValueError("dimensions of b and self are not equal")
+        if self.det == 0:
+            raise ValueError("algorithm only works for matrices with det <> 0")
+        
+        x_old = Vector.random_vector(n, -2, +2, dtype = self.dtype) # initialze
+        iter = 0
+        while iter < _max_iter:
+            x = b.clone()
+            for i in range(n):
+                for j in range(n):
+                    if j != i:
+                        x[i] = x[i] - self[i,j] * x_old[j]
+                x[i] = x[i] / self[i,i]
+            if (x_old - x).euclidean_norm() <= tolerance:
+                return x
+            x_old = x
+        return None
         
     # get row vector for row
     def row_vector(self, row):
