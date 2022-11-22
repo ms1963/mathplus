@@ -588,4 +588,19 @@ nv = Transfer.vector_to_numpy(v)
 print()
 print("After transfering it to numpy we get \n" + str(nv))
 print("Transferring it back to mathplus results in : " + str(Transfer.numpy_to_vector(nv)))
-
+print()
+print("Interpolation with cubic natural splines")
+print(" Given are 8 points with the x-coordinates: ")
+print()
+x = [0,1,2,3,4,5,6,7]
+print(x)
+print("and the y-coordinates: ")
+y = [3,-1,0,2,1,4,0,-1]
+print()
+print(y)
+print("Spline interpolation is initialized by calling cs = Interpolation.cubic_splines(x,y)")
+cs = Interpolation.cubic_splines(x,y)
+x = -1
+while x <= 8:
+    print("  x = " + str(x) + " Interpolation delivers : " + str(cs.interpolate(x)))
+    x += 0.5

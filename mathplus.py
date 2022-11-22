@@ -3505,8 +3505,99 @@ class Rational:
             r2 = Rational.periodToRational(period, leadingzeros+getLength(fraction))
         r3 = Rational.fractionToRational(fraction, leadingzeros)
         return r1+r2+r3  
+
+#################################################
+############## class Interpolation ##############
+#################################################   
+
+class Interpolation:
+    # This class implements natural cubic splines.
+    # Parameters:
+    #     xarray: array with  x-coordinates of the 
+    #             points. 
+    #             Prereq.:      x0 < x2 < ... < xn 
+    #     yarray: array  with y-coordinates of the
+    #             points,  i.e. Pi = (xi,yi)
+    #             Prereq.: len(xarray)==len(yarray)
+    #     To initialize the interpolation, calling
+    #     the constructor is sufficient.
+    #     After that, interpolation values  can be 
+    #     computed using method interpolate(x0)
+    # 
+    class cubic_splines:
+        # constructor which does the heavy lifting
+        # of the cubic spline interpolation
+        def __init__(self, xarray, yarray):
+            lam_0       = 0
+            lam_n_min_1 = 0
+            b_0         = 0
+            b_n_min_1   = 0
+            mu_0        = 1
+            mu_n_min_1  = 1
+            self.n = len(xarray)
+            self.a = [0 for i in range(self.n-1)]
+            self.b = [0 for i in range(self.n-1)]
+            self.c = [0 for i in range(self.n-1)]
+            self.d = [0 for i in range(self.n-1)]
+            self.x = deepcopy(xarray)
+            self.y = deepcopy(yarray)
         
+            if len(self.x) != len(self.y):
+                raise ValueError("x and y vector must have equal length")
+            
+            increasing_x = True
+            for i in range(len(self.x)-1):
+                if self.x[i] < self.x[i+1]:
+                    continue
+                else:
+                    increasing_x = False
+                    break
+            if not increasing_x:
+                raise ValueError("violation of precondition x[0] < x[1] < x[2] ... ")
+            self.h  = [self.x[i+1]-self.x[i] for i in range(self.n-1)]
+            self.b = [0 for i in range(self.n)]
+            self.b[0]   = b_0
+            self.b[self.n-1] = b_n_min_1
+            for i in range(1, self.n-1):
+                self.b[i] = (self.y[i+1]-self.y[i])/self.h[i] - (self.y[i]-self.y[i-1])/self.h[i-1]
+            mat = Matrix(self.n, self.n)
+            mat[0,0] = mu_0
+            mat[0,1] = lam_0
+            mat[self.n-1,self.n-2] = lam_n_min_1
+            mat[self.n-1,self.n-1] = mu_n_min_1
+            for i in range(1, self.n-1):
+                mat[i,i]     = (self.h[i-1]+self.h[i])/3
+                mat[i-1,i]   = self.h[i-1]/6
+                mat[i,i+1]   = self.h[i]/6
+            self.M = mat.thomas_algorithm(Vector.from_list(self.b))
+            for i in range(self.n-1):
+                self.c[i] = (self.y[i+1] - self.y[i])/self.h[i] - (self.h[i]*(self.M[i+1]-self.M[i]))/6
+                self.d[i] = self.y[i]-(self.h[i]**2 * self.M[i])/6
+                
+        # helper method responsible to search for a x0 the right 
+        # polynomial Si(x0) to be used. <<called by interpolate().
+        def _search_interval(self, x0):
+            if x0 <= self.x[0]:
+                return 0
+            elif x0 >= self.x[self.n-1]:
+                return self.n-2
+            else:
+                for i in range(0,self.n-1):
+                    if x0 >= self.x[i] and x0 <=self.x[i+1]:
+                        return i
         
+        # computes the function value at x0. If x0 < xarray[0], 
+        # S0 will be used. If x0 > xarray[n-1], Sn-1 will be 
+        # used. In all other cases, interpolate() uses the 
+        # right Si where i is determinded by calling 
+        # _search_interval                  
+        def interpolate(self, x0):
+            i = self._search_interval(x0)
+            res =  (self.x[i+1]-x0)**3 * self.M[i]/self.h[i]
+            res += (x0-self.x[i])**2 * self.M[i+1]/self.h[i]          
+            res = res / 6
+            res += self.c[i]*(x0-self.x[i])+self.d[i]
+            return res            
         
 #################################################
 ################ class Regression ###############
