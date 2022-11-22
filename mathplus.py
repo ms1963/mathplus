@@ -444,6 +444,19 @@ class Array:
     def create_2Darray(rowcount, colcount, init_value = 0):
         return [[init_value for i in range(0, colcount)] for j in range(0, rowcount)]
 
+    # transpose() is defined for square matrices. They  return a new
+    # matrix new_matrix with: new_matrix[r][c] = array[c][r] for all
+    # valid (row,column)-combinations
+    def transpose(array):
+        n,m = Array.shape(array)
+        if n != m:
+            raise ValueError("transposing arrays only possible for square-sized arrays")
+        result = Array.create_2Darray(n,n)
+        for r in range(n):
+            for c in range(n):
+                result[r][c] = array[c][r]
+        return result
+        
     def create_3Darray(dim1count, dim2count, dim3count, init_value = 0):
         return [[[init_value for i in range(0, dim3count)] for j in range(0, dim2count)] for k in range(dim1count)]
 
