@@ -1669,7 +1669,7 @@ class Matrix:
             n = max(n, self.column_vector(c).norm())
         return n
         
-    def frobenius_norm(self):
+    def euclidean_norm(self):
         sum = self.dtype(0)
         for r in range(0, self.dim1):
             for c in range(0, self.dim2):
@@ -2081,7 +2081,7 @@ class Matrix:
             A_orig = A_new
             (Q,R) = A_orig.qr_decomposition()
             A_new = R @ Q
-            diff = abs(A_new - A_orig).frobenius_norm()
+            diff = abs(A_new - A_orig).euclidean_norm()
             i += 1
         return (A_new.diagonal(), A_new.all_column_vectors())
         
