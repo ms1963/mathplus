@@ -1317,7 +1317,7 @@ class Matrix:
         return m               
         
         
-    # contains operator for searching elements of the array
+    # contains operator for searching elements of the matrix
     def __contains__(self, key):
         for r in range(self.dim1):
             if key in self.m[r]: return True
