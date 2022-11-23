@@ -94,13 +94,6 @@ class Common:
                 result *= arg[1] ** arg[0] 
             return result
             
-    # n!
-    def fac(n):
-        result = 1
-        for i in range(2, n+1):
-            result *= i
-        return result
-
     # fibonacci series
     def fib(n):
         if n == 0:
@@ -890,7 +883,7 @@ class Array:
     # elements in the array. All elements satisfying the 
     # predicate are appended to the result list 
     # returns result list
-    def filter(lambda_f, array):
+    def find(lambda_f, array):
         result = [] 
         dim1, dim2 = Array.shape(array)
         for i in range(0, dim1):
@@ -899,8 +892,8 @@ class Array:
                     result.append(array[i][j])
         return result
     
-    # same as filter, but returns as a list all indices
-    # where the condtion lambda_f holds            
+    # same as find, but returns as a list all of all indices
+    # where the condition lambda_f holds            
     def find_where(lambda_f, array):
         result = [] 
         dim1, dim2 = Array.shape(array)
@@ -1882,8 +1875,8 @@ class Matrix:
             list = self.to_flat_list()
             return Matrix.from_flat_list(list, shape, dtype = self.dtype)
             
-    # map applies lambda to each element of matrix
-    def map(self, lambda_f):
+    # apply applies lambda to each element of matrix
+    def apply(self, lambda_f):
         m = Matrix(self.dim1, self.dim2, dtype = self.dtype)
         for r in range(0, self.dim1):
             for c in range(0, self.dim2):
@@ -1892,7 +1885,7 @@ class Matrix:
         
     # apply lambda_f to a single column of the matrix. returns new matrix 
     # with changed column
-    def map_column(self, column, lambda_f):
+    def apply_column(self, column, lambda_f):
         m = Matrix(self.dim1, self.dim2, dtype = self.dtype)
         if column > self.dim2:
             raise ValueError("column " + str(column) + " does not exist")
@@ -1902,7 +1895,7 @@ class Matrix:
         
     # apply lambda_f to a single row of the matrix. returns new matrix 
     # with changed row
-    def map_row(self, row, lambda_f):
+    def apply_row(self, row, lambda_f):
         m = Matrix(self.dim1, self.dim2, dtype = self.dtype)
         if row > self.dim1:
             raise ValueError("row " + str(row) + " does not exist")
@@ -1910,21 +1903,21 @@ class Matrix:
             m.m[row][c] = lambda_f(self.m[row][c])
         return m
         
-    # like map, but with lambda getting called with
+    # like apply, but with lambda getting called with
     # row, col, value at (row,col) 
-    def map2(self, lambda_f):
+    def apply2(self, lambda_f):
         m = Matrix(self.dim1, self.dim2, dtype = self.dtype)
         for r in range(0, self.dim1):
             for c in range(0, self.dim2):
                 m.m[r][c] = lambda_f(r, c, self.m[r][c])
         return m
         
-    # filter returns  all matrix elements that satisfy the 
+    # find returns  all matrix elements that satisfy the 
     # predicate lambda_f as a list
-    def filter(self, lambda_f):
-        return Array.filter(lambda_f, self.m)
+    def find(self, lambda_f):
+        return Array.find(lambda_f, self.m)
         
-    # same as filter, but does not return the elements 
+    # same as find, but does not return the elements 
     # but the index-locations where the condition lambda_f
     # holds as a list
     def find_where(self, lambda_f):
@@ -2892,32 +2885,32 @@ class Vector:
     def mean(self):
         return Array.mean(self.v)
         
-    # map applies lambda to each element of vector
-    def map(self, lambda_f):
+    # apply applies lambda to each element of vector
+    def apply(self, lambda_f):
         v = Vector(len(self), dtype = self.dtype)
         for i in range(0, len(self)):
             v[i] = lambda_f(self[i])
         return v
         
-    # same as map, but with additional vector position passed to 
+    # same as apply, but with additional vector position passed to 
     # lambda
-    def map2(self, lambda_f):
+    def apply2(self, lambda_f):
         v = Vector(len(self), dtype = self.dtype)
         for i in range(0, len(self)):
             v[i] = lambda_f(i, self[i])
         return v 
         
-    # filter returns  all vector elements that satisfy the 
+    # find returns  all vector elements that satisfy the 
     # predicate lambda_f as a list
-    def filter(self, lambda_f):
+    def find(self, lambda_f):
         res = []
         for i in range(0, len(self)):
             if lambda_f(self.v[i]):
                 res.append(self.v[i])
         return res
         
-    # identical to filter, but returns not elements
-    # found but there indices as a list
+    # identical to find, but returns not elements
+    # found but their indices as a list
     def find_where(self, lambda_f):
         res = []
         for i in range(0, len(self)):

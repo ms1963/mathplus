@@ -106,13 +106,13 @@ print("m5 @ m4 = " + str(m5 @ m4))
 
 print("m4 @ m5 = " + str(m4 @ m5))
 
-print("Use map() to apply the lambda x -> x^2 to each element of m3: " + str(m3.map(lambda x: x * x)))
+print("Use apply() to apply the lambda x -> x^2 to each element of m3: " + str(m3.apply(lambda x: x * x)))
 
-print("You may also use m3.map(math.sin) for vectors or matrices")
-print(m3.map(math.sin))
+print("You may also use m3.apply(math.sin) for vectors or matrices")
+print(m3.apply(math.sin))
 print()
 
-print("Use map() to apply the lambda x -> x + 1 to each element of v4: " + str(v4.map(lambda x: x + 1)))
+print("Use apply() to apply the lambda x -> x + 1 to each element of v4: " + str(v4.apply(lambda x: x + 1)))
 
 print()
 print("Calculating the diagonal of matrix m5 @ m4")
