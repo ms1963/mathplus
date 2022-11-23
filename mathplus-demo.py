@@ -604,3 +604,19 @@ x = -1
 while x <= 8:
     print("  x = " + str(x) + " Interpolation delivers : " + str(cs.interpolate(x)))
     x += 0.5
+print()
+print("Interpolation with connected line segments")
+x = Array.lin_distribution(-3,3,13,float)
+y = Array.apply_1D(math.sin, x)
+print("x values are " + str(x))
+print("y values are " + str(y))
+print("The y-values are the sin of the corresponding x-values.")
+print("Hence, we approximate math.sin.")
+ip = Interpolation.Interpolation1D(x,y)
+x0 = -3
+while (x0 <= 3):
+    res = ip.interpolate(x0)
+    print("At x0 = " + str(x0) + " the interpolation value is " + str(res))
+    x0 += 0.5
+
+

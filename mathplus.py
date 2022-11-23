@@ -3729,14 +3729,18 @@ class Interpolation:
             return res            
  
     # Interpolation1D takes a x-and a y-array of same length and
-    # connects all points (xi, yi) using lines.
+    # connects all points (xi, yi) using lines. The points 
+    # approximate a function f(x).
     # All heavy lifting is done in the constructor.
     # By calling the method interpolate() with argument x0
-    # the caller gets an interpolation value for f(x0) returned.
+    # the caller receives an interpolation value for f(x0).
     # The arrays x and y must contain at least 2 elements. 
-    # x-values must be in ascending order.
-    # If these preconditions are not fullfilled, ValueErrors 
-    # are raised        
+    # x-values must be in ascending order. Note: For values 
+    # outside the interval [ x[0],x[n] ] an interpolation
+    # value is returned which deviates largely from the 
+    # interpolated function.
+    # If the aforementioned  preconditions are not fullfilled,   
+    # ValueErrors are raised        
     class Interpolation1D:
         def __init__(self, xarr, yarr):
             if len(xarr) != len(yarr):
@@ -3757,13 +3761,17 @@ class Interpolation:
                 
         def search_interval(self, x0):
             for i in range(self.n-1):
-                if x0 < self.x[i+1]:
+                if x0 <= self.x[i+1]: 
                     return i
+            return 0
             
         def interpolate(self, x0):
-            if x0 < self.x[0] or x0 > self.x[self.n-1]:
-                raise ValueError("x0 must be in [" + str(self.x[0]) + "," + str(self.x[self.n-1]) + "]")    
-            i = self.search_interval(x0)
+            if x0 < self.x[0]:
+                i = 0
+            elif x0 > self.x[self.n-1]:
+                i = self.n-2
+            else:
+                i = self.search_interval(x0)
             return self.a[i] * x0 + self.b[i]
        
 #################################################
