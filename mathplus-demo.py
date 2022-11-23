@@ -598,8 +598,8 @@ print("and the y-coordinates: ")
 y = [3,-1,0,2,1,4,0,-1]
 print()
 print(y)
-print("Spline interpolation is initialized by calling cs = Interpolation.cubic_splines(x,y)")
-cs = Interpolation.cubic_splines(x,y)
+print("Spline interpolation is initialized by calling cs = Interpolation.Cubic_splines(x,y)")
+cs = Interpolation.Cubic_splines(x,y)
 x = -1
 while x <= 8:
     print("  x = " + str(x) + " Interpolation delivers : " + str(cs.interpolate(x)))

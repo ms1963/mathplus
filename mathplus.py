@@ -3596,7 +3596,7 @@ class Interpolation:
     #     After that, interpolation values  can be 
     #     computed using method interpolate(x0)
     # 
-    class cubic_splines:
+    class Cubic_splines:
         # constructor which does the heavy lifting
         # of the cubic spline interpolation
         def __init__(self, xarray, yarray):
@@ -3670,7 +3670,45 @@ class Interpolation:
             res = res / 6
             res += self.c[i]*(x0-self.x[i])+self.d[i]
             return res            
-        
+ 
+    # Interpolation1D takes a x-and a y-array of same length and
+    # connects all points (xi, yi) using lines.
+    # All heavy lifting is done in the constructor.
+    # By calling the method interpolate() with argument x0
+    # the caller gets an interpolation value for f(x0) returned.
+    # The arrays x and y must contain at least 2 elements. 
+    # x-values must be in ascending order.
+    # If these preconditions are not fullfilled, ValueErrors 
+    # are raised        
+    class Interpolation1D:
+        def __init__(self, xarr, yarr):
+            if len(xarr) != len(yarr):
+                raise ValueError("x and y array must have equal size")
+            self.n = len(xarr)
+            if self.n <= 1:
+                raise ValueError("arrays must contain more than one point")
+            for i in range(self.n-1):
+                if xarr[i] >= xarr[i+1]:
+                    raise ValueError("x values must ascend") 
+            self.x = xarr
+            self.y = yarr
+            self.b=[]
+            self.a=[]
+            for i in range(self.n - 1):
+                self.a.append((self.y[i+1]-self.y[i]) / (self.x[i+1]-self.x[i]))
+                self.b.append(self.y[i+1]-self.a[i]*self.x[i+1])
+                
+        def search_interval(self, x0):
+            for i in range(self.n-1):
+                if x0 < self.x[i+1]:
+                    return i
+            
+        def interpolate(self, x0):
+            if x0 < self.x[0] or x0 > self.x[self.n-1]:
+                raise ValueError("x0 must be in [" + str(self.x[0]) + "," + str(self.x[self.n-1]) + "]")    
+            i = self.search_interval(x0)
+            return self.a[i] * x0 + self.b[i]
+       
 #################################################
 ################ class Regression ###############
 #################################################   
