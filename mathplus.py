@@ -442,15 +442,13 @@ class Array:
     def create_2Darray(rowcount, colcount, init_value = 0):
         return [[init_value for i in range(0, colcount)] for j in range(0, rowcount)]
 
-    # transpose() is defined for square matrices. They  return a new
-    # matrix new_matrix with: new_matrix[r][c] = array[c][r] for all
+    # transpose() is defined for all 2Darrays. It returns a new
+    # array with: new_array[r][c] = array[c][r] for all
     # valid (row,column)-combinations
     def transpose(array):
         n,m = Array.shape(array)
-        if n != m:
-            raise ValueError("transposing arrays only possible for square-sized arrays")
-        result = Array.create_2Darray(n,n)
-        for r in range(n):
+        result = Array.create_2Darray(m,n)
+        for r in range(m):
             for c in range(n):
                 result[r][c] = array[c][r]
         return result
@@ -970,11 +968,7 @@ class Matrix:
                 
     # transpose the matrix
     def T(self):
-        m = Matrix(self.dim2, self.dim1, dtype = self.dtype)
-        for r in range(0, self.dim2):
-            for c in range(0, self.dim1):
-                m.m[r][c] = self.m[c][r]
-        return m
+        return Matrix.from_list(Array.transpose(self.m), dtype = self.dtype)
         
     def H(self):
         if self.dtype != complex: return self.T()
