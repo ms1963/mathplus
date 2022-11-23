@@ -3760,18 +3760,16 @@ class Interpolation:
                 self.b.append(self.y[i+1]-self.a[i]*self.x[i+1])
                 
         def search_interval(self, x0):
-            for i in range(self.n-1):
-                if x0 <= self.x[i+1]: 
-                    return i
-            return 0
+            if x0 <= self.x[0]:
+                return 0
+            elif x0 >= self.x[self.n-1]:
+                return self.n-2
+            else:
+                for i in range(self.n-2):
+                    if x0 <= self.x[i+1]: return i
             
         def interpolate(self, x0):
-            if x0 < self.x[0]:
-                i = 0
-            elif x0 > self.x[self.n-1]:
-                i = self.n-2
-            else:
-                i = self.search_interval(x0)
+            i = self.search_interval(x0)
             return self.a[i] * x0 + self.b[i]
        
 #################################################
