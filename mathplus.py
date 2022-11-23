@@ -1316,6 +1316,13 @@ class Matrix:
                 m.m[r_sub][c_sub] = self.m[r][c]
         return m               
         
+        
+    # contains operator for searching elements of the array
+    def __contains__(self, key):
+        for r in range(self.dim1):
+            if key in self.m[r]: return True
+        return False
+        
     # recursive calculation of the determinant using sub-matrices
     # returns a ValueError is matrix is not quadratic
     def det(self):
@@ -2638,6 +2645,10 @@ class Vector:
         for i in range(0, len(self)): res[i] = self[i]
         return res
         
+    # contains operator for searching elements of the vector
+    def __contains__(self, key):
+        return key in self.v
+        
     # build scalar product of two vectors
     def cross_product(self, other):
         if len(self) != len(other):
@@ -3321,7 +3332,18 @@ class Polynomial:
         a2 = result[separator:]
         a2.reverse()
         return Polynomial(a1), Polynomial(a2) 
-            
+        
+    # returns the result of a polynomial division (/-operator)
+    # without the reminder
+    def __floordiv__(self, other):
+        result = self / other
+        return result[0]
+        
+    # returns the remainder of a polynomial division (/-operator)
+    def __mod__(self, other):
+        result = self / other
+        return result[1]
+               
     # negation of polynom, for example, x => -x
     def __neg__(self):
         neg = deepcopy(self)
