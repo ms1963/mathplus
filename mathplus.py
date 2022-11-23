@@ -408,8 +408,6 @@ class Array:
                 else:
                     result.append(-1)
             return result
-            
- 
         
     # this function does delegate to reduce() 
     # the lmbda is applied to all elements of 
@@ -888,7 +886,27 @@ class Array:
                 row.append(lambda_f(array[i][j]))
             result.append(row)
         return result
-                
+    
+    # An 2D array can be rotated 90° to the left or right.
+    # if left = True  => left  rotation
+    # if left = False => right rotation           
+    def rotate(array, left = True):
+        n,m = Array.shape(array)
+        res = []
+        if left:
+            for c in range(m):
+                row = []
+                for r in range(n):
+                    row.append(array[r][m-c-1])
+                res.append(row)
+            return res
+        else: 
+            for c in range(m):
+                row = []
+                for r in range(n):
+                    row.append(array[n-r-1][c])
+                res.append(row)
+            return res
         
             
             
