@@ -479,7 +479,7 @@ class Array:
             split_indices = [0]
             for pos in arg:
                 if pos < 0 or pos >= n:
-                    raise ValueError("attempt to split array of size at nonexistent position " + str(pos))
+                    raise ValueError("attempt to split array of size = " + str(n) + " at nonexistent position " + str(pos))
                 split_indices.append(pos)
             split_indices.append(len(array))
             split_indices = list(set(split_indices))
@@ -490,6 +490,51 @@ class Array:
                 for j in range(split_indices[i], split_indices[i+1]):
                     tmp.append(array[j])
                 result.append(tmp)
+            return result
+    
+    # split_2D splits a two-dimensional array in arg pieces if 
+    # arg is an integer, or at the specified positions if arg 
+    # is a list or tupel. The split can be conducted along 
+    # axis = 0 or axis = 1
+    def split_2D(array, arg, axis = 0):
+        n,m = Array.shape(array)
+        if axis == 0:
+            if isinstance(arg, int):
+                if arg == 0 or m % arg != 0:
+                    raise ValueError("equal split of array with size = " + str(m) + " impossible with arg = " + str(arg))
+                else:
+                    result = []
+                    tmp = []
+                    for i in range(n):
+                        tmp.append(Array.split_1D(array[i], arg))
+                    for j in range(len(tmp[0])):
+                        single = []
+                        for i in range(n):
+                            single.append(tmp[i][j])
+                        result.append(single)
+                    return result
+                        
+            elif isinstance(arg, tuple) or isinstance(arg, list):
+                result = []
+                tmp = []
+                for i in range(n):
+                    tmp.append(Array.split_1D(array[i], arg))
+                for j in range(len(tmp[0])):
+                    single=[]
+                    for i in range(n):
+                        single.append(tmp[i][j])
+                    result.append(single)
+                return result
+        else: # axis==1  
+            if isinstance(arg, int):
+                if arg == 0 or n % arg != 0:
+                    raise ValueError("equal split of array with size = " + str(n) + " impossible with arg = " + str(arg))
+            result = []
+            array_tmp = Array.transpose(array)
+            tmp = A.split_2D(array_tmp, arg, axis = 0)
+            
+            for k in range(len(tmp)):
+                result.append(Array.transpose(tmp[k]))
             return result
     
     # delete elements from an array with indices of elements           
