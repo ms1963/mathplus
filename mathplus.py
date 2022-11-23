@@ -991,7 +991,34 @@ class Array:
     def pow(array, exponent):
         res = Array.apply_1D(lambda x: pow(x,exponent), array)
         return res
-
+        
+    # get a two dimensional array filled with random numbers
+    def random_2D(shp, fromvalue, tovalue, dtype, seedval = None):
+        if seedval != None:
+            seed(seedval)
+        rows = shp[0]
+        cols = shp[1]
+        array = [[dtype(0) for i in range(cols)] for j in range(rows)]
+        for r in range(0, rows):
+            for c in range(0, cols):
+                if dtype == int:
+                    array[r][c] = int(randrange(fromvalue, tovalue))
+                else:
+                    array[r][c] = dtype(uniform(fromvalue, tovalue))
+        return array
+        
+    # get a one-dimensional array filled with random numbers
+    def random_1D(length, fromvalue, tovalue, dtype, seedval = None):
+        if seedval != None:
+            seed(seedval)
+        array = [dtype(0) for i in range(length)]
+        if dtype == int:
+            for i in range(length):
+                array[i] = int(randrange(fromvalue, tovalue))
+        else:
+            for i in range(length):
+                array[i] = dtype(uniform(fromvalue, tovalue))
+        return array
         
 #################################################
 ################## class Matrix #################
@@ -1534,6 +1561,35 @@ class Matrix:
                 if c - diag == r:
                     list.append(self[r,c])
         return list
+        
+        
+    # fills the diagonal of a square matrix with a value 
+    # value is the value to be filled into the diagonal
+    # diag:
+    # diag == 0 => main diagonal
+    # diag = -1 => diagonal one step below the main diagonal
+    # diag =  1 => diagonal one step above the main diagonal
+    # ... 
+    # diag must exist, otherwise a Valuuerror is thrown
+    # If in_situ = True => the value will be filled directly
+    # in the matrix (self)
+    # otherwise         => a copy of the matrix self will be 
+    # used for this purpose
+    def fill_diagonal(self, value, diag = 0, in_situ = False):
+        if in_situ:
+            m = self
+        else:
+            m = self.clone()
+            
+        dim1, dim2 = self.shape()
+        max_diag = min(dim1, dim2)-1
+        if (abs(diag) > max_diag):
+            raise ValueError("diag must be in [" + str(-max_diag) + "," + str(max_diag) + "]")
+        for r in range(0, dim1):
+            for c in range(0,dim2):
+                if c - diag == r:
+                    m[r,c] = value
+        return m
         
     # checks whether matrix is in tridiagonal form
     def is_tridiagonal(self):
