@@ -951,8 +951,46 @@ class Array:
                 res.append(row)
             return res
         
-            
-            
+    # the following helper functions are wrappers
+    # that use Array.apply_1D. They are implemented 
+    # for the users convenience.
+    
+    # sin for one dimensional arrays based on 
+    # apply_1D
+    def sin(array):
+        res = Array.apply_1D(math.sin, array)
+        return res
+        
+    # cos for one dimensional arrays based on 
+    # apply_1D
+    def cos(array):
+        res = Array.apply_1D(math.cos, array)
+        return res
+        
+    # tan for one dimensional arrays based on 
+    # apply_1D
+    def tan(array):
+        res = Array.apply_1D(math.tan, array)
+        return res
+                
+
+    # exp for one dimensional arrays based on 
+    # apply_1D
+    def exp(array):
+        res = Array.apply_1D(math.exp, array)
+        return res
+        
+    # log for one dimensional arrays based on 
+    # apply_1D
+    def log(array, base):
+        res = Array.apply_1D(lambda x: math.log(x,base), array)
+        return res
+        
+    # pow for one dimensional arrays based on 
+    # apply_1D
+    def pow(array, exponent):
+        res = Array.apply_1D(lambda x: pow(x,exponent), array)
+        return res
 
         
 #################################################
