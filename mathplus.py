@@ -3713,7 +3713,7 @@ class Interpolation:
     #     After that, interpolation values  can be 
     #     computed using method interpolate(x0)
     # 
-    class Cubic_splines:
+    class CubicSplines:
         # constructor which does the heavy lifting
         # of the cubic spline interpolation
         def __init__(self, xarray, yarray):
