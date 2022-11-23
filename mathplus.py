@@ -848,7 +848,7 @@ class Array:
         sum = 0
         for i in range(len(array)):
             sum += array[i] ** 2
-        return sum / len(array)
+        return math.sqrt(sum)
             
     # calculate minima of array        
     def argmin(array, axis = None):
