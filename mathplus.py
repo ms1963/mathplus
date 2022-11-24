@@ -153,8 +153,8 @@ class Common:
         
     # least common multiple
     def lcm(a, b):
-        return abs(a*b)/gcd(a,b)
-
+        return abs(a*b)/gcd(a,b)       
+            
     # helper method for factorization
     def _brent(N):
         if N % 2 == 0: 
@@ -182,43 +182,6 @@ class Common:
                     break
         return g
 
-   # Implementation of Fast Fourier Transform using Cooley-Tukey 
-    # iterative in-place algorithm (radix-2 DIT). Number 
-    # buffer must contain 2^n complex numbers.
-    # Note: the algorithm operates in-place, i.e., the input buffer 
-    # is overwritten
-    def fft(buffer):
-        def bitreverse(num, bits):
-            n = num
-            n_reversed = n
-            ctr = bits - 1
-            n = n >> 1
-            while n > 0:
-                n_reversed = (n_reversed << 1) | (n & 1)
-                ctr -= 1
-                n = n >> 1
-            return ((n_reversed << ctr) & ((1 << bits) - 1))
-            
-        bits = int(math.log(len(buffer), 2))
-        for j in range(1, len(buffer)):
-            swap_pos = bitreverse(j, bits)
-            if swap_pos <= j:
-                continue
-            (buffer[j], buffer[swap_pos]) = (buffer[swap_pos], buffer[j]) 
-
-        N = 2
-        while N <= len(buffer):
-            for i in range(0, len(buffer), N):
-                for k in range(0, N // 2):
-                    even_idx = i + k
-                    odd_idx = i + k + (N // 2)
-                    even, odd = buffer[even_idx], buffer[odd_idx]
-                    term = -2 * math.pi * k / float(N)
-                    exp = complex(math.cos(term), math.sin(term)) * odd
-                    buffer[even_idx], buffer[odd_idx] = even + exp, even - exp
-            
-            N = N << 1
-            
 
     # factorization of integers into their prime factors.
     # the method returns a list of prime factors in ascending
