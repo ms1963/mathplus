@@ -23,6 +23,7 @@ from copy import deepcopy
 from random import uniform, randrange, seed, shuffle
 from functools import reduce
 import operator
+import numbers
 import numpy as np # used to transfer array between 
                    # mathplus and numpy
 
@@ -1638,7 +1639,7 @@ class Matrix:
                     return v
                 else: # other.transposed and self.dim2 == 1 
                     return self.column_vector(0) * other
-        elif isinstance(other, self.dtype):
+        elif isinstance(other, numbers.Number):
             return self.scalar_product(other)
         else:
             raise TypeError("second argument must be matrix or vector")
@@ -2641,7 +2642,7 @@ class Vector:
         if isinstance(other, Matrix):
             m = Matrix.from_vector(self)
             return m * other
-        elif isinstance(other, self.dtype):
+        elif isinstance(other, numbers.Number):
             return self.scalar_product(other)
         if not isinstance(other, Vector):
             raise TypeError("other object must also be a vector")
@@ -3333,7 +3334,7 @@ class Polynomial:
                 last_i = i
         return last_i
         
-    # multiplication of polynoms
+    # multiplication of polynomials
     def __mul__(self, other):
         m1 = self._max_index()
         m2 = other._max_index()
