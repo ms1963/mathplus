@@ -1601,7 +1601,7 @@ class Matrix:
     # add two matrices with each other
     #  if their sizes are not the same, a ValueError is raised
     def __add__(self, other):
-        if self.dim1 != other.dim1 and self.dim2 != other.dim2:
+        if self.dim1 != other.dim1 or self.dim2 != other.dim2:
             raise ValueError("matrices must have similar sizes")
         else:
             m = Matrix(self.dim1, self.dim2, dtype = self.dtype)
@@ -1609,6 +1609,16 @@ class Matrix:
                 for c in range (0, self.dim2):
                     m.m[r][c] = self.m[r][c] + other.m[r][c]
             return m
+            
+    # this is the += operator that changes self in contrast to __add__
+    def __iadd__(self, other):
+        if self.dim1 != other.dim1 or self.dim2 != other.dim2:
+            raise ValueError("matrices must have similar sizes")
+        else:
+            for r in range(0, self.dim1):
+                for c in range (0, self.dim2):
+                    self.m[r][c] += other.m[r][c]
+        
             
     # matrix multiplication self * other. Raises ValueError if 
     # object passed as argument is neither a matrix nor a vector,  
@@ -1650,7 +1660,7 @@ class Matrix:
     # subtracting one matrix from the other. Raises ValueError if sizes are
     # not equal
     def __sub__(self, other):
-        if self.dim1 != other.dim1 and self.dim2 != other.dim2:
+        if self.dim1 != other.dim1 or self.dim2 != other.dim2:
             raise ValueError("matrices must have similar sizes")
         else:
             m = Matrix(self.dim1, self.dim2, dtype = self.dtype)
@@ -1658,6 +1668,16 @@ class Matrix:
                 for c in range (0, self.dim2):
                     m.m[r][c] = self.m[r][c] - other.m[r][c]
             return m
+            
+    # implementation of -= operator. Here, self will be changed
+    # in contrast to __sub()__
+    def __isub__(self, other):
+        if self.dim1 != other.dim1 or self.dim2 != other.dim2:
+            raise ValueError("matrices must have similar sizes")
+        else:
+            for r in range(0, self.dim1):
+                for c in range (0, self.dim2):
+                    self.m[r][c] -= other.m[r][c]
             
     # check matrices for equality
     def __eq__(self, other):
@@ -2105,7 +2125,7 @@ class Matrix:
         for k in range(2, shape[1]):
             u[k] = a[k]
             for i in range(0,k):
-                u[k] -= e[i] * (a[k].T() * e[i])
+                u[k] = u[k]-e[i] * (a[k].T() * e[i])
             e[k] = u[k].scalar_product(1/u[k].euclidean_norm())
         Q = Matrix.from_column_vectors(e)
         R = Matrix(shape[1], shape[0], dtype = self.dtype)
@@ -2682,6 +2702,16 @@ class Vector:
             res = Vector(len(self), dtype = self.dtype, transposed = self._transposed)
             for i in range(0, len(self)): res[i] = self[i] + other[i]
             return res
+      
+     # this is the += operator that overwrites self. If you don't
+     # want that behavior, use a = a + b instead
+    def __iadd__(self, other):
+        if len(other) != len(self):
+            raise ValueError("incompatible lengths of vectors")
+        elif self._transposed != other._transposed:
+            raise ValueError("transposed and not transposed vectors cannot be added")
+        else:
+            for i in range(0, len(self)): self[i] += other[i]
             
     # negative vector: all elements switch their sign
     def __neg__(self):
@@ -2720,6 +2750,16 @@ class Vector:
             res = Vector(len(self), dtype = self.dtype, transposed = self._transposed)
             for i in range(0, len(self)): res[i] = self[i] - other[i]
             return res
+            
+    # implementation of -= operator. This operator overwrites self.
+    # If you don't want that behavior, use a = a - b instead
+    def __isub__(self, other):
+        if len(other) != len(self):
+            raise ValueError("incompatible lengths of vectors")
+        elif self._transposed != other._transposed:
+            raise ValueError("transposed and not transposed vectors cannot be subtracted from each other")
+        else:
+            for i in range(0, len(self)): self[i] -= other[i]
             
     # test vectors for equality
     def __eq__(self, other):
@@ -4004,7 +4044,7 @@ class Clustering:
                 # are real data points, the new ones are virtual
                 # data points
                 for point in _clusters[i]:
-                    _new_centroid += point.scalar_product(1 / cluster_len)
+                    _new_centroid = _new_centroid + point.scalar_product(1 / cluster_len)
                 _centroid[i] = _new_centroid.clone()
             
             # calculate the difference between new and old centroids
