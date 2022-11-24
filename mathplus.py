@@ -36,6 +36,12 @@ as the name suggests, Common provides more general
 functionality used by other modules.
 """
 class Common:          
+    def get_version():
+        return "Version 0.1 of mathplus library distributed with GNU General Public License v3.0 in 2022"
+
+    def get_author():
+        return "Author: Michael Stal"
+        
     # n!
     def fac(n):
         result = 1
