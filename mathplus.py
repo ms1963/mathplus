@@ -24,6 +24,7 @@ from random import uniform, randrange, seed, shuffle
 from functools import reduce
 import operator
 import numbers
+import csv
 import numpy as np # used to transfer array between 
                    # mathplus and numpy
 
@@ -4355,4 +4356,69 @@ class Transfer:
                 return Vector.from_list(list, transposed = True)
         else: # len(npshp) == 1 
             return Vector.from_list(nparray.tolist())
+            
+            
+    # the following read/write-methods writea matrix or array to a
+    # file or read a matrix or array from a file. The format is "csv".
+    # there are two notable restrictions: the implementation does 
+    # not store information about whether a vector was transposed
+    # or not. In addition, the implementation stores ints and floats
+    # as floats. Complex numbers are not supported. 
+
+    def readMatrixFromCSV(filename, verbose = False):
+        csv.register_dialect('excel', delimiter=',', quoting=csv.QUOTE_NONE)
+        array = []
+        with open(filename, newline='') as f:
+            try: 
+                reader = csv.reader(f, delimiter=",", quoting=csv.QUOTE_NONE)
+                if verbose: print("... reading file " + filename + " ...")
+                if verbose: print()
+                for row in reader:
+                    array_row = []
+                    for num in row:
+                        array_row.append(float(num))
+                    array.append(array_row)
+            except csv.Error as e:
+                print('file {}, line {}: {}'.format(filename, reader.line_num, e))
+        return Matrix.from_list(array)
+        
+    def writeMatrixToCSV(m, filename, verbose = False):
+        with open(filename, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',',quoting=csv.QUOTE_NONE)
+            if verbose: print("... writing file " + filename + "...")
+            if verbose: print()
+            r, c = m.shape()
+            for i in range(r):
+                row = m.m[i]
+                writer.writerow(row)
+                
+    def readVectorFromCSV(filename, verbose = False):
+        csv.register_dialect('excel', delimiter=',', quoting=csv.QUOTE_NONE)
+        counter = 0
+        array = []
+
+        with open(filename, newline='') as f:
+            try: 
+                reader = csv.reader(f, delimiter=",", quoting=csv.QUOTE_NONE)
+                if verbose: print("... reading file " + filename + " ...")
+                if verbose: print()
+                counter = 0
+                for row in reader:
+                    counter += 1
+                    if counter > 1:
+                        raise ValueError("more than one row in file: this cannot be a vector")
+                    array_row = []
+                    for num in row:
+                        array.append(float(num))
+            except csv.Error as e:
+                print('file {}, line {}: {}'.format(filename, reader.line_num, e))
+        return Vector.from_list(array)
+        
+    def writeVectorToCSV(v, filename, verbose = False):
+        with open(filename, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',',quoting=csv.QUOTE_NONE)
+            if verbose: print("... writing file " + filename + "...")
+            if verbose: print()
+            writer.writerow(v.v)                
+    
             
