@@ -5,7 +5,7 @@ The demo code in demo_matrix.py shows how to use the library. Given the fact tha
 
 graph.py implements a naive graph structure that uses a matrix for visualizing the edges between nodes.
 
-Note: Rational cannot be used as a dtype for Matrices as this does not make a sense. You may use the Rational.float() conversion to bridge the gap.
+Note: Rational cannot be used as a dtype for Matrices as this does not make sense. You may use the Rational.float() conversion to bridge the gap.
 
 
 Pros and Cons
