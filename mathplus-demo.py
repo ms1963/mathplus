@@ -619,4 +619,12 @@ while (x0 <= 3):
     print("At x0 = " + str(x0) + " the interpolation value is " + str(res))
     x0 += 0.5
 
-
+print()
+print("Transfer from/to CSV files")
+print()
+m = Matrix.from_list([[1,2,3],[4,5,6]])
+print("Using the Matrix m = " + str(m) + " and persisting it to a file")
+Transfer.writeMatrixToCSV(m, "matrix.csv", verbose = True)
+print("Retrieving it again:")
+print(Transfer.readMatrixFromCSV("matrix.csv", verbose = True))
+print("Note: this can also be done with Vectors")
