@@ -2435,6 +2435,26 @@ class Matrix:
         for c in colrng:
             yield deepcopy(self.column_vector(c))
             
+    # Implementation of standard operators __iter__ and 
+    # __next__ for matrices. 
+    # Note: this iterator traverses all row vectors.
+    # To traverse each row vector, use the Vector implementation
+    # of __iter__, __next__.
+    
+    def __iter__(self):
+        self.row = 0
+        return self
+        
+    def __next__(self):
+        d1, _ = self.shape()
+        if self.row < d1:
+            result = self.row_vector(self.row)
+            self.row += 1
+            return result
+        else:
+            raise StopIteration
+            
+                  
     # computes the mean of all column vectors if axis == 0, 
     # and the mean of all row vectors, otherwise
     # returns the list of means
@@ -2892,6 +2912,18 @@ class Vector:
     def iter_vec_in_range(self, rng):
         for i in rng:
             yield self.v[i]
+            
+    def __iter__(self):
+        self.idx = 0
+        return self
+        
+    def __next__(self):
+        if self.idx < len(self):
+            result = self[self.idx]
+            self.idx += 1
+            return result
+        else:
+            raise StopIteration
     
     def mean(self):
         return Array.mean(self.v)
