@@ -1000,16 +1000,13 @@ class Matrix:
     
     # create size1 x size2 matrix with optional initial values
     # dtype specifies the desired data type of matrix elements
-    def __init__(self, size1, size2, dtype = float, init_value = 0):
-        if size1 <= 0 or size2 <= 0: raise ValueError("a matrix must have positive dimensions")
-        self.m = [[] for r in range(0,size1)]
-        self.dim1 = size1
-        self.dim2 = size2
+    def __init__(self, dim1, dim2, dtype = float, init_value = 0):
+        if dim1 <= 0 or dim2 <= 0: raise ValueError("a matrix must have positive dimensions")
+        self.m = [[dtype(init_value) for c in range(dim2)] for r in range(dim1)]
+        self.dim1 = dim1
+        self.dim2 = dim2
         self.dtype = dtype
-        for i in range(0, size1):
-            for j in range(0, size2):
-                self.m[i].append(dtype(init_value))
-                
+        
     # get the shape of the matrix, i.e. its numbers of rows and columns
     def shape(self):
         return (self.dim1, self.dim2)
