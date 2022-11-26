@@ -264,7 +264,7 @@ class Common:
             sum = 0
             x_mean = Array.mean(x_dataset)
             y_mean = Array.mean(y_dataset)
-            for i in len(x_dataset):
+            for i in range(len(x_dataset)):
                 sum += (x_dataset[i] - x_mean) * (y_dataset[i] - y_mean)
             return sum/(len(x_dataset) - 1)
             
@@ -281,7 +281,7 @@ class Common:
             sum3 = 0
             x_mean = Array.mean(x_dataset)
             y_mean = Array.mean(y_dataset)
-            for i in len(x_dataset):
+            for i in range(len(x_dataset)):
                 sum1 += (x_dataset[i] - x_mean) ** 2 
                 sum2 += (x_dataset[i] - x_mean) * (y_dataset[i] - y_mean)
                 sum3 += (y_dataset[i] - y_mean) ** 2
