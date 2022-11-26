@@ -346,6 +346,38 @@ class Common:
             
             N = N << 1
             
+    # determines how many items are covered by a 
+    # slice slc applied to array        
+    def slice_length(slc, array):
+        return len(array[slc])
+        
+    # print for matrices
+    def print_matrix(m):   
+        for r in range(0, m.dim1):
+            print("[ ", end="")
+            for c in range(0, m.dim2):
+                print(" " + str(m.m[r][c]), end ="")
+                if c < m.dim2-1: print("\t",end="")
+            print("  ]")
+        
+    # print for vectors: based upon __str__
+    def print_vector(v):
+        if v.is_transposed():
+            print("[ ", end="")
+            for r in range(0, len(v)):
+                print("" + str(v[r]), end ="") 
+                if r < len(v)-1: 
+                    print("\t", end ="")
+                else:
+                    print("", end="")
+            print(" ]")
+        else:
+            print("[")
+            for r in range(0, len(v)):
+                print(" " + str(v[r]) + "\n", end = "")
+            print("]")
+            
+            
 #################################################
 ################## class Array ##################
 ################################################# 
@@ -621,37 +653,7 @@ class Array:
         quicksort(a, indices, 0, len(a)-1)
         return indices
         
-    # determines how many items are covered by a 
-    # slice slc applied to array        
-    def slice_length(slc, array):
-        return len(array[slc])
-        
-    # print for matrices
-    def print_matrix(m):   
-        for r in range(0, m.dim1):
-            print("[ ", end="")
-            for c in range(0, m.dim2):
-                print(" " + str(m.m[r][c]), end ="")
-                if c < m.dim2-1: print("\t",end="")
-            print("  ]")
-        
-    # print for vectors: based upon __str__
-    def print_vector(v):
-        if v.is_transposed():
-            print("[ ", end="")
-            for r in range(0, len(v)):
-                print("" + str(v[r]), end ="") 
-                if r < len(v)-1: 
-                    print("\t", end ="")
-                else:
-                    print("", end="")
-            print(" ]")
-        else:
-            print("[")
-            for r in range(0, len(v)):
-                print(" " + str(v[r]) + "\n", end = "")
-            print("]")
-            
+
     # concatenate two rectangular arrays on axis 0 or 1 
     def concatenate(arr1, arr2, axis = 0):
         shp1 = Array.shape(arr1)
@@ -833,7 +835,7 @@ class Array:
             return result
                 
     # calculate maxima of array
-    def argmax(array, axis = 1):
+    def argmax(array, axis = None):
         if axis == None or CommArrayon.shape(array)[0] == 1:
             return max(array)
         elif axis == 0:
