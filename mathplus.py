@@ -527,7 +527,7 @@ class Array:
                     raise ValueError("equal split of array with size = " + str(n) + " impossible with arg = " + str(arg))
             result = []
             array_tmp = Array.transpose(array)
-            tmp = A.split_2D(array_tmp, arg, axis = 0)
+            tmp = Array.split_2D(array_tmp, arg, axis = 0)
             
             for k in range(len(tmp)):
                 result.append(Array.transpose(tmp[k]))
@@ -565,7 +565,8 @@ class Array:
             return(len(a), length)
         else: 
             return(1,len(a))
-            
+        
+    
     # diff_2d takes in each row a[r,c]-a[r,c-1] for c in 1 .. len(row)
     # if the original array has dimension dim1 x dim2, then the result
     # will have dimension dim1 x (dim2 - 1)
