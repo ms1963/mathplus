@@ -482,8 +482,8 @@ for i in range(0,len(x)):
     print("Ground truth y = " + str(y[i]))
 print()
     
-print("Multivariate regression")
-x = Matrix.from_list([[1,3], [2,4], [3,5],[4,8], [5,10]])
+print("Linear/Multivariate regression")
+x = Matrix.from_list([[1,3], [2,4], [3,5], [4,8], [5,10]])
 y = Vector.from_list([2,4,7,8,12])
 print("Training data: x = " + str(x))
 print("Training data: y = " + str(y))
