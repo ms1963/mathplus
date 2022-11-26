@@ -244,14 +244,14 @@ class Common:
 
     # the different gaussian kernels for 1D, 2D, multidiemsional cases
     def gaussian_kernel_1D(x, sigma):
-        return  (1 / (sqrt(2 * math.pi) * sigma)) * math.exp(- x**2/(2 * sigma ** 2)) 
+        return  (1 / (math.sqrt(2 * math.pi) * sigma)) * math.exp(- x**2/(2 * sigma ** 2)) 
 
     def gaussian_kernel_2D(x, y, sigma):
         return (1 / (2 * math.pi * sigma ** 2)) * math.exp(- (x**2 + y**2) / (2 * sigma ** 2))
 
     # dimension == len(xvect)
     def gaussian_kernel_multiD(xvect, sigma):
-        return (1 / ((sqrt(2 * math.pi) * sigma)) ** len(xvect)) * math.exp(- (xvect.euclidean_norm() ** 2) / (2 * sigma **2))
+        return (1 / ((math.sqrt(2 * math.pi) * sigma)) ** len(xvect)) * math.exp(- (xvect.euclidean_norm() ** 2) / (2 * sigma **2))
 
     # calculate the covariance between two data series
     # zero result => dataset don't seem to have a relation
@@ -300,12 +300,12 @@ class Common:
         if weights_array == None:
             weight = 1 / len(x_array)
             sum = 0
-            for i in range(0, len(x_array)):
+            for i in range(len(x_array)):
                 sum += x_array[i] * weight
             return sum
         else:
             sum = 0
-            for i in range(0, len(x_array)):
+            for i in range(len(x_array)):
                 sum += x_array[i] * weights_array[i]    
             return sum
             
