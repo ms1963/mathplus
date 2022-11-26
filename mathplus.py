@@ -837,7 +837,7 @@ class Array:
                 
     # calculate maxima of array
     def argmax(array, axis = None):
-        if axis == None or CommArrayon.shape(array)[0] == 1:
+        if axis == None or Array.shape(array)[0] == 1:
             return max(array)
         elif axis == 0:
             result = []
