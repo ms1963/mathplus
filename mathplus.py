@@ -376,7 +376,889 @@ class Common:
             for r in range(0, len(v)):
                 print(" " + str(v[r]) + "\n", end = "")
             print("]")
+                   
+#################################################
+################ class mparray  #################
+#################################################
+
+"""
+mparray is based upon Python lists. It was created to
+shield users of the mparray from its implementation, so that
+the implementation may be changed (such as using C-arrays
+underneath).
+It implements "rectangular" arrays, but does not support
+irregular shapes where a one-dimensional may contain numbers
+and subarrays or subarrays may reveal different lengths.
+Some methods are constrained to one- or two-dimensional
+mparrays, for example, methods that may not be useful for other
+dimensions. Consider transpose as an example.
+"""
+class mparray:
+    # new mparray instances implement regular not rugged mparrays
+    # example: a = mparray([[1,2],[3,4]], dtype = int)
+    def __init__(self, array, dtype = float):
+        if not mparray._is_regular(array):
+            raise ValueError("only 'rectangular' mparrays are supported")
+        self.a = array
+        self.dtype = dtype
             
+    # creates a new mparray with shp as shape and dtype as type,
+    # filled with init_value
+    def filled_array(shp, init_value = 0, dtype = float):
+        a = mparray._initializer(shp, init_value = init_value, dtype = dtype)
+        return mparray(a, dtype)
+        
+        
+    # list passed to function is used to initialze new mparray object
+    def from_list(array, dtype = float):
+        if not mparray._is_regular(array):
+            raise ValueError("only 'rectangular' mparrays are supported")
+        shp = mparray._get_shape(array)
+        t = mparray(array, dtype)
+        return t
+        
+    def to_list(self):
+        return deepcopy(self.a)
+        
+    def to_flat_list(self):
+        return self.flatten().to_list()
+        
+    def __len__(self):
+        return len(self.flatten().to_list())
+        
+    def square_shaped(self):
+        if len(self.shp) == 1:
+            return False
+        else:
+            dim0 = self.shp[0]
+            for i in range(1, len(self.shp)):
+                if self.shp[i] != dim0:
+                    return False
+            return True
+            
+    # create a new mparray using shp as shape
+    def _initializer(shp, init_value = 0, dtype = float):
+        if len(shp) == 1:
+            a = []
+            for i in range(shp[0]):
+                if dtype == int:
+                    a.append(int(init_value))
+                else:
+                    a.append(dtype(init_value))
+            return a
+        else: # len(dims) > 0
+            a = []
+            newshp = copy(shp)
+            newshp.pop(0)
+            for i in range(shp[0]):
+                a.append(mparray._initializer(newshp, init_value, dtype))
+            return a
+            
+    # helper function to initialize lists with random numbers
+    def _random_initializer(dims, fromvalue, tovalue, seed_val = None, dtype = float):
+        if seed_val != None:
+            random.seed(seed_val)
+        if len(dims) == 1:
+            a = []
+            for i in range(dims[0]):
+                if dtype == int:
+                    a.append(int(random.randrange(fromvalue, tovalue)))
+                else:
+                    a.append(dtype(random.uniform(fromvalue, tovalue)))
+            return a
+        else: # len(dims) > 0
+            a = []
+            newshp = copy(dims)
+            newshp.pop(0)
+            for i in range(dims[0]):
+                a.append(mparray._random_initializer(newshp, fromvalue, tovalue, None, dtype))
+            return a
+        
+    # degree of mparray, i.e., its dimensions
+    def degree(self):
+        return len(self.shape())
+        
+    def _find(array, lambda_f):
+        result = []
+        shp = mparray._get_shape(array)
+        if len(shp) == 1:
+            for i in range(shp[0]):
+                if lambda_f(array[i]):
+                    result.append(array[i])
+            return result
+        else:
+            new_shp = copy(shp)
+            new_shp.pop(0)
+            for i in range(shp[0]):
+                result += mparray._find(array[i], lambda_f)
+            return result
+            
+    def _find_with_path(array, path, lambda_f):
+        result = []
+        shp = mparray._get_shape(array)
+        if len(shp) == 1:
+            for i in range(shp[0]):
+                if lambda_f(array[i]):
+                    result.append(path+[i])
+            return result
+        else:
+            new_shp = copy(shp)
+            new_shp.pop(0)
+            for i in range(shp[0]):
+                result += mparray._find_with_path(array[i], path + [i], lambda_f)
+            return result
+            
+    # search for all elements in mparray that meet a condition
+    # defined by lambda_f
+    def find(self, lambda_f):
+        return mparray._find(self.a, lambda_f)
+        
+    def find_where(self, lambda_f):
+        return mparray._find_with_path(self.a, [], lambda_f)
+                    
+    # apply a lambda on all mparray elements and create a
+    # new mparray from result
+    def apply(self, lambda_f):
+        t = mparray.filled_array(self.shape(), dtype = self.dtype)
+        t.a = mparray._apply_op(self.a, lambda_f)
+        return t
+        
+    def sign(self):
+        def fun(n):
+            if n == 0: return 0
+            elif n > 0: return 1
+            else: return -1
+        return self.apply(fun)
+            
+    # helper function that gets two arrays as arguments
+    # and is called for each pair. The result is then used
+    # to create a new array with the same shape. This is useful
+    # to implement operators such as __add__ for mparrays
+    def _apply_on_multiDarrays(a1, a2, lambda_f):
+        shp = mparray._get_shape(a1)
+        if len(shp) == 1:
+            a = []
+            for j in range(shp[0]):
+                a.append(lambda_f(a1[j],a2[j]))
+            return a
+        else:
+            a = []
+            for j in range(shp[0]):
+                a.append(mparray._apply_on_multiDarrays(a1[j],a2[j], lambda_f))
+            return a
+            
+    # helper function for apply used to apply a lambda on each
+    # element of a multidiemensional list and create an square_shaped
+    # new mparray from the results
+    def _apply_op(array, lambda_f):
+        shp = mparray._get_shape(array)
+        if len(shp) == 1:
+            a = []
+            for j in range(shp[0]):
+                a.append(lambda_f(array[j]))
+            return a
+        else:
+            a = []
+            for j in range(0, shp[0]):
+                a.append(mparray._apply_op(array[j], lambda_f))
+            return a
+        
+    # determine shape of a list
+    def _get_shape(array):
+        if len(array) == 0:
+            return []
+        else:
+            if not isinstance(array[0], list):
+                return [len(array)]
+            else:
+                shp = [len(array)]
+                subshape = mparray._get_shape(array[0])
+                return shp + subshape
+                
+    # get shape of mparray
+    def shape(self):
+        return mparray._get_shape(self.a)
+            
+    def __str__(self):
+        def helper(array):
+            res = "["
+            for i in range(len(array)):
+                if not isinstance(array[i], list):
+                    res += " " + str(array[i]) + " "
+                else:
+                    res += helper(array[i])
+            res += "]"
+            return res
+        return helper(self.a)
+        
+    def __repr__(self):
+        return str(self)
+        
+    # helper function to determine whether a list
+    # is regular
+    def _is_regular(array):
+        if type(array[0]) == list:
+            size = len(array[0])
+            for i in range(1, len(array)):
+                if type(array[i]) != list:
+                    return False
+                else:
+                    if len(array[i]) != size:
+                        return False
+            for i in range(len(array)):
+                if not mparray._is_regular(array[i]):
+                    return False
+            return True
+        else:
+            for i in range(1, len(array)):
+                if isinstance(array[i], list):
+                    return False
+            return True
+            
+    # subtraction of two equal-shaped mparrays. Pairwise addition
+    # with results used to create a new mparray
+    def __sub__(self, other):
+        if not isinstance(other, mparray):
+            raise TypeError("both operands must be mparrays")
+        if self.shape() != other.shape():
+            raise ValueError("shapes of operands do not match")
+        t = mparray.filled_array(self.shape(), init_value = 0, dtype=self.dtype)
+        t.a = mparray._apply_on_multiDarrays(self.a, other.a, lambda x,y: x-y)
+        return t
+        
+    # addition of mparrays: similar implementation like that in __sub__
+    def __add__(self, other):
+        if not isinstance(other, mparray):
+            raise TypeError("both operands must be mparrays")
+        if self.shape() != other.shape():
+            raise ValueError("shapes of operands do not match")
+        t = mparray.filled_array(self.shape(), init_value = 0,dtype=self.dtype)
+        t.a = mparray._apply_on_multiDarrays(self.a, other.a, lambda x,y: x+y)
+        return t
+        
+    # only scalar multiplication is supported
+    def __mul__(self, other):
+        if isinstance(other, float) or isinstance(other, int) or isinstance(other, complex):
+            t = mparray(self.shape(), init_value = 0, dtype = self.dtype)
+            t.a = mparray._apply_op(self.a, lambda x: self.dtype(other) * x)
+            return t
+        else:
+            raise ValueError("only scalar multiplication supported for mparrays")
+        
+    # expects arrays with equal shapes
+    def _compare_arrays(a1, shp1, a2, shp2):
+        if shp1 != shp2:
+            return False
+        elif len(shp1) == 1:
+            for i in range(shp1[0]):
+                if a1[i] != a2[i]:
+                    return False
+            return True
+        else:
+            newshp = copy(shp1)
+            newshp.pop(0)
+            for i in range(shp1[0]):
+                if mparray._compare_arrays(a1[i], newshp, a2[i], newshp):
+                    continue
+                else: return False
+            return True
+        
+    def __eq__(self, other):
+        if not (isinstance(other, mparray) or isinstance(other, list)):
+            raise TypeError("left operand must be mparray, right an mparray or a list")
+        if isinstance(other, mparray):
+            operand2 = other
+        else:
+            operand2 = mparray(other, self.dtype)
+        if self.shape() != operand2.shape():
+            raise ValueError("cannot compare objects with different shapes")
+        return mparray._compare_arrays(self.a, self.shape(), operand2.a, operand2.shape())
+
+    def _ne__(self, other):
+        return not self == other
+        
+    # create a random array of given shape and size
+    def random_array(shp, fromvalue, tovalue, seedval = None, dtype = float):
+        a = mparray._random_initializer(shp, fromvalue, tovalue, seedval, dtype)
+        t = mparray(a, dtype)
+        return t
+        
+    # recursive helper method for mparray flattening
+    def _flattener(array):
+        a = []
+        shp = mparray._get_shape(array)
+        if len(shp) == 1:
+            for i in range(shp[0]): a.append(array[i])
+            return a
+        else:
+            for i in range(shp[0]):
+                sub_array = mparray._flattener(array[i])
+                a += sub_array
+            return a
+    
+    # convert mparray object to flat mparray
+    def flatten(self):
+        return mparray.from_list(mparray._flattener(self.a), dtype = self.dtype)
+        
+    # recursive helper function for mparray reshaping
+    def _filler(array, idx, shp):
+        if len(shp) == 1:
+            tmp = []
+            for i in range(shp[0]):
+                tmp.append(array[idx])
+                idx += 1
+            return (tmp, idx)
+        else:
+            new_idx = idx
+            tmp = []
+            new_shape = copy(shp)
+            new_shape.pop(0)
+            for i in range(shp[0]):
+                sub_arr, new_idx = mparray._filler(array, new_idx, new_shape)
+                tmp.append(sub_arr)
+            return (tmp, new_idx)
+            
+    def reshape(self, new_shape):
+        # Flatten the whole mparray to a mpone-dimenional array
+        array = self.flatten()
+        # calculate size required by new shape
+        prod = 1
+        for num in new_shape: prod *= num
+        # if sizes do not match raise ValueError
+        if prod != len(array.a):
+            raise ValueError("cannot reshape a + " + str(self.shape) + " array into a " + str(new_shape) + " array")
+        else:
+            # call _filler with flattened array, index 0, and desired shape
+            new_a, _ = mparray._filler(array.a, 0, new_shape)
+            # use list to create mparray
+            return mparray.from_list(new_a, dtype = self.dtype)
+    
+    # method adds an additional matrix on front of mparray,
+    # copies elements of self and adds them to the expanded
+    # mparray. This, the degree of the new mparray is one plus
+    # degree of old mparray.
+    # When using newarray[0] this sub array whill have
+    # exactly the shape and elements of self
+    def expand(self):
+        tmp=[]
+        tmp.append(deepcopy(self.a))
+        newarray = mparray.from_list(tmp, self.dtype)
+        return newarray
+        
+    def compress(self):
+        if len(self.shape()) > 1 and self.shape()[0] == 1:
+            tmp = self.a[0]
+            return mparray.from_list(tmp, self.dtype)
+        
+    # checks whether addressed element is a scalar and returns that scalar
+    # Otherwise, it returns an mparray object
+    def __getitem__(self, arg):
+        tmp = self.a.__getitem__(arg)
+        if not isinstance(tmp, list):
+            return tmp
+        else:
+            return mparray.from_list(tmp)
+        
+    # delegates to corresponding access pattern for lists
+    def __setitem__(self, arg, cont):
+        self.a.__setitem__(arg, cont)
+        
+    # iterator implementation. The iterator walks through
+    # all elements of mparray. For this purpose, the flattened
+    # mparray is used
+    def __iter__(self):
+        self.idx = 0
+        self.elements = (self.flatten()).a
+        return self
+        
+    def __next__(self):
+        if self.idx < len(self.elements):
+            result = self.elements[self.idx]
+            self.idx += 1
+            return result
+        else:
+            raise StopIteration
+            
+    # check whether a condition holds for at least one element
+    # of the mparray
+    def any(self, cond):
+        tmp = self.flatten()
+        for  elem in tmp:
+            if cond(elem):
+                return True
+        return False
+        
+    # check whether a condition holds for all elements
+    # of the mparray
+    def all(self, cond):
+        tmp = self.flatten()
+        for  elem in tmp:
+            if not cond(elem):
+                return False
+        return True
+        
+    # creates a list with all entries from start to stop
+    # using step as increment. The values created are in
+    # [start, stop[
+    def arange(start = 0, stop = 1, step = 1, dtype = float):
+        result = []
+        act_value = dtype(start)
+        while act_value < stop:
+            result.append(act_value)
+            act_value += step
+        return mparray.from_list(result, dtype)
+        
+    # creates a linear distribution from start point startp to endpoint endp
+    # consisting of size elements with the specified datatype dtype, If
+    # with_endp is set to True the distribution will contain the endpoint.
+    def lin_distribution(startp, endp, size, with_endp = False, dtype = float):
+        array = []
+        if size == 1:
+            sz = 1
+        else:
+            sz = size - 1 if with_endp else size
+        
+        if dtype == int:
+            tmp = float((endp-startp) / sz)
+            if sz > abs(endp-startp) or tmp - math.floor(tmp) > 0:
+                raise ValueError("cannot create an equidistant distibution of integers in this interval")
+        incr =(endp-startp)/sz
+    
+        for i in range(0, size):
+            array.append(dtype(startp + i * incr))
+        return mparray.from_list(array, dtype)
+        
+    # creates a logarithmic distribution of size elements starting
+    # with base ** startp and ending with base ** endp (if with_endp
+    # is set to True)
+    def log_distribution(startp, endp, size, base = 10.0, with_endp = True, dtype = float):
+        array = []
+        if size == 1:
+            sz = 1
+        else:
+            sz = size - 1 if with_endp else size
+        
+        incr = float((endp-startp)/sz)
+    
+        for i in range(0, size):
+            array.append(dtype(base ** (startp + i * incr)))
+        return mparray.from_list(array, dtype)
+        
+    # calculates the mean of mparray elements
+    def mean(self):
+        sum = 0
+        t = self.flatten()
+        for elem in t:
+            sum += elem
+        return sum / len(t.a)
+        
+    # calculates the standard deviation of array elemments
+    def std_dev(self):
+        sum = 0
+        mu = self.mean()
+        t = self.flatten()
+        for elem in t:
+            sum += (elem - mu) ** 2
+        res = math.sqrt(sum / len(t.a))
+        return res
+        
+    # calculates the variance of mparray elements
+    def variance(self):
+        return self.std_dev() ** 2
+           
+    # this function does delegate to reduce()
+    # the lmbda is applied to all elements of
+    # mparray with init_val being the aggregator
+    def reduce_general(self, lmbda, init_val = None):
+        array = self.flatten().a
+        if init_val == None:
+            return reduce(lmbda, array)
+        else:
+            return reduce(lmbda, array, init_val)
+        
+    # calculate the sum of all elements in a mparray
+    # using init_val as the base value
+    def sum(self, init_val = None):
+        if init_val == None:
+            return self.reduce_general(operator.add)
+        else:
+            return self.reduce_general(operator.add, init_val)
+        
+    # calculate the product of all elements in a mparray
+    # using init_val as the base value
+    def mul(self, init_val = None):
+        if init_val == None:
+            return self.reduce_general(operator.mul)
+        else:
+            return self.reduce_general(operator.mul, init_val)
+            
+    # transpose() is defined for all 2D mparrays. It returns a new
+    # mparray with: new_array[r][c] = array[c][r] for all
+    # valid (row,column)-combinations
+    def transpose(self):
+        assert self.degree() == 2, "transpose only defined for 2d-arrays"
+        result = mparray.array_transpose(self.a)
+        return mparray(result, self.dtype)
+        
+    # transpose() transposes nxm-arrays
+    def array_transpose(array):
+        shp = mparray._get_shape(array)
+        n = shp[0]
+        m = shp[1]
+        result = [[0 for i in range(n)] for j in range(m)]
+        for r in range(m):
+            for c in range(n):
+                result[r][c] = array[c][r]
+        return result
+        
+    # split splits a mparray in different sub-arrays. It is only defined
+    # for 1-D and 2-D mparrays.
+    # arg is an integer when the split should happen into same-size-pieces
+    # or as a tupel if the split should happen at specified positions.
+    # For 2-D arrays axis defines along which axis the split is going to
+    # happen
+    def split(self, arg, axis = 0):
+        shp = self.shape()
+    
+        def split_1D(array, arg):
+            n = len(array)
+            if isinstance(arg, int):
+                if arg == 0 or n % arg != 0:
+                    raise ValueError("equal split of array with size = " + str(n) + " impossible with arg = " + str(arg))
+                else:
+                    result = []
+                    i = 0
+                    while i < n:
+                        arr = []
+                        for j in range(n // arg):
+                            arr.append(array[i + j])
+                        i += n // arg
+                        result.append(arr)
+                return result
+            elif isinstance(arg, tuple) or isinstance(arg, list):
+                last_pos = 0
+                split_indices = [0]
+                for pos in arg:
+                    if pos < 0 or pos >= n:
+                        raise ValueError("attempt to split mparray of size = " + str(n) + " at nonexistent position " + str(pos))
+                    split_indices.append(pos)
+                split_indices.append(len(array))
+                split_indices = list(set(split_indices))
+                split_indices.sort()
+                result = []
+                for i in range(len(split_indices)-1):
+                    tmp = []
+                    for j in range(split_indices[i], split_indices[i+1]):
+                        tmp.append(array[j])
+                    result.append(tmp)
+                return result
+    
+        def split_2D(array, arg, axis = 0):
+            shp = mparray._get_shape(array)
+            n = shp[0]
+            m = shp[1]
+            if axis == 0:
+                if isinstance(arg, int):
+                    if arg == 0 or m % arg != 0:
+                        raise ValueError("equal split of mparray with size = " + str(m) + " impossible with arg = " + str(arg))
+                    else:
+                        result = []
+                        tmp = []
+                        for i in range(n):
+                            tmp.append(split_1D(array[i], arg))
+                        for j in range(len(tmp[0])):
+                            single = []
+                            for i in range(n):
+                                single.append(tmp[i][j])
+                            result.append(single)
+                        return result
+                elif isinstance(arg, tuple) or isinstance(arg, list):
+                    result = []
+                    tmp = []
+                    for i in range(n):
+                        tmp.append(split_1D(array[i], arg))
+                    for j in range(len(tmp[0])):
+                        single=[]
+                        for i in range(n):
+                            single.append(tmp[i][j])
+                        result.append(single)
+                    return result
+            else: # axis==1
+                if isinstance(arg, int):
+                    if arg == 0 or n % arg != 0:
+                        raise ValueError("equal split of array with size = " + str(n) + " impossible with arg = " + str(arg))
+                result = []
+                array_tmp = mparray.array_transpose(array)
+                tmp = split_2D(array_tmp, arg, axis = 0)
+            
+                for k in range(len(tmp)):
+                    result.append(mparray.array_transpose(tmp[k]))
+                return result
+                
+        array = self.a
+        if self.degree() == 1:
+            return split_1D(array, arg)
+        elif self.degree() == 2:
+            return split_2D(array, arg, axis)
+        else:
+            raise ValueError("split only defined for one- and two-dimensional mparrays")
+
+    # concat combines two mparrays along axis 0 or axis 1
+    def concat(self, other, axis = 0):
+        if self.degree() > 2 or other.degree() > 2 or self.degree() != other.degree():
+            raise ValueError("concatenation not supported for mparrays with degree > 2 or mparrays with different degrees")
+        if self.degree() == 1 and other.degree() == 1:
+            r1 = self.shape()[0]
+            r2 = other.shape()[0]
+            if axis == 1:
+                if r1 != r2:
+                    raise ValueError("cannot concat 1D myarrays with different lengths")
+                else:
+                    return mparray([self.a, other.a], self.dtype)
+            else: # axis == 0
+                return mparray(self.a+other.a, self.dtype)
+        elif self.degree() == 2:
+            r1 = self.shape()[0]
+            r2 = other.shape()[0]
+            c1 = self.shape()[1]
+            c2 = other.shape()[1]
+            if axis == 1:
+                if c1 != c2:
+                    raise ValueError("mparrays must have the same number of columns")
+                tmp = []
+                for i in range(r1): tmp.append(self.a[i])
+                for i in range(r2): tmp.append(other.a[i])
+                return mparray(tmp, self.dtype)
+            else:
+                if r1 != r2:
+                    raise ValueError("mparrays must have the same number of rows")
+                tmp = []
+                for i in range(r1): tmp.append(self.a[i]+other.a[i])
+                return mparray(tmp, self.dtype)
+        
+    # diff takes in each row a[r,c]-a[r,c-1] for c in 1 .. len(row)
+    # if the original mparray has dimension dim1 x dim2, then the result
+    # will have dimension dim1 x (dim2 - 1)
+    def diff(self):
+        assert self.degree() == 1 or self.degree() == 2, "diff only defined for 1d and 2d mparrays"
+        shp = self.shape()
+        if self.degree() == 2:
+            result = []
+            for r in range(shp[0]):
+                row = []
+                for c in range(1, shp[1]):
+                    row.append(self[r][c] - self[r][c-1])
+                result.append(row)
+            return mparray.from_list(result, self.dtype)
+        elif self.degree() == 1:
+            result = []
+            for i in range(1, shp[0]):
+                result.append(self[i]-self[i-1])
+            return result
+            
+    # An 2D mparray can be rotated 90° to the left or right.
+    # if left = True  => left  rotation
+    # if left = False => right rotation
+    def rotate(self, left = True):
+        assert self.degree() == 2, "can only rotate 2d mparrays"
+        shp = self.shape()
+        n = shp[0]
+        m = shp[1]
+        res = []
+        if left:
+            for c in range(m):
+                row = []
+                for r in range(n):
+                    row.append(self[r][m-c-1])
+                res.append(row)
+            return mparray.from_list(res, self.dtype)
+        else: # right!
+            for c in range(m):
+                row = []
+                for r in range(n):
+                    row.append(self[n-r-1][c])
+                res.append(row)
+            return mparray.from_list(res, self.dtype)
+        
+    # remove duplicates from a one-dimensional array
+    def remove_duplicates(arr):
+        return list(set(arr))
+        
+    # the following helper functions are wrappers
+    # that use mparray.apply. They are implemented
+    # for the users convenience.
+    
+    # sin for mparrays based on apply()
+    def sin(self):
+        res = self.apply(math.sin)
+        return res
+        
+    # cos for mparrays based on apply()
+    def cos(self):
+        res = self.apply(math.cos)
+        return res
+        
+    # tan for mparrays based on apply()
+    def tan(self):
+        res = self.apply_1D(math.tan)
+        return res
+                
+    # exp for mparrays based on apply()
+    # apply_1D
+    def exp(array):
+        res = self.apply(math.exp)
+        return res
+        
+    # log for mparrays based on apply()
+    def log(self, base):
+        res = self.apply(lambda x: math.log(x,base))
+        return res
+        
+    # pow for mparrays based on apply()
+    def pow(self, exponent):
+        res = self.apply(lambda x: pow(x,exponent))
+        return res
+        
+    # calculate the mean-normalized form of the
+    # input mparray:
+    def mean_normalization(self):
+        array = self.flatten().to_list()
+        maximum = max(array)
+        mean    = self.mean()
+        result  = [(array[i] - mean) / maximum for i in range(0, len(array))]
+        return mparray(result, self.dtype)
+        
+    def euclidean_norm(self):
+        sum = 0
+        array = self.flatten()
+        for i in range(array.shape()[0]):
+            sum += array[i] ** 2
+        return math.sqrt(sum)
+        
+    # calculate minima of mparray
+    def argmin(self, axis = None):
+        if self.degree() > 2:
+            raise ValueError("argmin only defined for 1-D or 2-D")
+            
+        if axis == None or self.degree() == 1:
+            return min(self.a)
+        elif axis == 0:
+            result = []
+            for i in range(0, self.shape()[0]):
+                result.append(min(self.a[i]))
+            return mparray(result, self.dtype)
+        elif axis == 1:
+            result = []
+            for c in range(0, self.shape()[1]):
+                tmp = []
+                for r in range(0, self.shape()[0]):
+                    tmp.append(self.a[r][c])
+                result.append(min(tmp))
+            return mparray(result, self.dtype)
+                
+    # calculate maxima of mparray
+    def argmax(self, axis = None):
+        if self.degree() > 2:
+            raise ValueError("argmax only defined for 1-D or 2-D")
+        if axis == None or self.degree() == 1:
+            return max(self.a)
+        elif axis == 0:
+            result = []
+            for i in range(0, self.shape()[0]):
+                result.append(max(self[i]))
+            return mparray(result, self.dtype)
+        elif axis == 1:
+            result = []
+            for c in range(0, self.shape()[1]):
+                tmp = []
+                for r in range(0, self.shape()[0]):
+                    tmp.append(self.a[r][c])
+                result.append(max(tmp))
+            return mparray(result, self.dtype)
+            
+    # delete elements from an array with indices of elements
+    # to delete given in indices
+    def delete(array, indices):
+        new_array = []
+        for i in range(0, len(array)):
+            if not i in indices:
+                new_array.append(array[i])
+        return new_array
+        
+    # erase values from array so that that none of
+    # these numbers is left in the mparray
+    def erase(array, values):
+        new_array = deepcopy(array)
+        for val in values:
+            while val in new_array:
+                new_array.remove(val)
+        return new_array
+        
+    # This method sorts the passed array in-situ
+    # It return an array of indices that shows
+    # which element of the unsorted array was
+    # moved to which index due to sorting
+    # for example,
+    #     array = [4,1,3,2,1,3,0]
+    #     will end up in [0, 1, 1, 2, 3, 3, 4]
+    #     after sort()
+    # The returned index array looks like:
+    #     [6, 1, 4, 3, 2, 5, 0]
+    # Due to sorting the element formerly located
+    # at index 6 is now at index 0 after sorting
+    # and the lement formerly located at position 0
+    # is at position 6 after sort()
+    # if in_situ = False, the sort will be
+    # conducted on a copy of a so that a remains
+    # unchanged
+    def sort(a, in_situ = True):
+        def partition(a, indices, left, right):
+            pivot = a[right]
+            i = left
+            j = right - 1
+            
+            while i < j:
+                while i < j and a[i] <= pivot: i += 1
+                while j > i and a[j] >  pivot: j -= 1
+                if a[i] > pivot:
+                    a[i],a[right] = a[right],a[i]
+                    indices[i], indices[right] = indices[right], indices[i]
+                else:
+                    i = right
+            return i
+            
+        def quicksort(a, indices, left, right):
+            if left < right:
+                idx = partition(a, indices, left, right)
+                quicksort(a, indices, left, idx - 1)
+                quicksort(a, indices, idx + 1, right)
+        if not in_situ:
+            a = deepcopy(a)
+        indices = [i for i in range(len(a))]
+        quicksort(a, indices, 0, len(a)-1)
+        return indices
+        
+    # calculates expectation value for series of x-values.
+    # If weights_array is used by caller each x-value will
+    # be multiplied by the corresponding weight
+    # If no weights_array is passed to the method, weight
+    # will be 1/len(x_array)
+    def expected_value(x_array, weights_array = None):
+        if len(x_array) == 0:
+            return 0
+        if (weights_array != None) and (len(x_array) != len(weights_array)):
+            raise ValueError("x_array and weights_array must have the same length")
+        if weights_array == None:
+            weight = 1 / len(x_array)
+            sum = 0
+            for i in range(0, len(x_array)):
+                sum += x_array[i] * weight
+            return sum
+        else:
+            sum = 0
+            for i in range(len(x_array)):
+                sum += x_array[i] * weights_array[i]
+            return sum
             
 #################################################
 ################## class Array ##################
@@ -4421,5 +5303,4 @@ class Transfer:
             if verbose: print("... writing file " + filename + "...")
             if verbose: print()
             writer.writerow(v.v)                
-    
-            
+
