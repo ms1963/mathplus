@@ -3752,6 +3752,7 @@ class Vector:
     # create a vector from a list
     def from_list(list, dtype = float, transposed = False):
         v = Vector(len(list), transposed = transposed)
+        v.dtype = dtype
         for i in range(0, len(v)): v[i] = dtype(list[i])
         return v
 
