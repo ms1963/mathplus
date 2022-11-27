@@ -5197,7 +5197,7 @@ class Measurement:
 ################  class Transfer  ###############
 #################################################
 
-# Functionality to transfer arrays, Vectors, Matrices 
+# Functionality to transfer mparrays, Vectors, Matrices 
 # between mathplus and other libraries, primarily numpy
         
 class Transfer:
@@ -5253,7 +5253,32 @@ class Transfer:
             
     # the following read/write-methods writea matrix or array to a
     # file or read a matrix or array from a file. The format is "csv".
+    # Note: mparrays are stored as flattened arrays to the CSV file.
+    # The header will store the dtype of the array, as well as its 
+    # shape. When retrieving the mparray back from file, a flattened
+    # mparray will be created which will then be reshaped into the 
+    # original shape with the original type using the file's header 
+    # information.
+    # The headers of vectors will store the type as well as the 
+    # transposition-state which will then be used to restore the 
+    # vector. For a matrix all rows will be stored plus the type
+    # of the matrix. 
+
                 
+    def create_mparray_header(a):
+        header = ["#"]
+        if a.dtype == int:
+            header.append(0)
+        elif a.dtype == float:
+            header.append(1)
+        elif a.dtype == complex:
+            header.append(2)
+        shp = a.shape()
+        header.append(len(shp))
+        for i in range(len(shp)):
+            header.append(shp[i])
+        return header
+        
     def create_vector_header(v):
         header = ["#"]
         if v.dtype == int:
@@ -5278,6 +5303,20 @@ class Transfer:
             header.append(2)
         else: header.append(42)
         return header
+          
+    def map_mparray_header(row):
+        dtype = None
+        shp = [] 
+        if int(row[1]) == 0:
+            dtype = int
+        elif int(row[1]) == 1:
+            dtype = float
+        elif row[1] == 2:
+            dtype = complex
+        len_shp = int(row[2])
+        for i in range(len_shp):
+            shp.append(int(row[i+3]))
+        return (dtype, shp)
         
     def map_vector_header(row):
         trans = None
@@ -5304,6 +5343,42 @@ class Transfer:
             dtype = complex
         return dtype
             
+    def readMParrayFromCSV(filename, verbose = False):
+        csv.register_dialect('excel', delimiter=',', quoting=csv.QUOTE_NONE)
+        counter = 0
+        array = []
+        shp   = None
+        dtype = None
+        
+        with open(filename, newline='') as f:
+            try: 
+                reader = csv.reader(f, delimiter=",", quoting=csv.QUOTE_NONE)
+                if verbose: print("... reading file " + filename + " ...")
+                if verbose: print()
+                counter = 0
+                for row in reader:
+                    if row[0] == "#": 
+                        (dtype, shp) = Transfer.map_mparray_header(row)
+                        continue
+                    if counter > 1:
+                        raise ValueError("more than one row in file: this cannot be a flattened mparray")
+                    array_row = []
+                    for num in row:
+                        array.append(dtype(num))
+            except csv.Error as e:
+                print('file {}, line {}: {}'.format(filename, reader.line_num, e))
+        a = mparray(array, dtype)
+        return a.reshape(shp)
+
+    def writeMParrayToCSV(a, filename, verbose = False):
+        with open(filename, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',',quoting=csv.QUOTE_NONE)
+            lst = a.flatten().to_list()
+            if verbose: print("... writing file " + filename + "...")
+            if verbose: print()
+            writer.writerow(Transfer.create_mparray_header(a))
+            writer.writerow(lst)                
+               
     def readVectorFromCSV(filename, verbose = False):
         csv.register_dialect('excel', delimiter=',', quoting=csv.QUOTE_NONE)
         counter = 0
