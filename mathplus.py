@@ -1211,34 +1211,45 @@ class mparray:
     # is at position 6 after sort()
     # if in_situ = False, the sort will be
     # conducted on a copy of a so that a remains
-    # unchanged
-    def sort(a, in_situ = True):
-        def partition(a, indices, left, right):
-            pivot = a[right]
-            i = left
-            j = right - 1
-            
-            while i < j:
-                while i < j and a[i] <= pivot: i += 1
-                while j > i and a[j] >  pivot: j -= 1
-                if a[i] > pivot:
-                    a[i],a[right] = a[right],a[i]
-                    indices[i], indices[right] = indices[right], indices[i]
-                else:
-                    i = right
-            return i
-            
-        def quicksort(a, indices, left, right):
-            if left < right:
-                idx = partition(a, indices, left, right)
-                quicksort(a, indices, left, idx - 1)
-                quicksort(a, indices, idx + 1, right)
-        if not in_situ:
-            a = deepcopy(a)
-        indices = [i for i in range(len(a))]
-        quicksort(a, indices, 0, len(a)-1)
-        return indices
+    # unchanged       
+    def sort(array, in_situ = True):
+        def quicksort(array, indices):
+            smaller = []
+            equal   = []
+            larger  = []
+            idx_smaller = []
+            idx_equal   = []
+            idx_larger  = []
         
+            if len(array) > 1:
+                pivot = array[0]
+                for i in range(len(array)):
+                    if array[i] < pivot:
+                        smaller.append(array[i])
+                        idx_smaller.append(indices[i])
+                    elif array[i] == pivot:
+                        equal.append(array[i])
+                        idx_equal.append(indices[i])
+                    elif array[i] > pivot:
+                        larger.append(array[i])
+                        idx_larger.append(indices[i])
+                sma, sidx = quicksort(smaller, idx_smaller)
+                equ, eidx = equal, idx_equal
+                lar, lidx = quicksort(larger, idx_larger)
+                return (sma + equ + lar, sidx + eidx + lidx)
+            elif len(array) == 1: 
+                return array, [indices[0]]
+            else:
+                return [],[]
+                
+        sortedarr, indices = quicksort(array, [i for i in range(len(array))])
+        if in_situ:
+            for i in range(len(array)):
+                array[i] = sortedarr[i]
+            return indices
+        else:
+            return sortedarr, indices
+            
     # calculates expectation value for series of x-values.
     # If weights_array is used by caller each x-value will
     # be multiplied by the corresponding weight
@@ -1510,32 +1521,43 @@ class Array:
     # if in_situ = False, the sort will be 
     # conducted on a copy of a so that a remains
     # unchanged
-    def sort(a, in_situ = True):
-        def partition(a, indices, left, right):
-            pivot = a[right]
-            i = left
-            j = right - 1
-            
-            while i < j:
-                while i < j and a[i] <= pivot: i += 1
-                while j > i and a[j] >  pivot: j -= 1
-                if a[i] > pivot:
-                    a[i],a[right] = a[right],a[i]
-                    indices[i], indices[right] = indices[right], indices[i]
-                else:
-                    i = right
-            return i
-            
-        def quicksort(a, indices, left, right):
-            if left < right:
-                idx = partition(a, indices, left, right)
-                quicksort(a, indices, left, idx - 1)
-                quicksort(a, indices, idx + 1, right)        
-        if not in_situ:
-            a = deepcopy(a)
-        indices = [i for i in range(len(a))]
-        quicksort(a, indices, 0, len(a)-1)
-        return indices
+    def sort(array, in_situ = True):
+        def quicksort(array, indices):
+            smaller = []
+            equal   = []
+            larger  = []
+            idx_smaller = []
+            idx_equal   = []
+            idx_larger  = []
+        
+            if len(array) > 1:
+                pivot = array[0]
+                for i in range(len(array)):
+                    if array[i] < pivot:
+                        smaller.append(array[i])
+                        idx_smaller.append(indices[i])
+                    elif array[i] == pivot:
+                        equal.append(array[i])
+                        idx_equal.append(indices[i])
+                    elif array[i] > pivot:
+                        larger.append(array[i])
+                        idx_larger.append(indices[i])
+                sma, sidx = quicksort(smaller, idx_smaller)
+                equ, eidx = equal, idx_equal
+                lar, lidx = quicksort(larger, idx_larger)
+                return (sma + equ + lar, sidx + eidx + lidx)
+            elif len(array) == 1: 
+                return array, [indices[0]]
+            else:
+                return [],[]
+                
+        sortedarr, indices = quicksort(array, [i for i in range(len(array))])
+        if in_situ:
+            for i in range(len(array)):
+                array[i] = sortedarr[i]
+            return indices
+        else:
+            return sortedarr, indices
         
 
     # concatenate two rectangular arrays on axis 0 or 1 
