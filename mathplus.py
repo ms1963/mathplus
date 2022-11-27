@@ -5258,38 +5258,64 @@ class Transfer:
     # or not. In addition, the implementation stores ints and floats
     # as floats. Complex numbers are not supported. 
 
-    def readMatrixFromCSV(filename, verbose = False):
-        csv.register_dialect('excel', delimiter=',', quoting=csv.QUOTE_NONE)
-        array = []
-        with open(filename, newline='') as f:
-            try: 
-                reader = csv.reader(f, delimiter=",", quoting=csv.QUOTE_NONE)
-                if verbose: print("... reading file " + filename + " ...")
-                if verbose: print()
-                for row in reader:
-                    array_row = []
-                    for num in row:
-                        array_row.append(float(num))
-                    array.append(array_row)
-            except csv.Error as e:
-                print('file {}, line {}: {}'.format(filename, reader.line_num, e))
-        return Matrix.from_list(array)
-        
-    def writeMatrixToCSV(m, filename, verbose = False):
-        with open(filename, 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile, delimiter=',',quoting=csv.QUOTE_NONE)
-            if verbose: print("... writing file " + filename + "...")
-            if verbose: print()
-            r, c = m.shape()
-            for i in range(r):
-                row = m.m[i]
-                writer.writerow(row)
                 
+    def create_vector_header(v):
+        header = ["#"]
+        if v.dtype == int:
+            header.append(0)
+        elif v.dtype == float:
+            header.append(1)
+        elif v.dtype == complex:
+            header.append(2)
+        if v.is_transposed():
+            header.append(1)
+        else:
+            header.append(0)
+        return header
+            
+    def create_matrix_header(m):
+        header = ["#"]
+        if m.dtype == int:
+            header.append(0)
+        elif m.dtype == float:
+            header.append(1)
+        elif m.dtype == complex:
+            header.append(2)
+        else: header.append(42)
+        return header
+        
+    def map_vector_header(row):
+        trans = None
+        dtype = None
+        if int(row[1]) == 0:
+            dtype = int
+        elif int(row[1]) == 1:
+            dtype = float
+        elif row[1] == 2:
+            dtype = complex
+        if int(row[2]) == 0:
+            trans = False
+        elif int(row[2]) == 1:
+            trans = True          
+        return (dtype, trans)
+    
+    def map_matrix_header(row):
+        dtype = None
+        if int(row[1]) == 0:
+            dtype = int
+        elif int(row[1]) == 1:
+            dtype = float
+        elif row[1] == 2:
+            dtype = complex
+        return dtype
+            
     def readVectorFromCSV(filename, verbose = False):
         csv.register_dialect('excel', delimiter=',', quoting=csv.QUOTE_NONE)
         counter = 0
         array = []
-
+        trans = None
+        dtype = None
+        
         with open(filename, newline='') as f:
             try: 
                 reader = csv.reader(f, delimiter=",", quoting=csv.QUOTE_NONE)
@@ -5297,20 +5323,58 @@ class Transfer:
                 if verbose: print()
                 counter = 0
                 for row in reader:
-                    counter += 1
+                    if row[0] == "#": 
+                        dtype, trans = Transfer.map_vector_header(row)
+                        continue
                     if counter > 1:
                         raise ValueError("more than one row in file: this cannot be a vector")
                     array_row = []
                     for num in row:
-                        array.append(float(num))
+                        array.append(dtype(num))
             except csv.Error as e:
                 print('file {}, line {}: {}'.format(filename, reader.line_num, e))
-        return Vector.from_list(array)
+        v = Vector.from_list(array, dtype, trans)
+        return v
         
     def writeVectorToCSV(v, filename, verbose = False):
         with open(filename, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=',',quoting=csv.QUOTE_NONE)
+            
             if verbose: print("... writing file " + filename + "...")
             if verbose: print()
+            writer.writerow(Transfer.create_vector_header(v))
             writer.writerow(v.v)                
 
+    def readMatrixFromCSV(filename, verbose = False):
+        csv.register_dialect('excel', delimiter=',', quoting=csv.QUOTE_NONE)
+        array = []
+        dtype = None
+        with open(filename, newline='') as f:
+            try: 
+                reader = csv.reader(f, delimiter=",", quoting=csv.QUOTE_NONE)
+                if verbose: print("... reading file " + filename + " ...")
+                if verbose: print()
+                first_row = True
+                for row in reader:
+                    if first_row:
+                        dtype = Transfer.map_matrix_header(row)
+                        first_row = False
+                        continue
+                    array_row = []
+                    for num in row:
+                        array_row.append(dtype(num))
+                    array.append(array_row)
+            except csv.Error as e:
+                print('file {}, line {}: {}'.format(filename, reader.line_num, e))
+        return Matrix.from_list(array, dtype)
+        
+    def writeMatrixToCSV(m, filename, verbose = False):
+        with open(filename, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',',quoting=csv.QUOTE_NONE)
+            if verbose: print("... writing file " + filename + "...")
+            if verbose: print()
+            r, c = m.shape()
+            writer.writerow(Transfer.create_matrix_header(m))
+            for i in range(r):
+                row = m.m[i]
+                writer.writerow(row)
