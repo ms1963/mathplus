@@ -5253,11 +5253,6 @@ class Transfer:
             
     # the following read/write-methods writea matrix or array to a
     # file or read a matrix or array from a file. The format is "csv".
-    # there are two notable restrictions: the implementation does 
-    # not store information about whether a vector was transposed
-    # or not. In addition, the implementation stores ints and floats
-    # as floats. Complex numbers are not supported. 
-
                 
     def create_vector_header(v):
         header = ["#"]
