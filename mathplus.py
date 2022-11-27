@@ -19,7 +19,8 @@ Permissions of this strong copyleft license are conditioned on making available 
 from __future__ import print_function
 from __future__ import division
 import math 
-from copy import deepcopy
+from copy import deepcopy, copy
+import random
 from random import uniform, randrange, seed, shuffle
 from functools import reduce
 import operator
