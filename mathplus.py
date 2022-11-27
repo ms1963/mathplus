@@ -1321,7 +1321,7 @@ class Matrix:
             raise ValueError("Determinants can only be calculated for quadratic matrices")
         if self.dim1 == 1:
             return self.m[0][0]
-        else: # developing around 0,0 
+        else: # developing around 0,0 (i.e., row 0 --> )
             det = self.dtype(0)
             for c in range(0, self.dim1):
                 if c % 2 == 0:
@@ -1333,7 +1333,7 @@ class Matrix:
     
     
     # sets all elements below the specified diag to 0 
-    # diag = 0 is the main axis        
+    # diag = 0 is the main diagonal        
     def upper_triangle(self, diag = 0):
         dim1, dim2 = self.shape()
         res = self.clone()
@@ -1345,7 +1345,7 @@ class Matrix:
         return res
         
     # sets all elements above the specified diag to 0 
-    # diag = 0 is the main axis        
+    # diag = 0 is the main diagonal        
     def lower_triangle(self, diag = 0):
         dim1, dim2 = self.shape()
         res = self.clone()
@@ -1355,6 +1355,7 @@ class Matrix:
                 if (r - diag) > c: 
                     res[r,c] = 0
         return res
+        
     # calculates cofactor of position i,j
     def cofactor(self, i, j):
         cof_ij = self.minor(i,j).det()
@@ -1437,7 +1438,7 @@ class Matrix:
                     
     # The Jacobi method is an approximation approach to solve 
     # a linear equation system. As termination criterion this 
-    # implimentation uses the change of the result vector between 
+    # implementation uses the change of the result vector between 
     # different iterations. If the tolerance is achieved the 
     # method returns the result. If after max_iter iterations
     # the required tolerance is not achieved then None is returned.
@@ -1525,7 +1526,6 @@ class Matrix:
                 if c - diag == r:
                     list.append(self[r,c])
         return list
-        
         
     # fills the diagonal of a square matrix with a value 
     # value is the value to be filled into the diagonal
@@ -1856,7 +1856,7 @@ class Matrix:
         return Matrix.from_list(mat)
         
     def reshape(self, shape, dtype = float):
-        if shape == None : 
+        if shape == None: 
             raise ValueError("shape must not be None")
         elif shape[0] == self.dim1 and shape[1] == self.dim2:
             return self.clone()
