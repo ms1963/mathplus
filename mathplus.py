@@ -5240,6 +5240,14 @@ class Transfer:
         else: # len(npshp) == 1 
             return Vector.from_list(nparray.tolist())
             
+    def numpy_to_mparray(nparray):
+        return mparray(nparray.tolist())
+        
+    def mparray_to_numpy(mparray):
+        shp = tuple(mparray.shape())
+        npa = np.array(mparray.flatten().to_list())
+        return np.reshape(npa, shp)
+            
             
     # the following read/write-methods writea matrix or array to a
     # file or read a matrix or array from a file. The format is "csv".
