@@ -427,12 +427,26 @@ class mparray:
         t = mparray(array, dtype)
         return t
         
+    # rand() creates a mparray filled with random values in [0,1[ 
+    # with the specified shape shp
+    def rand(shp, seedval = 0):
+        # determine number of elements
+        prod = 1
+        for i in range(len(shp)): prod *= shp[i]
+        # create a flat array
+        mpa = mparray.random_array([prod], fromvalue=0, tovalue = 1, dtype = float, seedval = seedval)
+        # reshape the flat array in the required shp
+        return mpa.reshape(shp)
+        
+    # extract a list from the mparray
     def to_list(self):
         return deepcopy(self.a)
         
+    # extract a flat list from the mparray
     def to_flat_list(self):
         return self.flatten().to_list()
         
+    # returns the actual size of the mparray
     def __len__(self):
         return len(self.flatten().to_list())
         
