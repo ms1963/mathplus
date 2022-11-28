@@ -5329,7 +5329,7 @@ class Transfer:
             dtype = int
         elif int(row[1]) == 1:
             dtype = float
-        elif row[1] == 2:
+        elif int(row[1]) == 2:
             dtype = complex
         len_shp = int(row[2])
         for i in range(len_shp):
