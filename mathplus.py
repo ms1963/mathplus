@@ -25,6 +25,7 @@ from random import uniform, randrange, seed, shuffle
 from functools import reduce
 import operator
 import numbers
+import matplotlib.pyplot as plt
 import csv
 import numpy as np # used to transfer array between 
                    # mathplus and numpy
@@ -929,7 +930,7 @@ class mparray:
             result = []
             for r in range(bottom - top + 1):
                 row = []
-                for c in range(right - left + 1)
+                for c in range(right - left + 1):
                     row.append(self[top + r][left + c])
                 result.append(row)
             return mparray(result, dtype=self.dtype)
@@ -5342,6 +5343,60 @@ class Transfer:
         npa = np.array(mparray.flatten().to_list())
         return np.reshape(npa, shp)
             
+            
+    # the draw function expects a mparray x with the arguments
+    # and thre function to be applied as a lambda. This function 
+    # is drawn using matplotlib
+    def draw_function_2D(xmp, lambda_f, color = 'r', label = ""): 
+        ymp = xmp.apply(lambda_f)
+        x = Transfer.mparray_to_numpy(xmp)
+        y = Transfer.mparray_to_numpy(ymp)
+        # setting the axes at the centre
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+        ax.spines['left'].set_position('center')
+        ax.spines['bottom'].set_position('zero')
+        ax.spines['right'].set_color('none')
+        ax.spines['top'].set_color('none')
+        ax.xaxis.set_ticks_position('bottom')
+        ax.yaxis.set_ticks_position('left')
+        # plot the function
+        plt.plot(x, y, color = color, label = label)
+        plt.legend(loc='upper left')
+        plt.show()
+        
+    # draw_functions_2D is used to draw multiple functions
+    # at once. It expects an input list as an argument that
+    # contain entries of the form (lambda, color, label)
+    def draw_functions_2D(xmp, input):
+        if len(input) == 0:
+            raise ValueError("received an empty input vector")
+        x = Transfer.mparray_to_numpy(xmp)
+        y_array = [] 
+        col_array = []
+        lbl_array = []
+        for entry in input:
+            lambda_f, color, label = entry
+            y_array.append(Transfer.mparray_to_numpy(xmp.apply(lambda_f)))
+            col_array.append(color)
+            lbl_array.append(label)
+        # setting the axes at the centre
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+        ax.spines['left'].set_position('center')
+        ax.spines['bottom'].set_position('zero')
+        ax.spines['right'].set_color('none')
+        ax.spines['top'].set_color('none')
+        ax.xaxis.set_ticks_position('bottom')
+        ax.yaxis.set_ticks_position('left')
+        
+        for i in range(len(y_array)):
+            plt.plot(x, y_array[i], color = col_array[i], label = lbl_array[i])
+        plt.legend(loc='upper left')
+        plt.show()
+        
+        
+    
             
     # the following read/write-methods writea matrix or array to a
     # file or read a matrix or array from a file. The format is "csv".
