@@ -641,14 +641,28 @@ class mparray:
         t.a = mparray._apply_on_multiDarrays(self.a, other.a, lambda x,y: x+y)
         return t
         
-    # only scalar multiplication is supported
+    # scalar multiplication and multiplication between mparrays is supported
     def __mul__(self, other):
         if isinstance(other, float) or isinstance(other, int) or isinstance(other, complex):
             t = mparray(self.shape(), init_value = 0, dtype = self.dtype)
             t.a = mparray._apply_op(self.a, lambda x: self.dtype(other) * x)
             return t
+        elif isinstance(other, mparray):
+            if self.shape() != other.shape():
+                raise ValueError("can only multiply mparrays with the same shape")
+            if self.degree() > 2: 
+                raise ValueError("multiplying arrays with higehr degree than 2 is not supported")
+            res = mparray.filled_array(self.shape(), init_value = 0, dtype = self.dtype)
+            for r in range(self.shape()[0]):
+                for c in range(self.shape()[1]):
+                    res[r][c] = self[r][c] * other[r][c]
+            return res
         else:
-            raise ValueError("only scalar multiplication supported for mparrays")
+            raise ValueError("operands must be an mparray and a scalar or two mparrays")
+        
+    # return mparray where all elems of self are powered to exponent
+    def __pow__(self, exponent):
+        return self.apply(lambda x: x ** exponent)
         
     # expects arrays with equal shapes
     def _compare_arrays(a1, shp1, a2, shp2):
@@ -811,7 +825,7 @@ class mparray:
         while act_value < stop:
             result.append(act_value)
             act_value += step
-        return mparray.from_list(result, dtype)
+        return mparray(result, dtype)
         
     # creates a linear distribution from start point startp to endpoint endp
     # consisting of size elements with the specified datatype dtype, If
@@ -1303,6 +1317,36 @@ class mparray:
                 sum += x_array[i] * weights_array[i]
             return sum
             
+    # meshgrid allows to combine two 1D mparrays x, y to a coordinate
+    # system spanned by x and y. It returns 2 2D arrays
+    def meshgrid(mpx, mpy):
+        print(mpx)
+        print(mpy)
+        shp1 = mpx.shape()
+        shp2 = mpy.shape()
+        if len(shp1) != 1 or len(shp2) != 1:
+            raise ValueError("meshgrid expects 1D arrays as input")
+        dim1 = shp1[0]
+        dim2 = shp2[0]
+        xarray = []
+        for r in range(dim2):
+            row = []
+            for  c in range(dim1):
+                row.append(mpx[c])
+            xarray.append(row)
+        x = mparray(xarray, mpx.dtype)
+        yarray = []
+        for r in range(dim2):
+            row = []
+            for c in range(dim1):
+                row.append(mpy[r])
+            yarray.append(row)
+        y = mparray(yarray, mpx.dtype)
+        return (x,y)
+        
+                
+        
+        
 #################################################
 ################## class Array ##################
 ################################################# 
@@ -5395,6 +5439,26 @@ class Transfer:
         plt.legend(loc='upper left')
         plt.show()
         
+    def draw_function_3D(tmp, lambda_f1, lambda_f2, title ="mathplus 3D function"):
+        fig = plt.figure(figsize = (8,8))
+        ax = plt.axes(projection='3d')
+        ax.grid()
+        
+        xmp = tmp.apply(lambda_f1)
+        ymp = tmp.apply(lambda_f2)
+        t = Transfer.mparray_to_numpy(tmp)
+        x = Transfer.mparray_to_numpy(xmp)
+        y = Transfer.mparray_to_numpy(ymp)
+
+        ax.plot3D(x, y, t)
+        ax.set_title(title)
+
+        # Set axes label
+        ax.set_xlabel('x', labelpad=20)
+        ax.set_ylabel('y', labelpad=20)
+        ax.set_zlabel('t', labelpad=20)
+
+        plt.show()
         
     
             
