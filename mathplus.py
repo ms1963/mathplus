@@ -427,6 +427,9 @@ class mparray:
     def __len__(self):
         return len(self.flatten().to_list())
         
+    def empty():
+        return mparray.from_list([]) 
+        
     def square_shaped(self):
         if len(self.shp) == 1:
             return False
