@@ -398,6 +398,8 @@ class mparray:
     # new mparray instances implement regular not rugged mparrays
     # example: a = mparray([[1,2],[3,4]], dtype = int)
     def __init__(self, array, dtype = float):
+        if array == []:
+            raise ValueError("initialisation list must not be empty")
         if not mparray._is_regular(array):
             raise ValueError("only 'rectangular' mparrays are supported")
         self.a = array
@@ -3772,6 +3774,8 @@ class Vector:
         
     # create a vector from a list
     def from_list(list, dtype = float, transposed = False):
+        if len(list) == 0:
+            raise ValueError("initialization list must not be empty")
         v = Vector(len(list), transposed = transposed)
         v.dtype = dtype
         for i in range(0, len(v)): v[i] = dtype(list[i])
