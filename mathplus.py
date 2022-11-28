@@ -404,7 +404,13 @@ class mparray:
         if array != [] and not mparray._is_regular(array):
             raise ValueError("only 'rectangular' mparrays are supported")
         self.a = array
-        self.dtype = dtype
+        self.dtype = dtype 
+        
+    # creates a multidimensional array using a list
+    def create_multidim_array(dims, lst, dtype = float):
+        tmp = lst
+        for i in range(dims-1): tmp = [tmp]
+        return mparray(tmp, float)
             
     # creates a new mparray with shp as shape and dtype as type,
     # filled with init_value
@@ -1575,6 +1581,19 @@ class Array:
         for i in range(1, len(arr)):
             result.append(arr[i]-arr[i-1])
         return result
+        
+    # sorting mparray. in_situ = True => array is sorted in place.
+    # otherwise, the sorted array is returned leaving the original
+    # array unchanged. The return value consists of two arrays,  
+    # the first one containing the sorted array, the second one 
+    # containing the information where the original items have
+    # moved to due to sorting. As the name suggests the second
+    # return value contains the indices of the original array 
+    # elements, i.e. 0..len(self)-1
+    def sort(self, in_situ = True):
+        array, indices =  mparray.sort(self.a, in_situ = in_situ)
+        if not in_situ:
+            return mparray(array), mparray(indices)
     
     # mul_2d multiplies each element of arr with num  
     def mul_2D(num, arr):
