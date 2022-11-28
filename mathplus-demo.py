@@ -8,6 +8,11 @@ Permissions of this strong copyleft license are conditioned on making available 
 """
 
 from mathplus import *
+import matplotlib.pyplot as plt
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator
+import numpy as np
+
 
 
 import math
@@ -663,4 +668,43 @@ print("draw_surface() allows to plot functions f(x,y) = (f1(x),f2(y)")
 xmp = mparray.arange(-3.1, 3.1, 0.01)
 ymp = mparray.arange(-3.1, 3.1, 0.01)
 Transfer.draw_surface(xmp, ymp, math.sin, math.cos)
+("Here comes another 3D surface with the more complex operations done in mparray. The results are then transferred to numpy arrays and plotted using mathplotlib.")
+fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+# Conduct operations in mparray.
+Xmp = mparray.arange(-5, 5, 0.1)
+Ymp = mparray.arange(-5, 5, 0.1)
+Xmp, Ymp = mparray.meshgrid(Xmp, Ymp)
+Zmp = ((Xmp**2 + Ymp**2).apply(math.sqrt)).apply(math.sin)
+# transfer results to numpy
+X = Transfer.mparray_to_numpy(Xmp)
+Y = Transfer.mparray_to_numpy(Ymp)
+Z = Transfer.mparray_to_numpy(Zmp)
+# Plot the surface.
+surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm,
+                       linewidth=0, antialiased=False)
+# Customize the z axis.
+ax.set_zlim(-1.01, 1.01)
+ax.zaxis.set_major_locator(LinearLocator(10))
+# A StrMethodFormatter is used automatically
+ax.zaxis.set_major_formatter('{x:.02f}')
+# Add a color bar which maps values to colors.
+fig.colorbar(surf, shrink=0.5, aspect=5)
+plt.show()
+print("Last but not least a contour plot. Again all calculations happen within mparray. Only for matplotlib, we need to transfer data to numpy")
+feature_x = mparray.lin_distribution(-5.0, 3.0, 70)
+feature_y = mparray.lin_distribution(-5.0, 3.0, 70)
+# Creating 2-D grid of features
+[X, Y] = mparray.meshgrid(feature_x, feature_y)
+Z = X ** 2 + Y ** 2
+fig, ax = plt.subplots(1, 1)
+Xnp = Transfer.mparray_to_numpy(X)
+Ynp = Transfer.mparray_to_numpy(Y)
+Znp = Transfer.mparray_to_numpy(Z)
+# plots filled contour plot
+ax.contourf(Xnp, Ynp, Znp)
+ax.set_title('mathplus example: filled contour')
+ax.set_xlabel('x coordinates')
+ax.set_ylabel('y coordinates')
+plt.show()
 
