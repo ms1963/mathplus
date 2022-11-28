@@ -1320,8 +1320,6 @@ class mparray:
     # meshgrid allows to combine two 1D mparrays x, y to a coordinate
     # system spanned by x and y. It returns 2 2D arrays
     def meshgrid(mpx, mpy):
-        print(mpx)
-        print(mpy)
         shp1 = mpx.shape()
         shp2 = mpy.shape()
         if len(shp1) != 1 or len(shp2) != 1:
@@ -5379,12 +5377,12 @@ class Transfer:
         else: # len(npshp) == 1 
             return Vector.from_list(nparray.tolist())
             
-    def numpy_to_mparray(nparray):
-        return mparray(nparray.tolist())
+    def numpy_to_mparray(npa):
+        return mparray(npa.tolist())
         
-    def mparray_to_numpy(mparray):
-        shp = tuple(mparray.shape())
-        npa = np.array(mparray.flatten().to_list())
+    def mparray_to_numpy(mpa):
+        shp = tuple(mpa.shape())
+        npa = np.array(mpa.flatten().to_list())
         return np.reshape(npa, shp)
             
             
@@ -5460,7 +5458,32 @@ class Transfer:
 
         plt.show()
         
-    
+    def draw_surface(xmp, ymp, lambda_x, lambda_y):
+        fig = plt.figure(figsize = (12,10))
+        ax = plt.axes(projection='3d')
+
+        xmp = mparray.arange(-5, 5.1, 0.2)    
+        ymp = mparray.arange(-5, 5.1, 0.2)
+
+        Xmp, Ymp = mparray.meshgrid(xmp, ymp)
+        Zmp = Xmp.apply(lambda_x) * Ymp.apply(lambda_y)
+
+        X = Transfer.mparray_to_numpy(Xmp)
+        Y = Transfer.mparray_to_numpy(Ymp)
+        Z = Transfer.mparray_to_numpy(Zmp)
+
+        surf = ax.plot_surface(X, Y, Z, cmap = plt.cm.cividis)
+
+        # Set axes label
+        ax.set_xlabel('x', labelpad=20)
+        ax.set_ylabel('y', labelpad=20)
+        ax.set_zlabel('z', labelpad=20)
+
+        fig.colorbar(surf, shrink=0.5, aspect=8)
+        plt.show()
+
+
+
             
     # the following read/write-methods writea matrix or array to a
     # file or read a matrix or array from a file. The format is "csv".
