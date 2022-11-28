@@ -527,7 +527,18 @@ for i in range(0, 5):
     print("CLUSTER + " + str(i))
     print("with size :" + str(len(clusters[i])))
     print("=================================================")
-
+print()
+print("Classication using k nearest neighbor")
+datapoints = [[0,0,1], [1,2,3], [4,5,5], [2,-1,3], [2,2,2]]
+print("We got the data points: " + str(datapoints))
+labels = [0,2,2,1,0]
+print("And the labels: " + str(labels))
+print("Initializing with knn = Classification.KNearestNeighbor(datapoints, labels, 2)")
+print("2 means, we want to use the L2 norm/euclidean norm")
+knn = Classification.KNearestNeighbor(datapoints, labels, 0)
+print("To which label does the vector [3,3,3] belong? ")
+print("This can be determined using knn.k_nearest_neighbor(Vector.from_list([3,3,3]), 3)")
+print(knn.k_nearest_neighbor(Vector.from_list([3,3,3]), 3))
 
 print()
 print("Using the Newton method to find the solution of X**2 = 2")

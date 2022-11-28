@@ -29,6 +29,8 @@ import matplotlib.pyplot as plt
 import csv
 import numpy as np # used to transfer array between 
                    # mathplus and numpy
+from enum import Enum
+from collections import Counter
 
 #################################################
 ################## class Common #################
@@ -3795,6 +3797,22 @@ class Vector:
     def euclidean_norm(self):
         return math.sqrt(self.dot(self))
         
+    def l2_norm(self, other):
+        return (self-other).euclidean_norm()
+   
+    def l1_norm(self, other):
+        delta = self - other
+        sum = 0
+        for i in range(len(delta)):
+            sum += abs(self.v[i] - other.v[i])
+        return sum
+        
+    def lp_norm(self, other, p):
+        sum = 0
+        for i in range(len(self)):
+            sum += abs(self[i] - other[i]) ** p
+        return sum ** (1 / p)
+                   
     # get regular norm of vector 
     def norm(self):
         res = self.dtype(0.0)
@@ -4994,7 +5012,56 @@ class Regression:
         theta_1_n = theta.v 
         return theta_1_n
 
+#################################################
+############## class Classification #############
+################################################# 
+class Classification:
+     
+    """
+    KNearestNeighbor:
+    datapoints[] is a two dimensional array with number of rows
+    specifying the number of neighbors and number of columns
+    specifying the coordinates of each row.
+    labels[] must have the same number of elements, the datapoints[]
+    array has rows. Thus, the vector datapoints[i] has the label
+    labels[i]
+    norm is the norm used such as the euclidean norm
+        2 is euclidean/L2 norm, 1 is Manhattan/L1 norm, 2 is Lp norm
+    """
+    class KNearestNeighbor:
+        def most_frequent(self, array):
+            data = Counter(array)
+            return data.most_common(1)[0][0]
 
+        def __init__(self, datapoints, labels, norm):
+            self.datapoints = datapoints
+            self.labels = labels
+            self.norm = norm
+            if norm < 0 or norm > 2:
+                raise ValueError("unsupported norm")
+            self.shp = Array.shape(datapoints)
+            if self.shp[0] != len(labels):
+                raise ValueError("need a label for each datapoint") 
+        
+        # x is a Vector. 
+        def k_nearest_neighbor(self, x, k):
+            if len(x) != self.shp[1]:
+                raise ValueError("x must have the same fields as each of the datapoints")
+            distances = []
+            for i in range(self.shp[0]):
+                if self.norm == 2:
+                    distance = x.l2_norm(Vector.from_list(self.datapoints[i]))
+                elif self.norm == 1:
+                    distance = x.l1_norm(Vector.from_list(self.datapoints[i]))
+                elif self.norm == 0:
+                    distance = x.lp_norm(Vector.from_list(self.datapoints[i]), 3)
+                distances.append(distance)
+            sorted_arr, indices = Array.sort(distances, in_situ = False)
+            neighbor_labels = []
+            for i in range(k): 
+                neighbor_labels.append(self.labels[indices[i]])
+            return self.most_frequent(neighbor_labels)
+ 
     
 #################################################
 ################ class Clustering ###############
