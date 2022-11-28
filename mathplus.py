@@ -398,9 +398,7 @@ class mparray:
     # new mparray instances implement regular not rugged mparrays
     # example: a = mparray([[1,2],[3,4]], dtype = int)
     def __init__(self, array, dtype = float):
-        if array == []:
-            raise ValueError("initialisation list must not be empty")
-        if not mparray._is_regular(array):
+        if array != [] and not mparray._is_regular(array):
             raise ValueError("only 'rectangular' mparrays are supported")
         self.a = array
         self.dtype = dtype
@@ -917,6 +915,25 @@ class mparray:
                 result[r][c] = array[c][r]
         return result
         
+    # extract a subarray from mparray
+    def subarray(self, top, bottom, left, right):
+        shp = self.shape()
+        dim1 = shp[0]
+        dim2 = shp[1]
+        if not(left <= right and top <= bottom and right <= dim2 and bottom <= dim1):
+            raise ValueError("index out of range")
+            
+        if left == right and top == bottom:
+            return self[top][left]
+        else: 
+            result = []
+            for r in range(bottom - top + 1):
+                row = []
+                for c in range(right - left + 1)
+                    row.append(self[top + r][left + c])
+                result.append(row)
+            return mparray(result, dtype=self.dtype)
+        
     # split splits a mparray in different sub-arrays. It is only defined
     # for 1-D and 2-D mparrays.
     # arg is an integer when the split should happen into same-size-pieces
@@ -1041,6 +1058,14 @@ class mparray:
                 tmp = []
                 for i in range(r1): tmp.append(self.a[i]+other.a[i])
                 return mparray(tmp, self.dtype)
+                
+    # vstack is based on concat. Two arrays are stacked horizontally
+    def vstack(self):
+        return self.concat(other, axis = 0)
+        
+     # hstack is based on concat. Two arrays are stacked vertically
+    def hstack(self):
+        return self.concat(other, axis = 1)
         
     # diff takes in each row a[r,c]-a[r,c-1] for c in 1 .. len(row)
     # if the original mparray has dimension dim1 x dim2, then the result
@@ -1431,6 +1456,25 @@ class Array:
             for k in range(len(tmp)):
                 result.append(Array.transpose(tmp[k]))
             return result
+            
+    # extract a subarray from array
+    def subarray(array, top, bottom, left, right):
+        shp = mparray._get_shape(array)
+        dim1 = shp[0]
+        dim2 = shp[1]
+        if not(left <= right and top <= bottom and right <= dim2 and bottom <= dim1):
+            raise ValueError("index out of range")
+            
+        if left == right and top == bottom:
+            return array[top][left]
+        else: 
+            result = []
+            for r in range(bottom - top + 1):
+                row = []
+                for c in range(right - left + 1):
+                    row.append(array[top + r][left + c])
+                result.append(row)
+            return result
     
     # delete elements from an array with indices of elements           
     # to delete given in indices
@@ -1587,6 +1631,14 @@ class Array:
                 for r in range(shp1[0]):
                     result.append(arr1[r]+arr2[r])    
                 return result
+                
+    # vstack is based on concat. Two arrays are stacked horizontally
+    def vstack(arr1, arr2):
+        return Array.concat(arr1, arr2, axis = 0)
+        
+     # hstack is based on concat. Two arrays are stacked vertically
+    def hstack(self):
+        return Array.concat(arr1, arr2, axis = 1)
                            
     # summing up all array elements on axis 0 or 1
     def sum_2D(arr, axis = 0):
@@ -2213,7 +2265,22 @@ class Matrix:
                 m.m[r_sub][c_sub] = self.m[r][c]
         return m               
         
-        
+    # extract a submatrix from a matrix given in self
+    def submatrix(self, top, bottom, left, right):
+        if not(left <= right and top <= bottom and right <= self.dim2 and bottom <= self.dim1):
+            raise ValueError("index out of range")
+            
+        if left == right and top == bottom:
+            return self.m[top][left]
+        else: 
+            result = []
+            for r in range(bottom - top + 1):
+                row = []
+                for c in range(right - left + 1):
+                    row.append(self.m[top + r][left + c])
+                result.append(row)
+            return Matrix.from_list(result, dtype = self.dtype)
+                
     # contains operator for searching elements of the matrix
     def __contains__(self, key):
         for r in range(self.dim1):
