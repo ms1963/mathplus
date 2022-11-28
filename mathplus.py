@@ -1561,12 +1561,12 @@ class Array:
         
 
     # concatenate two rectangular arrays on axis 0 or 1 
-    def concatenate(arr1, arr2, axis = 0):
+    def concat(arr1, arr2, axis = 0):
         shp1 = Array.shape(arr1)
         shp2 = Array.shape(arr2)
-        if axis == 0:
+        if axis == 1:
             if shp1[1] != shp2[1]:
-                raise ValueError("cannot concatenate array with different number of columns on axis 0")
+                raise ValueError("cannot concatenate array with different number of columns on axis 1")
             else:
                 result = []
                 for r in range(0, shp1[0]): 
@@ -1574,19 +1574,15 @@ class Array:
                 for r in range(0, shp2[0]):
                     result.append(arr2[r])
                 return result
-        else: # axis <> 0
+        else: # axis == 0
             if shp1[0] != shp2[0]:
-                raise ValueError("cannot concatenate array with different number of rows on axis 1")
+                raise ValueError("cannot concatenate array with different number of rows on axis 0")
             else:
-                result = [[0 for i in range(0, shp1[1]+shp2[1])] for j in range(0, shp1[0])]
-                for c in range(0, shp1[1]):
-                    for r in range(0, shp1[0]):
-                        result[r][c] = arr1[r][c]
-                for c in range(shp1[1], shp1[1] + shp2[1]):
-                    for r in range(0, shp2[0]):
-                        result[r][c] = arr2[r][c-shp1[1]]
+                result = []
+                for r in range(shp1[0]):
+                    result.append(arr1[r]+arr2[r])    
                 return result
-                
+                           
     # summing up all array elements on axis 0 or 1
     def sum_2D(arr, axis = 0):
         shp = Array.shape(arr)
