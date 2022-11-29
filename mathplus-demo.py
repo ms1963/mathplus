@@ -715,6 +715,6 @@ ax = fig.add_subplot(projection='3d')
 x_seq = mparray.random_array([1000], fromvalue = -500, tovalue= 500)
 y_seq = mparray.random_array([1000], fromvalue = -500, tovalue= 500)
 z_seq = mparray.random_array([1000], fromvalue = -500, tovalue= 500)
-ax.scatter(x_seq, y_seq, z_seq)
+ax.scatter(x_seq, y_seq, z_seq, c="r")
 plt.show()
 

@@ -405,6 +405,7 @@ class mparray:
             raise ValueError("only 'rectangular' mparrays are supported")
         self.a = array
         self.dtype = dtype 
+        self.ndim = len(self.shape())
         
     # creates a multidimensional array using a list
     def create_multidim_array(dims, lst, dtype = float):
