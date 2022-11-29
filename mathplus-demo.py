@@ -715,6 +715,11 @@ ax = fig.add_subplot(projection='3d')
 x_seq = mparray.random_array([1000], fromvalue = -500, tovalue= 500)
 y_seq = mparray.random_array([1000], fromvalue = -500, tovalue= 500)
 z_seq = mparray.random_array([1000], fromvalue = -500, tovalue= 500)
+ax.set_xlabel("x coordinates")
+ax.set_ylabel("y coordinates")
+ax.set_zlabel("z coordinates")
+ax.set_title("mathplus demo: scatter plot")
+
 ax.scatter(x_seq, y_seq, z_seq, c="r")
 plt.show()
 
