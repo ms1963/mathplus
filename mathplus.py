@@ -402,6 +402,8 @@ class mparray:
     # new mparray instances implement regular not rugged mparrays
     # example: a = mparray([[1,2],[3,4]], dtype = int)
     def __init__(self, array, dtype = float):
+        if not isinstance(array, list):
+            raise TypeError("mparray__init()__ expects a list as first parameter")
         if array != [] and not mparray._is_regular(array):
             raise ValueError("only 'rectangular' mparrays are supported")
         self.a = array
@@ -506,6 +508,29 @@ class mparray:
     # degree of mparray, i.e., its dimensions
     def degree(self):
         return len(self.shape())
+        
+    # this method shuffles all inner 1-dimensional arrays cobtained
+    # in a mparray
+    def shuffle(self):
+        shp = self.shape()
+        if len(shp) == 1:
+            a = deepcopy(self.a)
+            random.shuffle(a)
+            return mparray(a, self.dtype)
+        elif len(shp) == 2:
+            a = []
+            for i in range(shp[0]):
+                elem = deepcopy(self.a[i])
+                random.shuffle(elem)
+                a.append(elem)
+            return mparray(a, self.dtype)
+        else:
+            a = []
+            for i in range(shp[0]):
+                elem = mparray(self.a[i], self.dtype).shuffle()
+                a.append(elem.to_list()) 
+            return mparray(a, self.dtype)
+            
         
     def _find(array, lambda_f):
         result = []
@@ -614,6 +639,8 @@ class mparray:
     # helper function to determine whether a list
     # is regular
     def _is_regular(array):
+        if not isinstance(array, list):
+            raise ValueError("_is_regular() only applicable to lists")
         if type(array[0]) == list:
             size = len(array[0])
             for i in range(1, len(array)):
