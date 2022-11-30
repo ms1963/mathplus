@@ -635,28 +635,37 @@ class mparray:
     # subtraction of two equal-shaped mparrays. Pairwise addition
     # with results used to create a new mparray
     def __sub__(self, other):
-        if not isinstance(other, mparray):
+        if isinstance(other, mparray):
+            if self.shape() != other.shape():
+                raise ValueError("shapes of operands do not match")
+            t = mparray.filled_array(self.shape(), init_value = self.dtype(0), dtype=self.dtype)
+            t.a = mparray._apply_on_multiDarrays(self.a, other.a, lambda x,y: x-y)
+            return t
+        elif isinstance(other, float) or isinstance(other, int):
+            t = mparray.filled_array(self.shape(), init_value = self.dtype(0), dtype = self.dtype)
+            t.a = mparray._apply_op(self.a, lambda x: x - self.dtype(other))
+            return t
+        else:
             raise TypeError("both operands must be mparrays")
-        if self.shape() != other.shape():
-            raise ValueError("shapes of operands do not match")
-        t = mparray.filled_array(self.shape(), init_value = 0, dtype=self.dtype)
-        t.a = mparray._apply_on_multiDarrays(self.a, other.a, lambda x,y: x-y)
-        return t
         
     # addition of mparrays: similar implementation like that in __sub__
     def __add__(self, other):
-        if not isinstance(other, mparray):
+        if isinstance(other, mparray):
+            if self.shape() != other.shape():
+                raise ValueError("shapes of operands do not match")
+            t = mparray.filled_array(self.shape(), init_value = 0,dtype=self.dtype)
+            t.a = mparray._apply_on_multiDarrays(self.a, other.a, lambda x,y: x+y)
+            return t
+        elif isinstance(other, float) or isinstance(other, int):
+            t = mparray.filled_array(self.shape(), init_value = 0, dtype = self.dtype)
+            t.a = mparray._apply_op(self.a, lambda x: x + self.dtype(other))
+        else:
             raise TypeError("both operands must be mparrays")
-        if self.shape() != other.shape():
-            raise ValueError("shapes of operands do not match")
-        t = mparray.filled_array(self.shape(), init_value = 0,dtype=self.dtype)
-        t.a = mparray._apply_on_multiDarrays(self.a, other.a, lambda x,y: x+y)
-        return t
         
     # scalar multiplication and multiplication between mparrays is supported
     def __mul__(self, other):
         if isinstance(other, float) or isinstance(other, int) or isinstance(other, complex):
-            t = mparray(self.shape(), init_value = 0, dtype = self.dtype)
+            t = mparray.filled_array(self.shape(), init_value = 0, dtype = self.dtype)
             t.a = mparray._apply_op(self.a, lambda x: self.dtype(other) * x)
             return t
         elif isinstance(other, mparray):
@@ -664,13 +673,17 @@ class mparray:
                 raise ValueError("can only multiply mparrays with the same shape")
             if self.degree() > 2: 
                 raise ValueError("multiplying arrays with higehr degree than 2 is not supported")
-            res = mparray.filled_array(self.shape(), init_value = 0, dtype = self.dtype)
+            res = mparray.filled_array(self.shape(), init_value = self.dtype(0), dtype = self.dtype)
             for r in range(self.shape()[0]):
                 for c in range(self.shape()[1]):
                     res[r][c] = self[r][c] * other[r][c]
             return res
         else:
             raise ValueError("operands must be an mparray and a scalar or two mparrays")
+        
+    # negation of mparray:
+    def __neg__(self):
+        return self.apply(lambda x: -x)
         
     # return mparray where all elems of self are powered to exponent
     def __pow__(self, exponent):
