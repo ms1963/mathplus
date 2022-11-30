@@ -966,7 +966,7 @@ class mparray:
     # transpose() is defined for all 2D mparrays. It returns a new
     # mparray with: new_array[r][c] = array[c][r] for all
     # valid (row,column)-combinations
-    def transpose(self):
+    def T(self):
         assert self.degree() == 2, "transpose only defined for 2d-arrays"
         result = mparray.array_transpose(self.a)
         return mparray(result, self.dtype)
@@ -984,6 +984,14 @@ class mparray:
                 result += self[i] * other[i]
             return result
         elif len(shp1) == 2 and len(shp2) == 2:
+            return self @ other
+        else:
+            raise ValueError("mixture of 1-d and 2-d arrays not permitted")
+            
+    def __matmul__(self , other):
+        shp1 = self.shape()
+        shp2 = other.shape()
+        if len(shp1) == 2 and len(shp2) == 2:
             if shp1[1] != shp2[0]:
                 raise ValueError("the 2-dimensional mparrays have incompatble shapes for multiplication")
             res = mparray.filled_array([shp1[0], shp2[1]], dtype=float)
@@ -994,8 +1002,6 @@ class mparray:
                         sum += self[r][j] * other[j][c]
                     res[r][c] = sum
             return res
-        else:
-            raise ValueError("mixture of 1-d and 2-d arrays not permitted")
         
     # transpose() transposes nxm-arrays
     def array_transpose(array):
