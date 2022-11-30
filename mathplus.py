@@ -971,6 +971,32 @@ class mparray:
         result = mparray.array_transpose(self.a)
         return mparray(result, self.dtype)
         
+    def dot(self, other):
+        shp1 = self.shape()
+        shp2 = other.shape()
+        if len(shp1) > 2 or len(shp2) > 2:
+            raise ValueError("mparray.dot() only defined for 1-dimensional and 2-dimensional mparrays")
+        if len(shp1) == 1 and len(shp2) == 1:
+            if shp1[0] != shp2[0]:
+                raise ValueError("dot-product for 1-dimensional mparrays only defined for arrays with same size")
+            result = 0
+            for i in range(shp1[0]):
+                result += self[i] * other[i]
+            return result
+        elif len(shp1) == 2 and len(shp2) == 2:
+            if shp1[1] != shp2[0]:
+                raise ValueError("the 2-dimensional mparrays have incompatble shapes for multiplication")
+            res = mparray.filled_array([shp1[0], shp2[1]], dtype=float)
+            for r in range(shp1[0]):
+                for c in range(shp2[1]):
+                    sum = 0
+                    for j in range(shp1[1]):
+                        sum += self[r][j] * other[j][c]
+                    res[r][c] = sum
+            return res
+        else:
+            raise ValueError("mixture of 1-d and 2-d arrays not permitted")
+        
     # transpose() transposes nxm-arrays
     def array_transpose(array):
         shp = Array.shape(array)
@@ -1193,8 +1219,13 @@ class mparray:
         
     # tan for mparrays based on apply()
     def tan(self):
-        res = self.apply_1D(math.tan)
+        res = self.apply(math.tan)
         return res
+                
+    # tanh for mparrays based on apply()
+    def tanh(self):
+        res = self.apply(math.tanh)
+        return res           
                 
     # exp for mparrays based on apply()
     # apply_1D
