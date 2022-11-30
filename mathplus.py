@@ -697,7 +697,7 @@ class mparray:
             return t
         elif isinstance(other, mparray):
             if self.shape() != other.shape():
-                raise ValueError("can only multiply mparrays with the same shape")
+                raise ValueError("can only multiply mparrays with shapes (n, m) * (m, k)")
             if self.degree() > 2: 
                 raise ValueError("multiplying arrays with higehr degree than 2 is not supported")
             res = mparray.filled_array(self.shape(), init_value = self.dtype(0), dtype = self.dtype)
