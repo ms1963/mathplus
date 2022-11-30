@@ -31,6 +31,7 @@ import numpy as np # used to transfer array between
                    # mathplus and numpy
 from enum import Enum
 from collections import Counter
+from collections.abc import Sequence
 
 #################################################
 ################## class Common #################
@@ -424,7 +425,7 @@ class mparray:
     def from_list(array, dtype = float):
         if not mparray._is_regular(array):
             raise ValueError("only 'rectangular' mparrays are supported")
-        shp = mparray._get_shape(array)
+        shp = Array.shape(array)
         t = mparray(array, dtype)
         return t
         
@@ -508,7 +509,7 @@ class mparray:
         
     def _find(array, lambda_f):
         result = []
-        shp = mparray._get_shape(array)
+        shp = Array.shape(array)
         if len(shp) == 1:
             for i in range(shp[0]):
                 if lambda_f(array[i]):
@@ -523,7 +524,7 @@ class mparray:
             
     def _find_with_path(array, path, lambda_f):
         result = []
-        shp = mparray._get_shape(array)
+        shp = Array.shape(array)
         if len(shp) == 1:
             for i in range(shp[0]):
                 if lambda_f(array[i]):
@@ -563,7 +564,7 @@ class mparray:
     # to create a new array with the same shape. This is useful
     # to implement operators such as __add__ for mparrays
     def _apply_on_multiDarrays(a1, a2, lambda_f):
-        shp = mparray._get_shape(a1)
+        shp = Array.shape(a1)
         if len(shp) == 1:
             a = []
             for j in range(shp[0]):
@@ -579,7 +580,7 @@ class mparray:
     # element of a multidiemensional list and create an square_shaped
     # new mparray from the results
     def _apply_op(array, lambda_f):
-        shp = mparray._get_shape(array)
+        shp = Array.shape(array)
         if len(shp) == 1:
             a = []
             for j in range(shp[0]):
@@ -590,22 +591,10 @@ class mparray:
             for j in range(0, shp[0]):
                 a.append(mparray._apply_op(array[j], lambda_f))
             return a
-        
-    # determine shape of a list
-    def _get_shape(array):
-        if len(array) == 0:
-            return []
-        else:
-            if not isinstance(array[0], list):
-                return [len(array)]
-            else:
-                shp = [len(array)]
-                subshape = mparray._get_shape(array[0])
-                return shp + subshape
                 
     # get shape of mparray
     def shape(self):
-        return mparray._get_shape(self.a)
+        return list(Array.shape(self.a))
             
     def __str__(self):
         def helper(array):
@@ -728,7 +717,7 @@ class mparray:
     # recursive helper method for mparray flattening
     def _flattener(array):
         a = []
-        shp = mparray._get_shape(array)
+        shp = Array.shape(array)
         if len(shp) == 1:
             for i in range(shp[0]): a.append(array[i])
             return a
@@ -944,7 +933,7 @@ class mparray:
         
     # transpose() transposes nxm-arrays
     def array_transpose(array):
-        shp = mparray._get_shape(array)
+        shp = Array.shape(array)
         n = shp[0]
         m = shp[1]
         result = [[0 for i in range(n)] for j in range(m)]
@@ -1015,7 +1004,7 @@ class mparray:
                 return result
     
         def split_2D(array, arg, axis = 0):
-            shp = mparray._get_shape(array)
+            shp = Array.shape(array)
             n = shp[0]
             m = shp[1]
             if axis == 0:
@@ -1525,7 +1514,7 @@ class Array:
             
     # extract a subarray from array
     def subarray(array, top, bottom, left, right):
-        shp = mparray._get_shape(array)
+        shp = Array.shape(array)
         dim1 = shp[0]
         dim2 = shp[1]
         if not(left <= right and top <= bottom and right <= dim2 and bottom <= dim1):
@@ -1559,7 +1548,8 @@ class Array:
             while val in new_array:
                 new_array.remove(val)
         return new_array
-
+                
+    """ deprecated version
     # checks the shape of an array a, for example,
     # [1,2] -> (1,2) 
     # [[1,2,3][4,5,6]] -> (2,3)
@@ -1574,6 +1564,28 @@ class Array:
             return(len(a), length)
         else: 
             return(1,len(a))
+    """
+    
+    # method to analyze the shape of a list or other sequence
+    def shape_analyzer(a, shp = ()):
+        def all(a, lambda_f):
+            result = True
+            for i in range(len(a)):
+                result = result and a[i]
+            return result
+        if not isinstance(a, Sequence):
+            return shp
+        if isinstance(a[0], Sequence):
+            a0len = len(a[0])
+            if not all(a, lambda x: a0len == len(x)):
+                raise ValueError("irregular sequence")
+        shp += (len(a), )
+        shp = Array.shape_analyzer(a[0], shp)
+        return shp
+        
+    # just a wrapper for shape_analyzer
+    def shape(a):
+        return Array.shape_analyzer(a)
         
     
     # diff_2d takes in each row a[r,c]-a[r,c-1] for c in 1 .. len(row)
