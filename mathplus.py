@@ -1053,38 +1053,33 @@ class mparray:
         else:
             raise ValueError("split only defined for one- and two-dimensional mparrays")
 
-    # concat combines two mparrays along axis 0 or axis 1
-    def concat(self, other, axis = 0):
-        if self.degree() > 2 or other.degree() > 2 or self.degree() != other.degree():
-            raise ValueError("concatenation not supported for mparrays with degree > 2 or mparrays with different degrees")
-        if self.degree() == 1 and other.degree() == 1:
-            r1 = self.shape()[0]
-            r2 = other.shape()[0]
-            if axis == 1:
-                if r1 != r2:
-                    raise ValueError("cannot concat 1D myarrays with different lengths")
-                else:
-                    return mparray([self.a, other.a], self.dtype)
-            else: # axis == 0
-                return mparray(self.a+other.a, self.dtype)
-        elif self.degree() == 2:
-            r1 = self.shape()[0]
-            r2 = other.shape()[0]
-            c1 = self.shape()[1]
-            c2 = other.shape()[1]
-            if axis == 1:
-                if c1 != c2:
-                    raise ValueError("mparrays must have the same number of columns")
-                tmp = []
-                for i in range(r1): tmp.append(self.a[i])
-                for i in range(r2): tmp.append(other.a[i])
-                return mparray(tmp, self.dtype)
+    # block allows to combine different mparrays to a larger
+    # mparray
+    def block(lst, axis = 0):
+        shp = Array.shape(lst)
+        if len(shp) == 1:
+            if shp[0] == 0:
+                return mparray([])
             else:
-                if r1 != r2:
-                    raise ValueError("mparrays must have the same number of rows")
-                tmp = []
-                for i in range(r1): tmp.append(self.a[i]+other.a[i])
-                return mparray(tmp, self.dtype)
+                result = lst[0]
+                for i in range(1, shp[0]):
+                    result = mparray.concat(result, lst[i], axis = 0)
+                return result
+        elif len(shp) == 2:
+            rows = []
+            for i in range(shp[0]):
+                rows.append(mparray.block(lst[i]))
+            result = rows[0]
+            for j in range(1, len(rows)):
+                result = mparray.concat(result, rows[j], axis = 1)
+            return result       
+        else:
+            raise ValueError("mparray.block() onls supports 1-dimensional and 2-dimensional arrays")
+        
+    # concat combines two mparrays along axis 0 or axis 1
+    def concat(mp1, mp2, axis = 0):
+        result = Array.concat(mp1.to_list(), mp2.to_list(), axis)
+        return mparray(result, mp1.dtype)
                 
     # vstack is based on concat. Two arrays are stacked horizontally
     def vstack(self):
@@ -1699,30 +1694,50 @@ class Array:
         else:
             return sortedarr, indices
         
-
     # concatenate two rectangular arrays on axis 0 or 1 
     def concat(arr1, arr2, axis = 0):
         shp1 = Array.shape(arr1)
         shp2 = Array.shape(arr2)
+        if len(shp1) > 2 or len(shp2) > 2:
+            raise ValueError("concat not defined for arrays with dimension > 2")
         if axis == 1:
-            if shp1[1] != shp2[1]:
-                raise ValueError("cannot concatenate array with different number of columns on axis 1")
-            else:
+            if len(shp1) == 2 and len(shp2) == 2 and shp1[1] == shp2[1]:
                 result = []
                 for r in range(0, shp1[0]): 
                     result.append(arr1[r])
                 for r in range(0, shp2[0]):
                     result.append(arr2[r])
                 return result
-        else: # axis == 0
-            if shp1[0] != shp2[0]:
-                raise ValueError("cannot concatenate array with different number of rows on axis 0")
-            else:
+            elif len(shp1) == 1 and len(shp2) == 2 and len(arr1) == shp2[1]:
+                result == []
+                result.append(arr1)
+                for r in range(0, shp2[0]):
+                    result.append(arr2[r])
+                return result
+            elif len(shp1) == 2 and len(shp2) == 1 and shp1[1] == len(arr2):
+                result = []
+                for r in range(0, shp1[0]): 
+                    result.append(arr1[r])
+                result.append(arr2)
+                return result
+            elif len(shp1) == 1 and len(shp2) == 1 and len(arr1) == len(arr2):
+                result = []
+                result.append(arr1)
+                result.append(arr2)
+                return [arr1, arr2]
+            else: # dimensions don't fit
+                raise ValueError("cannot concatenate array with different number of columns on axis 1")
+        else: # axis == 0 
+            if len(shp1) == 1 and len(shp2) == 1:
+                return arr1 + arr2
+            elif len(shp1) == 2 and len(shp2) == 2 and shp1[0] == shp2[0]:
                 result = []
                 for r in range(shp1[0]):
                     result.append(arr1[r]+arr2[r])    
                 return result
-                
+            else: 
+                raise ValueError("cannot concatenate array with different number of rows on axis 0")
+            
     # vstack is based on concat. Two arrays are stacked horizontally
     def vstack(arr1, arr2):
         return Array.concat(arr1, arr2, axis = 0)
@@ -2334,7 +2349,7 @@ class Matrix:
     
     def __repr__(self):
         return "dim1 = " + str(self.dim1) + "\ndim2 = " + str(self.dim2) + "\ndtype = " + str(self.dtype) + "\nContent of inner array self.m = " + str(self.m)
-        
+
     # get the by leaving out all elements from row i and col j 
     # raises a ValueError if indices i,j are out of range
     def minor(self, i, j):
