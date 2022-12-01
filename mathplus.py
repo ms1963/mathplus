@@ -629,7 +629,7 @@ class mparray:
                     res += helper(array[i])
             res += "]"
             return res
-        return "mparray"+helper(self.a)
+        return helper(self.a)
         
     def __repr__(self):
         return str(self)
@@ -686,7 +686,7 @@ class mparray:
             t.a = mparray._apply_op(self.a, lambda x: x + self.dtype(other))
             return t
         else:
-            raise TypeError("both operands must be mparrays")
+            raise TypeError("operands must be mparrays or a mparray and a number")
         
     # scalar multiplication and multiplication between mparrays is supported
     def __mul__(self, other):
@@ -698,29 +698,35 @@ class mparray:
             if self.shape() != other.shape():
                 raise ValueError("can only multiply mparrays with shapes (n, m) * (m, k)")
             if self.degree() > 2: 
-                raise ValueError("multiplying arrays with higehr degree than 2 is not supported")
-            res = mparray.filled_array(self.shape(), init_value = self.dtype(0), dtype = self.dtype)
-            for r in range(self.shape()[0]):
-                for c in range(self.shape()[1]):
-                    res[r][c] = self[r][c] * other[r][c]
-            return res
+                return mparray.mul_pairwise(self, other)
+            else:
+                res = mparray.filled_array(self.shape(), init_value = self.dtype(0), dtype = self.dtype)
+                for r in range(self.shape()[0]):
+                    for c in range(self.shape()[1]):
+                        res[r][c] = self[r][c] * other[r][c]
+                return res
         else:
             raise ValueError("operands must be an mparray and a scalar or two mparrays")
-
-    # pair-wise multiplication
+        
+       # pair-wise multiplication
     def mul_pairwise(arr1, arr2):
-        if arr1.shape() != arr2.shape() or arr1.degree() > 2:
-            raise ValueError("mul_elements only defined for 2-dimensional or 1-dimensional arrays with same shape")
+        if arr1.shape() != arr2.shape():
+            raise ValueError("mul_pairwise only defined for arrays with same shape")
         shp = arr1.shape()
         result = mparray.filled_array(shp, dtype = arr1.dtype)
         if arr1.degree() == 1:
             for i in range(arr1.shp[0]):
                 result[i] = arr1[i] * arr2[i]
-        else:
+            return result
+        elif arr1.degree() == 2:
             for i in range(shp[0]):
                 for j in range(shp[1]):
                     result[i][j] = arr1[i][j] * arr2[i][j]
-        return result
+            return result
+        else:
+            for i in range(arr1.shape()[0]):
+                result[i] = mparray.mul_pairwise(arr1[i], arr2[i])
+            return result
         
         
     # negation of mparray:
