@@ -684,6 +684,7 @@ class mparray:
         elif isinstance(other, float) or isinstance(other, int):
             t = mparray.filled_array(self.shape(), init_value = 0, dtype = self.dtype)
             t.a = mparray._apply_op(self.a, lambda x: x + self.dtype(other))
+            return t
         else:
             raise TypeError("both operands must be mparrays")
         
