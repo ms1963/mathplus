@@ -479,8 +479,9 @@ class mparray:
             return a
         else: # len(dims) > 0
             a = []
-            newshp = copy(shp)
+            newshp = list(copy(shp))
             newshp.pop(0)
+            newshp = list(newshp)
             for i in range(shp[0]):
                 a.append(mparray._initializer(newshp, init_value, dtype))
             return a
@@ -499,8 +500,9 @@ class mparray:
             return a
         else: # len(dims) > 0
             a = []
-            newshp = copy(dims)
+            newshp = list(copy(dims))
             newshp.pop(0)
+            newshp = tuple(newshp)
             for i in range(dims[0]):
                 a.append(mparray._random_initializer(newshp, fromvalue, tovalue, None, dtype))
             return a
@@ -541,8 +543,6 @@ class mparray:
                     result.append(array[i])
             return result
         else:
-            new_shp = copy(shp)
-            new_shp.pop(0)
             for i in range(shp[0]):
                 result += mparray._find(array[i], lambda_f)
             return result
@@ -556,8 +556,6 @@ class mparray:
                     result.append(path+[i])
             return result
         else:
-            new_shp = copy(shp)
-            new_shp.pop(0)
             for i in range(shp[0]):
                 result += mparray._find_with_path(array[i], path + [i], lambda_f)
             return result
@@ -619,7 +617,7 @@ class mparray:
                 
     # get shape of mparray
     def shape(self):
-        return list(Array.shape(self.a))
+        return Array.shape(self.a)
             
     def __str__(self):
         def helper(array):
@@ -631,7 +629,7 @@ class mparray:
                     res += helper(array[i])
             res += "]"
             return res
-        return helper(self.a)
+        return "mparray"+helper(self.a)
         
     def __repr__(self):
         return str(self)
@@ -707,6 +705,22 @@ class mparray:
             return res
         else:
             raise ValueError("operands must be an mparray and a scalar or two mparrays")
+
+    # pair-wise multiplication
+    def mul_pairwise(arr1, arr2):
+        if arr1.shape() != arr2.shape() or arr1.degree() > 2:
+            raise ValueError("mul_elements only defined for 2-dimensional or 1-dimensional arrays with same shape")
+        shp = arr1.shape()
+        result = mparray.filled_array(shp, dtype = arr1.dtype)
+        if arr1.degree() == 1:
+            for i in range(arr1.shp[0]):
+                result[i] = arr1[i] * arr2[i]
+        else:
+            for i in range(shp[0]):
+                for j in range(shp[1]):
+                    result[i][j] = arr1[i][j] * arr2[i][j]
+        return result
+        
         
     # negation of mparray:
     def __neg__(self):
@@ -726,8 +740,9 @@ class mparray:
                     return False
             return True
         else:
-            newshp = copy(shp1)
+            newshp = list(copy(shp1))
             newshp.pop(0)
+            newshp = tuple(newshp)
             for i in range(shp1[0]):
                 if mparray._compare_arrays(a1[i], newshp, a2[i], newshp):
                     continue
@@ -782,8 +797,9 @@ class mparray:
         else:
             new_idx = idx
             tmp = []
-            new_shape = copy(shp)
+            new_shape = list(copy(shp))
             new_shape.pop(0)
+            new_shape = tuple(new_shape)
             for i in range(shp[0]):
                 sub_arr, new_idx = mparray._filler(array, new_idx, new_shape)
                 tmp.append(sub_arr)
@@ -993,7 +1009,7 @@ class mparray:
         shp2 = other.shape()
         if len(shp1) == 2 and len(shp2) == 2:
             if shp1[1] != shp2[0]:
-                raise ValueError("the 2-dimensional mparrays have incompatble shapes for multiplication")
+                raise ValueError("the 2-dimensional mparrays have incompatible shapes for multiplication")
             res = mparray.filled_array([shp1[0], shp2[1]], dtype=float)
             for r in range(shp1[0]):
                 for c in range(shp2[1]):
@@ -1651,7 +1667,7 @@ class Array:
             a0len = len(a[0])
             if not all(a, lambda x: a0len == len(x)):
                 raise ValueError("irregular sequence")
-        shp += (len(a), )
+        shp += (len(a),)
         shp = Array.shape_analyzer(a[0], shp)
         return shp
         
@@ -2782,6 +2798,15 @@ class Matrix:
             
     def __matmul__(self, other):
         return self * other
+        
+    def mul_pairwise(self, other):
+        if self.dim1 != other.dim1 or self.dim2 != other.dim2:
+            raise ValueError("matrices must have equal shape for pairwise multiplication")
+        m = deepcopy(self)
+        for r in range(self.dim1):
+            for c in range(self.dim2):
+                m.m[r][c] *= other.m[r][c]
+        return m
             
     # subtracting one matrix from the other. Raises ValueError if sizes are
     # not equal
@@ -3835,6 +3860,15 @@ class Vector:
                     for i in range(0, len(self)):
                         v[i] = self[i] * other[i]
                     return v
+                       
+    # pairwise multiplication of vectors
+    def mul_pairwise(self, other):
+        if len(self.v) != len(other.v):
+            raise ValueError("vectors must have same length for pairwise multiplication")
+        m = deepcopy(self)
+        for r in range(len(self.v)):
+            m.v[r] *= other.v[r]
+        return m
     
     # add two vectors with each other. Raises ValueError of lengths
     # are not equal or when trying to multiply a transposed with a 
