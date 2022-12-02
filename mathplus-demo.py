@@ -645,6 +645,30 @@ print("Retrieving it again:")
 print(Transfer.readMatrixFromCSV("matrix.csv", verbose = True))
 print("Note: this can also be done with Vectors")
 print()
+print("Let us train a simple Artificial Neural Network")
+print("The library functions sought to train the ANN to act as a XOR logic gate.")
+# training data
+x_train = mparray([[[0,0]], [[0,1]], [[1,0]], [[1,1]]])
+y_train = mparray([[[0]], [[1]], [[1]], [[0]]])
+
+# network
+net = Network()
+net.add(FullyConnectedLayer(2, 3))
+net.add(ActivationLayer(tanh, tanh_prime))
+#net.add(ActivationLayer(sigmoid, sigmoid_prime))
+net.add(FullyConnectedLayer(3, 1))
+net.add(ActivationLayer(tanh, tanh_prime))
+#net.add(ActivationLayer(sigmoid, sigmoid_prime))
+
+# train
+net.use(mse, mse_prime)
+net.fit(x_train, y_train, epochs=1000, learning_rate=0.1, autostop = False)
+
+# test
+out = net.predict(x_train)
+print(out)
+print()
+
 print("Drawing a 2D function with matplotlib")
 print("First we create a mparray with linearly spaced numbers from -5 to 5 using mparray.lin_distribution(-5,5,100)")
 # 100 linearly spaced numbers
@@ -722,4 +746,5 @@ ax.set_title("mathplus demo: scatter plot")
 
 ax.scatter(x_seq, y_seq, z_seq, c="r")
 plt.show()
+
 
