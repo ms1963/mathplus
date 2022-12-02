@@ -652,16 +652,14 @@ x_train = mparray([[[0,0]], [[0,1]], [[1,0]], [[1,1]]])
 y_train = mparray([[[0]], [[1]], [[1]], [[0]]])
 
 # network
-net = Network()
-net.add(FullyConnectedLayer(2, 3))
-net.add(ActivationLayer(tanh, tanh_prime))
-#net.add(ActivationLayer(sigmoid, sigmoid_prime))
-net.add(FullyConnectedLayer(3, 1))
-net.add(ActivationLayer(tanh, tanh_prime))
-#net.add(ActivationLayer(sigmoid, sigmoid_prime))
+net = ANN.Network()
+net.add(ANN.FullyConnectedLayer(2, 3))
+net.add(ANN.ActivationLayer(ANN.tanh, ANN.tanh_prime))
+net.add(ANN.FullyConnectedLayer(3, 1))
+net.add(ANN.ActivationLayer(ANN.tanh, ANN.tanh_prime))
 
 # train
-net.use(mse, mse_prime)
+net.use(ANN.mse, ANN.mse_prime)
 net.fit(x_train, y_train, epochs=1000, learning_rate=0.1, autostop = False)
 
 # test

@@ -5315,155 +5315,12 @@ class Classification:
 
 
 
-
+    
+#################################################
+#################### class ANN ##################
+#################################################  
 ########### Implementation  of a simple Artificial Neural Network ######### 
 
-# Base class
-class Layer:
-    def __init__(self):
-        self.input = None
-        self.output = None
-
-    # responsible to calculate the layer output
-    # using the layer input
-    def forward_propagation(self, input):
-        pass
-
-    # on basis of output error calculate input error for
-    # previos layer
-    def backward_propagation(self, output_error, learning_rate):
-        pass
-        
-
-# Concrete Layer Classes
-class FullyConnectedLayer(Layer):
-    # input_size = number of input neurons
-    # output_size = number of output neurons
-    def __init__(self, in_neurons, out_neurons):
-        self.weights = mparray.rand((in_neurons, out_neurons), seedval=time.gmtime()) - 0.5
-        self.bias = mparray.rand((1, out_neurons),seedval=time.gmtime()) - 0.5
-        
-    # receice signals on channels, assign a weight to them. Returns  
-    # corresponding output
-    def forward_propagation(self, input_data):
-        self.input = input_data
-        self.output = mparray.dot(self.input, self.weights) + self.bias
-        return self.output
-
-    # computes the input_error from the output_error
-    def backward_propagation(self, output_error, learning_rate):
-        input_error = mparray.dot(output_error, self.weights.T)
-        weights_error = mparray.dot(self.input.T, output_error)
-        # dBias = output_error
-
-        # update parameters
-        self.weights = self.weights - weights_error * learning_rate
-        self.bias = self.bias - output_error * learning_rate
-        return input_error
-        
-# Activation Layer
-class ActivationLayer(Layer):
-    def __init__(self, activation, activation_prime):
-        self.activation = activation
-        self.activation_prime = activation_prime
-
-    # returns the activated input
-    def forward_propagation(self, input_data):
-        self.input = input_data
-        self.output = self.activation(self.input)
-        return self.output
-
-    # propagate error back to input layer
-    def backward_propagation(self, output_error, learning_rate):
-        return self.activation_prime(self.input).multiply(output_error)
-        
-# activation functions and derivatives
-def tanh(x):
-    return x.tanh()
-
-def tanh_prime(x):
-    return -x.tanh()**2+1
-    
-def reLU(x):
-    return x.apply(lambda x: max(0,x))
-    
-def reLU_prime(x):
-    return x.apply(lambda x: 0 if x < 0 else 1)
-    
-def sigmoid(x):
-  return x.apply(lambda x: 1.0 / (1 + np.exp(-x)))
-  
-def sigmoid_prime(x):
-  return sigmoid(x) * (-sigmoid(x) + 1)
-    
-# loss function and its derivative
-def mse(y_true, y_pred):
-    return ((y_true-y_pred) ** 2).mean();
-
-def mse_prime(y_true, y_pred):
-    return (y_pred - y_true) * (2 / y_true.size)
-    
-class Network:
-    def __init__(self):
-        self.layers = []
-        self.loss = None
-        self.loss_prime = None
-
-    # add layer to network
-    def add(self, layer):
-        self.layers.append(layer)
-
-    # set loss to use
-    def use(self, loss, loss_prime):
-        self.loss = loss
-        self.loss_prime = loss_prime
-
-    # predict output for given input
-    def predict(self, input_data):
-        # sample dimension first
-        samples = input_data.shape()[0]
-        result = []
-
-        # run network over all samples
-        for i in range(samples):
-            # forward propagation
-            output = input_data[i]
-            for layer in self.layers:
-                output = layer.forward_propagation(output)
-            result.append(output)
-
-        return result
-
-    # train the network
-    def fit(self, x_train, y_train, epochs, learning_rate, autostop = False):
-        # sample dimension first
-        samples = x_train.shape()[0]
-        prev_err = 1
-        # training loop
-        for i in range(epochs):
-            err = 0
-            for j in range(samples):
-                # forward propagation
-                output = x_train[j]
-                for layer in self.layers:
-                    output = layer.forward_propagation(output)
-
-                # compute loss (for display purpose only)
-                err += self.loss(y_train[j], output)
-                
-                # backward propagation
-                error = self.loss_prime(y_train[j], output)
-                
-                for layer in reversed(self.layers):
-                    error = layer.backward_propagation(error, learning_rate)
-            
-            # calculate average error on all samples
-            err /= samples
-            if err > prev_err: 
-                print("training aborted cause the error started to rise again")
-                break
-            prev_err = err
-            print('epoch %d/%d   error=%f' % (i+1, epochs, err))
             
 """
 # Example Usage
@@ -5488,6 +5345,157 @@ net.fit(x_train, y_train, epochs=10000, learning_rate=0.1, autostop = False)
 out = net.predict(x_train)
 print(out)
 """ 
+
+
+
+# Base class
+class ANN:
+    class Layer:
+        def __init__(self):
+            self.input = None
+            self.output = None
+
+        # responsible to calculate the layer output
+        # using the layer input
+        def forward_propagation(self, input):
+            pass
+
+        # on basis of output error calculate input error for
+        # previous layer
+        def backward_propagation(self, output_error, learning_rate):
+            pass
+        
+
+    # Concrete Layer Classes
+    class FullyConnectedLayer(Layer):
+        # input_size = number of input neurons
+        # output_size = number of output neurons
+        def __init__(self, in_neurons, out_neurons):
+            self.weights = mparray.rand((in_neurons, out_neurons), seedval=time.gmtime()) - 0.5
+            self.bias = mparray.rand((1, out_neurons),seedval=time.gmtime()) - 0.5
+        
+        # receice signals on channels, assign a weight to them. Returns  
+        # corresponding output
+        def forward_propagation(self, input_data):
+            self.input = input_data
+            self.output = mparray.dot(self.input, self.weights) + self.bias
+            return self.output
+
+        # computes the input_error from the output_error
+        def backward_propagation(self, output_error, learning_rate):
+            input_error = mparray.dot(output_error, self.weights.T)
+            weights_error = mparray.dot(self.input.T, output_error)
+            # dBias = output_error
+
+            # update parameters
+            self.weights = self.weights - weights_error * learning_rate
+            self.bias = self.bias - output_error * learning_rate
+            return input_error
+        
+    # Activation Layer
+    class ActivationLayer(Layer):
+        def __init__(self, activation, activation_prime):
+            self.activation = activation
+            self.activation_prime = activation_prime
+
+        # returns the activated input
+        def forward_propagation(self, input_data):
+            self.input = input_data
+            self.output = self.activation(self.input)
+            return self.output
+
+        # propagate error back to input layer
+        def backward_propagation(self, output_error, learning_rate):
+            return self.activation_prime(self.input).multiply(output_error)
+        
+    # activation functions and derivatives
+    def tanh(x):
+        return x.tanh()
+
+    def tanh_prime(x):
+        return -x.tanh()**2+1
+    
+    def reLU(x):
+        return x.apply(lambda x: max(0,x))
+    
+    def reLU_prime(x):
+        return x.apply(lambda x: 0 if x < 0 else 1)
+    
+    def sigmoid(x):
+        return x.apply(lambda x: 1.0 / (1 + np.exp(-x)))
+      
+    def sigmoid_prime(x):
+      return sigmoid(x) * (-sigmoid(x) + 1)
+    
+    # loss function and its derivative
+    def mse(y_true, y_pred):
+        return ((y_true-y_pred) ** 2).mean();
+
+    def mse_prime(y_true, y_pred):
+        return (y_pred - y_true) * (2 / y_true.size)
+    
+    class Network:
+        def __init__(self):
+            self.layers = []
+            self.loss = None
+            self.loss_prime = None
+
+        # add layer to network
+        def add(self, layer):
+            self.layers.append(layer)
+
+        # set loss to use
+        def use(self, loss, loss_prime):
+            self.loss = loss
+            self.loss_prime = loss_prime
+
+        # predict output for given input
+        def predict(self, input_data):
+            # sample dimension first
+            samples = input_data.shape()[0]
+            result = []
+
+            # run network over all samples
+            for i in range(samples):
+                # forward propagation
+                output = input_data[i]
+                for layer in self.layers:
+                    output = layer.forward_propagation(output)
+                result.append(output)
+            return result
+
+        # train the network
+        def fit(self, x_train, y_train, epochs, learning_rate, autostop = False):
+            # sample dimension first
+            samples = x_train.shape()[0]
+            prev_err = 1
+            # training loop
+            for i in range(epochs):
+                err = 0
+                for j in range(samples):
+                    # forward propagation
+                    output = x_train[j]
+                    for layer in self.layers:
+                        output = layer.forward_propagation(output)
+
+                    # compute loss (for display purpose only)
+                    err += self.loss(y_train[j], output)
+                
+                    # backward propagation
+                    error = self.loss_prime(y_train[j], output)
+                
+                    for layer in reversed(self.layers):
+                        error = layer.backward_propagation(error, learning_rate)
+            
+                # calculate average error on all samples
+                err /= samples
+                if err > prev_err: 
+                    print("training aborted cause the error started to rise again")
+                    break
+                prev_err = err
+                print('epoch %d/%d   error=%f' % (i+1, epochs, err))
+    
+
     
 #################################################
 ################ class Clustering ###############
