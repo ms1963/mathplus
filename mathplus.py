@@ -490,7 +490,7 @@ class mparray:
     def _random_initializer(dims, fromvalue, tovalue, seed_val = None, dtype = float):
         if seed_val != None:
             random.seed(seed_val)
-        if len(dims) == 1:
+        if len(list(dims)) == 1:
             a = []
             for i in range(dims[0]):
                 if dtype == int:
@@ -515,7 +515,7 @@ class mparray:
     # in a mparray
     def shuffle(self):
         shp = self.shape()
-        if len(shp) == 1:
+        if len(list(shp)) == 1:
             a = deepcopy(self.a)
             random.shuffle(a)
             return mparray(a, self.dtype)
@@ -690,37 +690,28 @@ class mparray:
         
     # scalar multiplication and multiplication between mparrays is supported
     def __mul__(self, other):
-        if isinstance(other, float) or isinstance(other, int) or isinstance(other, complex):
-            t = mparray.filled_array(self.shape(), init_value = 0, dtype = self.dtype)
-            t.a = mparray._apply_op(self.a, lambda x: self.dtype(other) * x)
-            return t
-        elif isinstance(other, mparray):
-            if self.shape() != other.shape():
-                raise ValueError("can only multiply mparrays with shapes (n, m) * (m, k)")
-            if self.degree() > 2: 
-                return mparray.mul_pairwise(self, other)
-            else:
-                res = mparray.filled_array(self.shape(), init_value = self.dtype(0), dtype = self.dtype)
-                for r in range(self.shape()[0]):
-                    for c in range(self.shape()[1]):
-                        res[r][c] = self[r][c] * other[r][c]
-                return res
-        else:
-            raise ValueError("operands must be an mparray and a scalar or two mparrays")
+        return mparray.multiply(self, other)
         
        # pair-wise multiplication
-    def mul_pairwise(arr1, arr2):
+    def multiply(arr1, arr2):
+        if isinstance(arr1, mparray) and not isinstance(arr2, mparray):
+            return deepcopy(arr1).apply(lambda x: x * arr2)
+        elif not isinstance(arr1, mparray) and isinstance(arr2, mparray):
+            return deepcopy(arr2).apply(lambda x: x * arr1)
+        elif not isinstance(arr1, mparray) and not isinstance(arr2, mparray):
+            return arr1 * arr2
+        # both operands are mparrays:
         if arr1.shape() != arr2.shape():
-            raise ValueError("mul_pairwise only defined for arrays with same shape")
+            raise ValueError("multiply only defined for arrays with same shape")
         shp = arr1.shape()
         result = mparray.filled_array(shp, dtype = arr1.dtype)
         if arr1.degree() == 1:
-            for i in range(arr1.shp[0]):
+            for i in range(shp1[0]):
                 result[i] = arr1[i] * arr2[i]
             return result
         elif arr1.degree() == 2:
-            for i in range(shp[0]):
-                for j in range(shp[1]):
+            for i in range(arr1.shape()[0]):
+                for j in range(arr1.shape()[1]):
                     result[i][j] = arr1[i][j] * arr2[i][j]
             return result
         else:
@@ -994,16 +985,63 @@ class mparray:
         result = mparray.array_transpose(self.a)
         return mparray(result, self.dtype)
     
+    # returns the transposed array
     @property
     def T(self):
         return self.transpose()
+        
+    # returns the total number of elements in the mparray
+    @property
+    def size(self):
+        prod = 1
+        shp = self.shape()
+        for i in range(len(shp)):
+            prod *= shp[i]
+        return prod
     
         
-    def dot(self, other):
+    def dot(arg1, arg2):
+        if isinstance(arg1, mparray) and not isinstance(arg2, mparray):
+            return arg1 * arg2 # multiplication with scalar
+        elif not isinstance(arg1, mparray) and isinstance(arg2, mparray):
+            return arg1 * arg2 # multiplication with scalar
+        elif not isinstance(arg1, mparray) and not isinstance(arg2, mparray):
+            return arg1*arg2 # simple multiplication
+        else: # isinstance(arg1,mparray) and isinstance(arg2.mparray)
+            shp1 = arg1.shape()
+            shp2 = arg2.shape()
+            # inner product
+            if arg1.degree() == 1 and arg2.degree() == 1:
+                result = mparray.filled_array(shp1, dtype=arg1.dtype)
+                sum = 0
+                for i in range(shp1[0]):
+                    sum += arg1[i] * arg2[i]
+                return sum
+            elif arg1.degree() == 2 and arg2.degree() == 1 and shp1[1] == shp2[0]: # matrix * vector 
+                n = shp1[0]
+                m = shp1[1]
+                k = shp2[0]
+                result = mparray.filled_array([n], dtype=arg1.dtype)
+                for i in range(n):
+                    sum = 0
+                    for j in range(k):
+                        sum += arg1[i][j]*arg2[j]
+                    result[i] = sum
+                return result
+            elif arg1.degree() == 2 and arg2.degree() == 2:
+                return arg1 @ arg2
+            elif arg1.degree() > 2 and arg2.degree() > 2:
+                result = mparray.filled_array(shp1, dtype=arg1.dtype)
+                for i in range(shp1[0]):
+                    result[i] = mparray.dot(arg1[i], arg2[i])
+                return mparray([result])
+            else:
+                raise TypeError("Incompatible operands for mparray.dot()")
+            
+        """
+        old_dot
         shp1 = self.shape()
         shp2 = other.shape()
-        if len(shp1) > 2 or len(shp2) > 2:
-            raise ValueError("mparray.dot() only defined for 1-dimensional and 2-dimensional mparrays")
         if len(shp1) == 1 and len(shp2) == 1:
             if shp1[0] != shp2[0]:
                 raise ValueError("dot-product for 1-dimensional mparrays only defined for arrays with same size")
@@ -1014,15 +1052,18 @@ class mparray:
         elif len(shp1) == 2 and len(shp2) == 2:
             return self @ other
         else:
-            raise ValueError("mixture of 1-d and 2-d arrays not permitted")
-            
+            return self.mul_pairwise(other)
+        """ 
+        
     def __matmul__(self , other):
+        if not isinstance(other, mparray):
+            return self.apply(lambda x: x * other)
         shp1 = self.shape()
         shp2 = other.shape()
         if len(shp1) == 2 and len(shp2) == 2:
             if shp1[1] != shp2[0]:
                 raise ValueError("the 2-dimensional mparrays have incompatible shapes for multiplication")
-            res = mparray.filled_array([shp1[0], shp2[1]], dtype=float)
+            res = mparray.filled_array([shp1[0], shp2[1]], dtype=self.dtype)
             for r in range(shp1[0]):
                 for c in range(shp2[1]):
                     sum = 0
@@ -1030,6 +1071,18 @@ class mparray:
                         sum += self[r][j] * other[j][c]
                     res[r][c] = sum
             return res
+        elif len(shp1) == 2 and len(shp2) == 1:
+            if shp1[1] == shp2[0]:
+                res = mparray.filled_array([shp1[0], 1], dtype=self.dtype)
+                for i in range(shp1[0]):
+                    sum = 0
+                    for j in range(shp1[1]):
+                        sum += self[i, j] * other[j]
+                    res[i] = sum
+                return res
+            else:
+                raise ValueError("the 2- and -dimensional mparrays have incompatible shapes for multiplication")
+            
         
     # transpose() transposes nxm-arrays
     def array_transpose(array):
@@ -2813,7 +2866,13 @@ class Matrix:
     def __matmul__(self, other):
         return self * other
         
-    def mul_pairwise(self, other):
+    def multiply(self, other):
+        if not isinstance(other, Matrix):
+            m = deepcopy(self)
+            for r in range(self.dim1):
+                for c in range(self.dim2):
+                    m.m[r][c] *=  other
+            return m
         if self.dim1 != other.dim1 or self.dim2 != other.dim2:
             raise ValueError("matrices must have equal shape for pairwise multiplication")
         m = deepcopy(self)
@@ -3877,7 +3936,10 @@ class Vector:
                     return v
                        
     # pairwise multiplication of vectors
-    def mul_pairwise(self, other):
+    def multiply(self, other):
+        if not isinstance(other, Vector):
+            v = deepcopy(self)
+            for i in len(v): v[i] *= other
         if len(self.v) != len(other.v):
             raise ValueError("vectors must have same length for pairwise multiplication")
         m = deepcopy(self)
