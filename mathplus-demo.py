@@ -53,7 +53,7 @@ for v in Vector.all_unit_vectors(3):
 print("Are v1 and v2 orthogonal? " + str(v1.is_orthogonal_to(v2)))
 print()
 
-print("v2.T() = " + str(v2.T()))
+print("v2.T = " + str(v2.T))
 print()
 
 m3 = Matrix.from_list([[1,4,1,3], [0,2,-1,6], [1,0,1,2], [4, 0, 1 ,2]])
@@ -71,7 +71,7 @@ print()
 
 print("abs(m3) = " + str(abs(m3)))
 
-print("m3 transposed with m3.T() + " + str(m3.T()))
+print("m3 transposed with m3.T + " + str(m3.T))
 
 for i in range(0, m3.dim1):
     print("row vector [" + str(i) + "] = " + str(m3.row_vector(i)))
@@ -89,17 +89,17 @@ print("Is m1 == m1? " + str(m1 == m1))
 print()
 print()
 
-print("Creating a Matrix from v2.T(): " + str(Matrix.from_vector(v2.T())))
+print("Creating a Matrix from v2.T: " + str(Matrix.from_vector(v2.T)))
 
-print("Multiplying v2 with v2.T: ", str(v2 * v2.T()))
+print("Multiplying v2 with v2.T: ", str(v2 * v2.T))
 print()
 
-print("Multiplying v2.T with v2: ", str(v2.T() * v2))
+print("Multiplying v2.T with v2: ", str(v2.T * v2))
 print()
 
 v4 = Vector.from_list([1,1,1,1])
 print("v4 = " + str(v4))
-print("Multiplication of v4.T() with m3", str(v4.T() * m3))
+print("Multiplication of v4.T with m3", str(v4.T * m3))
 
 print("Multiplying unit matrix (size == 5) with 2: ", str(Matrix.identity(5).scalar_product(2)))
 
@@ -285,7 +285,7 @@ print(l)
 print()
 print("Let us multiply L with L.T :")
 print()
-print(l@l.T())
+print(l@l.T)
 print()
 
 print("Create diagonal matrix from [1,2,3]")
@@ -315,7 +315,7 @@ print(md)
 print("mc @ md = " + str(mc @ md))
 print("md @ mc = " + str(md @ mc))
 
-print("Hermitian conjugate of mc = " + str(mc.H()))
+print("Hermitian conjugate of mc = " + str(mc.H))
 
 
 md = Matrix.from_list([   
@@ -368,7 +368,7 @@ print("Matrix m = " + str(m))
 v = Vector.from_list([1 for i in range(0,5)], dtype = int)
 print("Vector v is " + str(v))
 print("Adding vector v to all columns of m" + str(m.add_vector_to_all_columns(v)))
-print("And now adding v.T() to a subset of rows of m", str(m.add_vector_to_rows({0, 2, 4}, v.T())))
+print("And now adding v.T to a subset of rows of m", str(m.add_vector_to_rows({0, 2, 4}, v.T)))
 print("The three base vectors of a base relative to the standard base:")
 b1_new = Vector.from_list([0, -1,  2])
 b2_new = Vector.from_list([1,  2,  0])
@@ -445,7 +445,7 @@ print("Viewpoint is " + str(v))
 print("The plane p is defined by ax+by+az=0 => n.T = (a,b,c,0).T")
 n = Vector.from_list([1,4,7,0])
 print(n)
-M = v * n.T()
+M = v * n.T
 print("The projection matrix is given by v * n.T " + str(M))
 p = Vector.from_list([-1,1,0,0])
 print("Vector p is a point in 3D space " + str(p))

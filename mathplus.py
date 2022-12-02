@@ -600,7 +600,7 @@ class mparray:
             return a
             
     # helper function for apply used to apply a lambda on each
-    # element of a multidiemensional list and create an square_shaped
+    # element of a multidimensional list and create an square_shaped
     # new mparray from the results
     def _apply_op(array, lambda_f):
         shp = Array.shape(array)
@@ -989,10 +989,15 @@ class mparray:
     # transpose() is defined for all 2D mparrays. It returns a new
     # mparray with: new_array[r][c] = array[c][r] for all
     # valid (row,column)-combinations
-    def T(self):
+    def transpose(self):
         assert self.degree() == 2, "transpose only defined for 2d-arrays"
         result = mparray.array_transpose(self.a)
         return mparray(result, self.dtype)
+    
+    @property
+    def T(self):
+        return self.transpose()
+    
         
     def dot(self, other):
         shp1 = self.shape()
@@ -2205,11 +2210,13 @@ class Matrix:
         return deepcopy(self)
                 
     # transpose the matrix
+    @property
     def T(self):
         return Matrix.from_list(Array.transpose(self.m), dtype = self.dtype)
         
+    @property
     def H(self):
-        if self.dtype != complex: return self.T()
+        if self.dtype != complex: return self.T
         m = Matrix(self.dim2, self.dim1, dtype = self.dtype)
         for r in range(0, self.dim2):
             for c in range(0, self.dim1):
@@ -2554,7 +2561,7 @@ class Matrix:
     # calculates the adjoint matrix by transposng the 
     # co-factor matrix
     def adjoint_matrix(self):
-        return self.cofactor_matrix().T()
+        return self.cofactor_matrix().T
         
     # creates the inverse matrix iff det != 0. Raises a  
     # ValueError if that is not the case
@@ -2580,7 +2587,7 @@ class Matrix:
         if not self.is_orthonormal():
             return self.inverse_matrix() * vector
         else:
-            return self.T() * vector
+            return self.T * vector
             
     # requires a tridiagonal matrix a vector with len(vector)==matrix.dim1
     # returns the solution x of the equation matrix@x = vector
@@ -2859,7 +2866,7 @@ class Matrix:
         if self.dim1 != self.dim2:
             raise ValueError("symmetry not defined for non-quadratic matrices")
         else:
-            return self == self.T()
+            return self == self.T
             
     # check for square matrix
     def is_square(self):
@@ -2883,12 +2890,12 @@ class Matrix:
         if self.det() == 0:
             return False
         else:
-            return self.H() == self.inverse_matrix()
+            return self.H == self.inverse_matrix()
             
     def is_orthonormal(self):
         if not self.is_square():
             raise ValueError("orthomality is only defined for square matrices")
-        return self.T() @ self == Matrix.identity(self.dim1)
+        return self.T @ self == Matrix.identity(self.dim1)
             
     # calculate the standard norm for column vectors
     def norm(self):
@@ -3278,12 +3285,12 @@ class Matrix:
             raise ValueError("number of columns must be >= number of rows")
         u[0] = a[0]
         e[0] = u[0].scalar_product(1 / u[0].euclidean_norm())
-        u[1] = a[1] - e[0] * (a[1].T()*e[0])
+        u[1] = a[1] - e[0] * (a[1].T*e[0])
         e[1] = u[1].scalar_product(1 / u[1].euclidean_norm())
         for k in range(2, shape[1]):
             u[k] = a[k]
             for i in range(0,k):
-                u[k] = u[k]-e[i] * (a[k].T() * e[i])
+                u[k] = u[k]-e[i] * (a[k].T * e[i])
             e[k] = u[k].scalar_product(1/u[k].euclidean_norm())
         Q = Matrix.from_column_vectors(e)
         R = Matrix(shape[1], shape[0], dtype = self.dtype)
@@ -3291,7 +3298,7 @@ class Matrix:
             for j in range(0, shape[0]):
                 if i > j: R.m[i][j] = 0
                 else:
-                    R.m[i][j] = a[j].T() * e[i]
+                    R.m[i][j] = a[j].T * e[i]
         return (Q,R)
         
     # eigenvalues and eigenvectors calculation using QR decomposition 
@@ -3751,6 +3758,7 @@ class Vector:
     
     
     # vector transposition        
+    @property
     def T(self):
         v = Vector(len(self), dtype = self.dtype, transposed = not self.is_transposed())
         for i in range(0, len(self)): 
@@ -4249,6 +4257,7 @@ class FunctionMatrix:
         
     # transpose of FunctionMatrix works as
     # expected
+    @property
     def T(self):
         o = FunctionMatrix(self.dim2, self.dim1)
         for r in range(0, self.dim1):
@@ -4787,7 +4796,7 @@ class Polynomial:
         for epoch in range(0, epochs):
             
             diff = (pow_matrix * theta - y_vector)
-            delta = (pow_matrix.T() * diff).scalar_product(learningrate/m)
+            delta = (pow_matrix.T * diff).scalar_product(learningrate/m)
             theta = theta - delta 
             
         return Polynomial(theta.v)
@@ -5186,7 +5195,7 @@ class Regression:
                 
         for epoch in range(0, epochs):
             diff = (ext_matrix * theta - y_vector)
-            delta = (ext_matrix.T() * diff).scalar_product(learningrate/m)
+            delta = (ext_matrix.T * diff).scalar_product(learningrate/m)
             theta = theta - delta
         theta_1_n = theta.v 
         return theta_1_n
