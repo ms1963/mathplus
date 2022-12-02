@@ -424,6 +424,12 @@ class mparray:
         return mparray(a, dtype)
         
         
+    def ones(shp, dtype = float):
+        return mparray.filled_array(shp, init_value = 1, dtype = dtype)
+        
+    def zeros(shp, dtype = float):
+        return mparray.filled_array(shp, init_value = 0, dtype = dtype)
+        
     # list passed to function is used to initialze new mparray object
     def from_list(array, dtype = float):
         if not mparray._is_regular(array):
