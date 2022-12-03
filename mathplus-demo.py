@@ -393,7 +393,9 @@ v_new = Vector.from_list([2,2,3])
 print(v_new)
 print("and multiplying it with T_inv yields: ")
 print(T_inv @ v_new)
-
+print()
+print("Building a covariance matrix from an array " + str([[1,2,3], [2,1,8]]))
+print(Array.covariance_matrix([[1,2,3], [2,1,8]]))
 
 # Demo usage of polynomials:
 print()

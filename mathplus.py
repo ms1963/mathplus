@@ -160,39 +160,38 @@ class Common:
     # least common multiple
     def lcm(a, b):
         return abs(a*b)/gcd(a,b)       
-            
-    # helper method for factorization
-    def _brent(N):
-        if N % 2 == 0: 
-            return 2
-        y, c, m = randint(1, N-1), randint(1, N-1), randint(1, N-1)
-        g, r, q = 1, 1, 1
-        while g == 1:             
-            x = y
-            for i in range(r):
-                y = ( ( y * y ) % N + c ) %N
-            k = 0
-            while (k < r and g == 1):
-                ys = y
-                for i in range(min(m,r-k)):
-                    y = ( ( y * y ) %N + c ) %N
-                    q *= ( abs ( x - y ) ) %N
-                g = Common.gcd(q,N)
-                k = k + m
-            r = r*2
-        if g == N:
-            while True:
-                ys = ( ( ys * ys ) % N + c ) %N
-                g = Common.gcd(abs(x - ys), N)
-                if g > 1:  
-                    break
-        return g
 
 
     # factorization of integers into their prime factors.
     # the method returns a list of prime factors in ascending
     # order
     def factorize(n1):
+        # helper method for factorization
+        def _brent(N):
+            if N % 2 == 0: 
+                return 2
+            y, c, m = randint(1, N-1), randint(1, N-1), randint(1, N-1)
+            g, r, q = 1, 1, 1
+            while g == 1:             
+                x = y
+                for i in range(r):
+                    y = ( ( y * y ) % N + c ) %N
+                k = 0
+                while (k < r and g == 1):
+                    ys = y
+                    for i in range(min(m,r-k)):
+                        y = ( ( y * y ) %N + c ) %N
+                        q *= ( abs ( x - y ) ) %N
+                    g = Common.gcd(q,N)
+                    k = k + m
+                r = r*2
+            if g == N:
+                while True:
+                    ys = ( ( ys * ys ) % N + c ) %N
+                    g = Common.gcd(abs(x - ys), N)
+                    if g > 1: break
+            return g # end of _brent
+
         if n1 == 0: 
             return []
         if n1 == 1: 
@@ -219,7 +218,7 @@ class Common:
             p1 = n
             while p1 != p:
                 p = p1
-                p1 = Common._brent(p)
+                p1 = brent(p)
          
             b.append(p1)
             n //= p1 
@@ -272,7 +271,7 @@ class Common:
             y_mean = Array.mean(y_dataset)
             for i in range(len(x_dataset)):
                 sum += (x_dataset[i] - x_mean) * (y_dataset[i] - y_mean)
-            return sum/(len(x_dataset) - 1)
+            return sum / (len(x_dataset)-1)
             
             
     # calculate the correlation between two data series
@@ -473,6 +472,28 @@ class mparray:
                 if self.shp[i] != dim0:
                     return False
             return True
+            
+    # get a column of a 2-dimensional mparray
+    def column(self, col):
+        shp = self.shape()
+        if len(shp) != 2:
+            raise ValueError("mparray.column() requires a 2-dimensonal mparray")
+        if not col in range(0, shp[1]):
+            raise ValueError("index (col) out of range")
+        cvec = mparray.filled_array([shp[0]], dtype = self.dtype)
+        for i in range(shp[0]):
+            cvec[i] = self[i][col]  
+        return cvec
+        
+    # get a row of a 2-dimensional mparray
+    def row(self, row):
+        shp = self.shape()
+        if len(shp) != 2:
+            raise ValueError("mparray.row() requires a 2-dimensonal mparray")
+        if not row in range(0, shp[0]):
+            raise ValueError("index (row) out of range")
+        return self[row]
+        
             
     # create a new mparray using shp as shape
     def _initializer(shp, init_value = 0, dtype = float):
@@ -951,12 +972,31 @@ class mparray:
         t = self.flatten()
         for elem in t:
             sum += (elem - mu) ** 2
-        res = math.sqrt(sum / len(t.a))
+        res = math.sqrt(sum / (len(t.a)-1))
         return res
         
     # calculates the variance of mparray elements
     def variance(self):
         return self.std_dev() ** 2
+        
+
+    # calculate the covariance between two data series
+    # zero result => dataset don't seem to have a relation
+    # positive: if one data rises, the other one rises too 
+    # negative: if one dataset rises, the other one falls
+    def covariance(x_dataset, y_dataset):
+        shp1 = x_dataset.shape()
+        shp2 = y_dataset.shape()
+        if shp1 != shp2 or len(shp1) != 1:
+            raise ValueError("both data sets must be 1-dimensional and have the same number of data elements")
+        else:
+            sum = 0
+            x_mean = x_dataset.mean()
+            y_mean = y_dataset.mean()
+            for i in range(len(x_dataset)):
+                sum += (x_dataset[i] - x_mean) * (y_dataset[i] - y_mean)
+            return sum / (len(x_dataset)-1)
+           
            
     # this function does delegate to reduce()
     # the lmbda is applied to all elements of
@@ -1011,9 +1051,9 @@ class mparray:
         if isinstance(arg1, mparray) and not isinstance(arg2, mparray):
             return arg1 * arg2 # multiplication with scalar
         elif not isinstance(arg1, mparray) and isinstance(arg2, mparray):
-            return arg1 * arg2 # multiplication with scalar
+            return arg2 * arg1 # multiplication with scalar
         elif not isinstance(arg1, mparray) and not isinstance(arg2, mparray):
-            return arg1*arg2 # simple multiplication
+            return arg1*arg2 # simple scalar multiplication
         else: # isinstance(arg1,mparray) and isinstance(arg2.mparray)
             shp1 = arg1.shape()
             shp2 = arg2.shape()
@@ -1044,23 +1084,6 @@ class mparray:
                 return mparray([result])
             else:
                 raise TypeError("Incompatible operands for mparray.dot()")
-            
-        """
-        old_dot
-        shp1 = self.shape()
-        shp2 = other.shape()
-        if len(shp1) == 1 and len(shp2) == 1:
-            if shp1[0] != shp2[0]:
-                raise ValueError("dot-product for 1-dimensional mparrays only defined for arrays with same size")
-            result = 0
-            for i in range(shp1[0]):
-                result += self[i] * other[i]
-            return result
-        elif len(shp1) == 2 and len(shp2) == 2:
-            return self @ other
-        else:
-            return self.mul_pairwise(other)
-        """ 
         
     def __matmul__(self , other):
         if not isinstance(other, mparray):
@@ -1489,6 +1512,44 @@ class mparray:
                 sum += x_array[i] * weights_array[i]
             return sum
             
+        
+    # calculate covariance matrix    
+    def covariance_matrix(dataset, rows = True):
+        shp = dataset.shape()
+        if len(shp) != 2:
+            raise ValueError("covariance_matrix only defined for 2-dimensional datasets")
+        if rows:
+            result = Matrix(shp[0],shp[0], dtype = float)
+            for i in range(shp[0]):
+                for j in range(shp[0]):
+                    if i == j: 
+                        result[i,j] = mparray.variance(dataset[i])
+                    else:
+                        result[i,j] = mparray.covariance(dataset[i], dataset[j])
+            return result
+        else:
+            cov = mparray.covariance_matrix(dataset.T)
+            return cov.T
+    
+        
+    # calculate correlation matrix    
+    def correlation_matrix(dataset, rows = True):
+        shp = dataset.shape()
+        if len(shp) != 2:
+            raise ValueError("correlation_matrix only defined for 2-dimensional datasets")
+        if rows:
+            result = Matrix(shp[0],shp[0], dtype = float)
+            for i in range(shp[0]):
+                for j in range(shp[0]):
+                    if i == j: 
+                        result[i,j] = 1
+                    else:
+                        result[i,j] = mparray.covariance(dataset[i], dataset[j]) / (dataset[i].variance() * dataset[j].variance())
+            return result
+        else:
+            cor = mparray.covariance_matrix(dataset.T)
+            return cor.T
+            
     # meshgrid allows to combine two 1D mparrays x, y to a coordinate
     # system spanned by x and y. It returns 2 2D arrays
     def meshgrid(mpx, mpy):
@@ -1709,22 +1770,15 @@ class Array:
                 new_array.remove(val)
         return new_array
                 
-    """ deprecated version
-    # checks the shape of an array a, for example,
-    # [1,2] -> (1,2) 
-    # [[1,2,3][4,5,6]] -> (2,3)
-    def shape(a):
-        if not isinstance(a, list):
-            raise ValueError("only arrays are allowed")
-        if isinstance(a[0], list):
-            length = len(a[0])
-            for i in range(1, len(a)):
-                if len(a[i]) != length:
-                    raise ValueError("only rectangular arrays are allowed")
-            return(len(a), length)
-        else: 
-            return(1,len(a))
-    """
+    # returns the covariance matrix
+    def covariance_matrix(dataset, rows = True):
+        marray = mparray(dataset)
+        return mparray.covariance_matrix(marray, rows)
+        
+    # returns the correlation_matrix
+    def correlation_matrix(dataset, rows = True):
+        marray = mparray(dataset)
+        return mparray.correlation_matrix(marray, rows)
     
     # method to analyze the shape of a list or other sequence
     def shape_analyzer(a, shp = ()):
@@ -1952,7 +2006,7 @@ class Array:
         mu = Array.mean(arr)
         for i in range(0, len(arr)):
             sum += (arr[i] - mu) ** 2
-        res = math.sqrt(sum / len(arr))
+        res = math.sqrt(sum / (len(arr)-1))
         return res 
         
     # calculates the variance of array elements
@@ -3755,6 +3809,23 @@ class Matrix:
                 array += self.column_vector(i).v
             return Vector.from_list(array, dtype = self.dtype, transposed = False)
         
+    # 2-dim array required as input 
+    def covariance_matrix(array, rows):
+        if isinstance(array, list):
+            return mparray.covariance_matrix(mparray(array), rows)
+        elif isinstance(array, mparray):
+            return mparray.covariance_matrix(array)
+        else:
+            raise ValueError("either list or mparray object expected as argument in Matrix.covariance_matrix()")
+        
+   # 2-dim array required as input 
+    def correlation_matrix(array, rows):
+        if isinstance(array, list):
+            return mparray.correlation_matrix(mparray(array), rows)
+        elif isinstance(array, mparray):
+            return mparray.correlation_matrix(array)
+        else:
+            raise ValueError("either list or mparray object expected as argument in Matrix.correlation_matrix()")
             
  #################################################              
  ################## class Vector #################
@@ -5328,30 +5399,6 @@ class Classification:
 ########### Implementation  of a simple Artificial Neural Network ######### 
 
             
-"""
-# Example Usage
-# training data
-x_train = mparray([[[0,0]], [[0,1]], [[1,0]], [[1,1]]])
-y_train = mparray([[[0]], [[1]], [[1]], [[0]]])
-
-# network
-net = Network()
-net.add(FullyConnectedLayer(2, 3))
-net.add(ActivationLayer(tanh, tanh_prime))
-#net.add(ActivationLayer(sigmoid, sigmoid_prime))
-net.add(FullyConnectedCLayer(3, 1))
-net.add(ActivationLayer(tanh, tanh_prime))
-#net.add(ActivationLayer(sigmoid, sigmoid_prime))
-
-# train
-net.use(mse, mse_prime)
-net.fit(x_train, y_train, epochs=10000, learning_rate=0.1, autostop = False)
-
-# test
-out = net.predict(x_train)
-print(out)
-""" 
-
 
 
 # Base class
