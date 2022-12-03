@@ -3508,13 +3508,10 @@ class Matrix:
     # ....
     # Mm = Sum cn-m+k * A^k-1   , cn-m = -1/m * Sum cn-m+k * tr(A^k)
     #     k = 1,..,m                          k = 1, .., m
-    # results are returned as a coefficient list with c0 to cn 
-    # going from left to right 
-    # It can be directly used in class Polynomial to create a polynomial 
-    # such as in:
-    #     coeffs = char_poly(M)
-    #     p = Polynomial(coeffs)
-
+    # results are returned as a coefficient list [a0,a1,a2, ... , an]
+    # which implies the polynomial is defined as
+    #  p(x) = a0 + a1 * x + a2 * x**2 + an * x**n
+    # 
     def char_poly(self):
         if not self.is_square():
             raise ValueError("characteristic polynomials do only exist for square matrices")
@@ -3891,7 +3888,7 @@ class Vector:
             return res
             
     def __repr__(self):
-        return "len = " + str(len(self)) + "\ntransposed = " + str(self.is_transposed()) + "\ndtype = " + str(self.dtype) + "\nContent of inner array self.v = " + str(self.v)
+        return str(self)
     
     
     # vector transposition        
