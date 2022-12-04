@@ -776,6 +776,57 @@ class mparray:
                     continue
                 else: return False
             return True
+            
+  # allclose checks for two array whether their elements are equal
+    # within a tolerance. It returns whether all elements were 
+    # considered equal (True) ao at least one element was considered
+    # not equal
+    def allclose(a1, a2, tol = 1E-10):
+        shp1 = a1.shape
+        shp2 = a2.shape
+        if shp1 != shp2:
+            raise ValueError("can not compare mparrays with different shapes")
+        else:
+            if len(shp1) == 1:
+                for i in range(shp1[0]):
+                    print(a1)
+                    print(a2)
+                    if abs(a1[i] - a2[i]) <=  tol:
+                        continue
+                    else:
+                        return False
+            else:
+                for i in range(shp1[0]):
+                    if mparray.allclose(a1[i], a2[i], tol):
+                        continue
+                    else:
+                        return False
+            return True
+            
+            
+    # isclose checks two arrays whether their elements are equal
+    # within a tolerance. It returns a mparray with bools specifying
+    # where the elements were considered equal and where they were 
+    # considered not equal
+    def isclose(a1, a2, tol = 1E-10):
+        shp1 = a1.shape
+        shp2 = a2.shape
+        if shp1 != shp2:
+            raise ValueError("can not compare mparrays with different shapes")
+        else:
+            result = []
+            if len(shp1) == 1:
+                for i in range(shp1[0]):
+                    if abs(a1[i] - a2[i]) <=  tol:
+                        result.append(True)
+                    else:
+                        result.append(False)
+            else:
+                for i in range(shp1[0]):
+                    result.append(mparray.isclose(a1[i], a2[i], tol))       
+            return result
+            
+            
         
     def __eq__(self, other):
         if not (isinstance(other, mparray) or isinstance(other, list)):
