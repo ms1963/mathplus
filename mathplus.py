@@ -1628,8 +1628,21 @@ class mparray:
         y = mparray(yarray, mpx.dtype)
         return (x,y)
         
-                
-        
+    # creates a matrix from a 2-dimensional mparray        
+    def asmatrix(self):
+        if self.ndim != 2:
+            raise ValueError("Cannot convert an array with  " + str(ndim) + " dimensions to a matrix")
+        else:
+            return Matrix.from_list(self.a, dtype = self.dtype)
+            
+    # creates a vector from a 1-dimensional mparray
+    def asvector(self):
+        if self.ndim != 1:
+            raise ValueError("Cannot convert an array with  " + str(ndim) + " dimensions to a vector")
+        else:
+            return Vector.from_list(self.a, dtype = self.dtype)
+            
+            
         
 #################################################
 ################## class Array ##################
@@ -2322,6 +2335,23 @@ class Array:
             for i in range(length):
                 array[i] = dtype(uniform(fromvalue, tovalue))
         return array
+        
+    def asmatrix(lst):
+        shape = Array.shape(lst)
+        if len(shape) != 2:
+            raise ValueError("cannot convert a list/array with " + str(len(shape)) + " dimensions to a matrix")
+        else:
+            dtype = type(lst[0][0])
+            return Matrix.from_list(lst, dtype=dtype)
+            
+    def asvector(lst):
+        shape = Array.shape(lst)
+        if len(shape) != 1:
+            raise ValueError("cannot convert a list/array with " + str(len(shape)) + " dimensions to a vector")
+        else:
+            dtype = type(lst[0])
+            return Vector.from_list(lst, dtype=dtype)
+            
         
 #################################################
 ################## class Matrix #################
@@ -3246,6 +3276,10 @@ class Matrix:
     # returns 2d array of of all matrix elements
     def to_list(self):
         return self.m
+        
+    # return an mparray
+    def to_mparray(self):
+        return mparray(self.a, dtype=self.dtype)
         
     # converts matrix row-by-row elements to one-dimensional array    
     def to_flat_list(self):
@@ -4381,6 +4415,10 @@ class Vector:
     # return list of all vector elements
     def to_list(self):
         return self.v
+        
+    # return the ector transformed to an mparray
+    def to_mparray(self):
+        return mparray(self.v, dtype=self.dtype)
         
     # get a new Vector by removing elements from self
     # indices to remove are passed as the indices list
