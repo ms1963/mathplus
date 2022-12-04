@@ -4416,7 +4416,7 @@ class Vector:
     def to_list(self):
         return self.v
         
-    # return the ector transformed to an mparray
+    # return the vector transformed to an mparray
     def to_mparray(self):
         return mparray(self.v, dtype=self.dtype)
         
