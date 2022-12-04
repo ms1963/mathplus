@@ -34,6 +34,7 @@ from enum import Enum
 from collections import Counter
 from collections.abc import Sequence
 
+
 #################################################
 ################## class Common #################
 ################################################# 
@@ -721,7 +722,7 @@ class mparray:
     def __mul__(self, other):
         return mparray.multiply(self, other)
         
-       # pair-wise multiplication
+    # pair-wise multiplication
     def multiply(arr1, arr2):
         if isinstance(arr1, mparray) and not isinstance(arr2, mparray):
             return deepcopy(arr1).apply(lambda x: x * arr2)
@@ -2687,6 +2688,33 @@ class Matrix:
         else:
             return self.adjoint_matrix().scalar_product(self.dtype(1) / self.det())
             
+    # inverse diagonal creates the inverse of a diagonal matrix
+    def inverse_diagonal(self):
+        dim1, dim2 = self.shape
+        if (dim1 != dim2):
+            raise ValueError("inverse_diagonal() only defined for square matrices")
+        if not self.is_diagonal():
+            raise ValueError("inverse_diagonal() only defined for diagonal matrices")
+        diag = [] 
+        for i in range(dim1):
+            if self[i,i] == 0:
+                raise ValueError("inverse_diagonal() only defined for diagonal matrices where all diagonal values are not zero")
+            diag.append(1 / self[i,i])
+        return self.diagonal_matrix(dtype = self.dtype)
+        
+    # creates a diagonal-matrix with diagonal-elements populated with 
+    # inverse values of the given diagonal matrix self
+    def inverse_pseudo_diagonal(self):
+        dim1, dim2 = self.shape
+        lst = []
+        for i in range(min(dim1, dim2)):
+            if self[i, i] != 0:
+                lst.append(1 / self[i,i])
+            else:
+                lst.append(0)
+        return Matrix.pseudo_diagonal_matrix(self.shape, lst, self.dtype)
+        
+            
     # calculates the equation matrix * <x1,x2, ..., xn> = <v1, v2, ..., vn>
     # raises ValueError if det(matrix) == 0, <x1, x2, ..., xn> being 
     # not transposed, matris is not quadratic, length of vector does 
@@ -2768,6 +2796,24 @@ class Matrix:
                 return x
             x_old = x
         return None
+        
+    # NOTE: svd() is the only function taken from numpy as long as there is no 
+    # implementation in mathplus. It returns U, s, VT
+    def svd(self, full_matrices = True):
+        U,s,VT = np.linalg.svd(self.m)
+        return Matrix.from_list(U), s.tolist(), Matrix.from_list(VT)
+
+        
+    # computes the pseudo inverse of a matrix using the Moore-Penrose method
+    def pseudo_inverse(self):
+        U, s, VT = self.svd()
+        V_ = VT.T
+        U_ = U.H # since U, V are unitary matrices
+        shp1 = V_.shape
+        shp2 = U_.shape
+        shp = (shp1[1], shp2[0])
+        S_ = Matrix.pseudo_diagonal_matrix(shp, s, self.dtype).inverse_pseudo_diagonal()
+        return V_ @ (S_ @ U_)
         
     # get row vector for row
     def row_vector(self, row):
@@ -2870,6 +2916,23 @@ class Matrix:
                 continue
         return True
         
+    # checks whether matrix is diagonal
+    def is_diagonal(self):
+        dim1, dim2 = self.shape
+        m = min(dim1,dim2)
+        for i in range(m):
+            for j in range(m):
+                if i == j:
+                    continue
+                else:
+                    if self[i,j] != 0:
+                        return False
+        for i in range(m, dim1):
+            for j in range(m, dim2):
+                if self[i, j] != 0:
+                    return False
+        return True
+    
     # add two matrices with each other
     #  if their sizes are not the same, a ValueError is raised
     def __add__(self, other):
@@ -3532,12 +3595,26 @@ class Matrix:
         
     # creates a diagonal matrix with the list 
     # elements populating the diagonal
-    def diagonal_matrix(list, dtype = float):
-        m = Matrix(len(list), len(list), dtype)
-        for i in range(0, len(list)):
-            m[i][i] = list[i]
+    def diagonal_matrix(lst, dtype = float):
+        m = Matrix(len(lst), len(lst), dtype)
+        for i in range(0, len(lst)):
+            m[i,i] = lst[i]
         return m
         
+    # creates a m x n-matrix with diagonal populated using lst 
+    # shp: the desired size of the matrix
+    # lst: the list of elemens the matrix diagonal is populated with
+    # dtype: the type of the matrix elements
+    # returns: the diagonal matrix
+    def pseudo_diagonal_matrix(shp, lst, dtype = float):
+        dim1, dim2 = shp
+        n = len(lst)
+        if n > min(dim1, dim2):
+            raise ValueError("passed list has more elements than the diagonal in pseudo_diagonal_matrix()")
+        m = Matrix(dim1, dim2, dtype, init_value = 0)
+        for i in range(n):
+            m[i,i] = lst[i]
+        return m
         
     # get a matrix filled with random numbers
     def random_matrix(shp, fromvalue, tovalue, dtype, seedval = None):
