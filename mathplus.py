@@ -408,7 +408,7 @@ class mparray:
             raise ValueError("only 'rectangular' mparrays are supported")
         self.a = array
         self.dtype = dtype 
-        self.ndim = len(self.shape())
+        self.ndim = len(self.shape)
         
     # creates a multidimensional array using a list
     def create_multidim_array(dims, lst, dtype = float):
@@ -475,7 +475,7 @@ class mparray:
             
     # get a column of a 2-dimensional mparray
     def column(self, col):
-        shp = self.shape()
+        shp = self.shape
         if len(shp) != 2:
             raise ValueError("mparray.column() requires a 2-dimensonal mparray")
         if not col in range(0, shp[1]):
@@ -487,7 +487,7 @@ class mparray:
         
     # get a row of a 2-dimensional mparray
     def row(self, row):
-        shp = self.shape()
+        shp = self.shape
         if len(shp) != 2:
             raise ValueError("mparray.row() requires a 2-dimensonal mparray")
         if not row in range(0, shp[0]):
@@ -537,12 +537,12 @@ class mparray:
         
     # degree of mparray, i.e., its dimensions
     def degree(self):
-        return len(self.shape())
+        return len(self.shape)
         
-    # this method shuffles all inner 1-dimensional arrays cobtained
+    # this method shuffles all inner 1-dimensional arrays contained
     # in a mparray
     def shuffle(self):
-        shp = self.shape()
+        shp = self.shape
         if len(list(shp)) == 1:
             a = deepcopy(self.a)
             random.shuffle(a)
@@ -599,7 +599,7 @@ class mparray:
     # apply a lambda on all mparray elements and create a
     # new mparray from result
     def apply(self, lambda_f):
-        t = mparray.filled_array(self.shape(), dtype = self.dtype)
+        t = mparray.filled_array(self.shape, dtype = self.dtype)
         t.a = mparray._apply_op(self.a, lambda_f)
         return t
         
@@ -644,6 +644,7 @@ class mparray:
             return a
                 
     # get shape of mparray
+    @property
     def shape(self):
         return Array.shape(self.a)
             
@@ -689,13 +690,13 @@ class mparray:
     # with results used to create a new mparray
     def __sub__(self, other):
         if isinstance(other, mparray):
-            if self.shape() != other.shape():
+            if self.shape != other.shape:
                 raise ValueError("shapes of operands do not match")
-            t = mparray.filled_array(self.shape(), init_value = self.dtype(0), dtype=self.dtype)
+            t = mparray.filled_array(self.shape, init_value = self.dtype(0), dtype=self.dtype)
             t.a = mparray._apply_on_multiDarrays(self.a, other.a, lambda x,y: x-y)
             return t
         elif isinstance(other, float) or isinstance(other, int):
-            t = mparray.filled_array(self.shape(), init_value = self.dtype(0), dtype = self.dtype)
+            t = mparray.filled_array(self.shape, init_value = self.dtype(0), dtype = self.dtype)
             t.a = mparray._apply_op(self.a, lambda x: x - self.dtype(other))
             return t
         else:
@@ -704,13 +705,13 @@ class mparray:
     # addition of mparrays: similar implementation like that in __sub__
     def __add__(self, other):
         if isinstance(other, mparray):
-            if self.shape() != other.shape():
+            if self.shape != other.shape:
                 raise ValueError("shapes of operands do not match")
-            t = mparray.filled_array(self.shape(), init_value = 0,dtype=self.dtype)
+            t = mparray.filled_array(self.shape, init_value = 0,dtype=self.dtype)
             t.a = mparray._apply_on_multiDarrays(self.a, other.a, lambda x,y: x+y)
             return t
         elif isinstance(other, float) or isinstance(other, int):
-            t = mparray.filled_array(self.shape(), init_value = 0, dtype = self.dtype)
+            t = mparray.filled_array(self.shape, init_value = 0, dtype = self.dtype)
             t.a = mparray._apply_op(self.a, lambda x: x + self.dtype(other))
             return t
         else:
@@ -729,21 +730,21 @@ class mparray:
         elif not isinstance(arr1, mparray) and not isinstance(arr2, mparray):
             return arr1 * arr2
         # both operands are mparrays:
-        if arr1.shape() != arr2.shape():
+        if arr1.shape != arr2.shape:
             raise ValueError("multiply only defined for arrays with same shape")
-        shp = arr1.shape()
+        shp = arr1.shape
         result = mparray.filled_array(shp, dtype = arr1.dtype)
         if arr1.degree() == 1:
             for i in range(shp1[0]):
                 result[i] = arr1[i] * arr2[i]
             return result
         elif arr1.degree() == 2:
-            for i in range(arr1.shape()[0]):
-                for j in range(arr1.shape()[1]):
+            for i in range(arr1.shape[0]):
+                for j in range(arr1.shape[1]):
                     result[i][j] = arr1[i][j] * arr2[i][j]
             return result
         else:
-            for i in range(arr1.shape()[0]):
+            for i in range(arr1.shape[0]):
                 result[i] = mparray.mul_pairwise(arr1[i], arr2[i])
             return result
         
@@ -782,9 +783,9 @@ class mparray:
             operand2 = other
         else:
             operand2 = mparray(other, self.dtype)
-        if self.shape() != operand2.shape():
+        if self.shape != operand2.shape:
             raise ValueError("cannot compare objects with different shapes")
-        return mparray._compare_arrays(self.a, self.shape(), operand2.a, operand2.shape())
+        return mparray._compare_arrays(self.a, self.shape, operand2.a, operand2.shape)
 
     def _ne__(self, other):
         return not self == other
@@ -859,7 +860,7 @@ class mparray:
         return newarray
         
     def compress(self):
-        if len(self.shape()) > 1 and self.shape()[0] == 1:
+        if len(self.shape) > 1 and self.shape[0] == 1:
             tmp = self.a[0]
             return mparray.from_list(tmp, self.dtype)
         
@@ -985,8 +986,8 @@ class mparray:
     # positive: if one data rises, the other one rises too 
     # negative: if one dataset rises, the other one falls
     def covariance(x_dataset, y_dataset):
-        shp1 = x_dataset.shape()
-        shp2 = y_dataset.shape()
+        shp1 = x_dataset.shape
+        shp2 = y_dataset.shape
         if shp1 != shp2 or len(shp1) != 1:
             raise ValueError("both data sets must be 1-dimensional and have the same number of data elements")
         else:
@@ -1041,7 +1042,7 @@ class mparray:
     @property
     def size(self):
         prod = 1
-        shp = self.shape()
+        shp = self.shape
         for i in range(len(shp)):
             prod *= shp[i]
         return prod
@@ -1055,8 +1056,8 @@ class mparray:
         elif not isinstance(arg1, mparray) and not isinstance(arg2, mparray):
             return arg1*arg2 # simple scalar multiplication
         else: # isinstance(arg1,mparray) and isinstance(arg2.mparray)
-            shp1 = arg1.shape()
-            shp2 = arg2.shape()
+            shp1 = arg1.shape
+            shp2 = arg2.shape
             # inner product
             if arg1.degree() == 1 and arg2.degree() == 1:
                 result = mparray.filled_array(shp1, dtype=arg1.dtype)
@@ -1088,8 +1089,8 @@ class mparray:
     def __matmul__(self , other):
         if not isinstance(other, mparray):
             return self.apply(lambda x: x * other)
-        shp1 = self.shape()
-        shp2 = other.shape()
+        shp1 = self.shape
+        shp2 = other.shape
         if len(shp1) == 2 and len(shp2) == 2:
             if shp1[1] != shp2[0]:
                 raise ValueError("the 2-dimensional mparrays have incompatible shapes for multiplication")
@@ -1127,7 +1128,7 @@ class mparray:
         
     # extract a subarray from mparray
     def subarray(self, top, bottom, left, right):
-        shp = self.shape()
+        shp = self.shape
         dim1 = shp[0]
         dim2 = shp[1]
         if not(left <= right and top <= bottom and right <= dim2 and bottom <= dim1):
@@ -1151,7 +1152,7 @@ class mparray:
     # For 2-D arrays axis defines along which axis the split is going to
     # happen
     def split(self, arg, axis = 0):
-        shp = self.shape()
+        shp = self.shape
     
         def split_1D(array, arg):
             n = len(array)
@@ -1277,7 +1278,7 @@ class mparray:
     # will have dimension dim1 x (dim2 - 1)
     def diff(self):
         assert self.degree() == 1 or self.degree() == 2, "diff only defined for 1d and 2d mparrays"
-        shp = self.shape()
+        shp = self.shape
         if self.degree() == 2:
             result = []
             for r in range(shp[0]):
@@ -1297,7 +1298,7 @@ class mparray:
     # if left = False => right rotation
     def rotate(self, left = True):
         assert self.degree() == 2, "can only rotate 2d mparrays"
-        shp = self.shape()
+        shp = self.shape
         n = shp[0]
         m = shp[1]
         res = []
@@ -1372,7 +1373,7 @@ class mparray:
     def euclidean_norm(self):
         sum = 0
         array = self.flatten()
-        for i in range(array.shape()[0]):
+        for i in range(array.shape[0]):
             sum += array[i] ** 2
         return math.sqrt(sum)
         
@@ -1385,14 +1386,14 @@ class mparray:
             return min(self.a)
         elif axis == 0:
             result = []
-            for i in range(0, self.shape()[0]):
+            for i in range(0, self.shape[0]):
                 result.append(min(self.a[i]))
             return mparray(result, self.dtype)
         elif axis == 1:
             result = []
-            for c in range(0, self.shape()[1]):
+            for c in range(0, self.shape[1]):
                 tmp = []
-                for r in range(0, self.shape()[0]):
+                for r in range(0, self.shape[0]):
                     tmp.append(self.a[r][c])
                 result.append(min(tmp))
             return mparray(result, self.dtype)
@@ -1405,14 +1406,14 @@ class mparray:
             return max(self.a)
         elif axis == 0:
             result = []
-            for i in range(0, self.shape()[0]):
+            for i in range(0, self.shape[0]):
                 result.append(max(self[i]))
             return mparray(result, self.dtype)
         elif axis == 1:
             result = []
-            for c in range(0, self.shape()[1]):
+            for c in range(0, self.shape[1]):
                 tmp = []
-                for r in range(0, self.shape()[0]):
+                for r in range(0, self.shape[0]):
                     tmp.append(self.a[r][c])
                 result.append(max(tmp))
             return mparray(result, self.dtype)
@@ -1515,7 +1516,7 @@ class mparray:
         
     # calculate covariance matrix    
     def covariance_matrix(dataset, rows = True):
-        shp = dataset.shape()
+        shp = dataset.shape
         if len(shp) != 2:
             raise ValueError("covariance_matrix only defined for 2-dimensional datasets")
         if rows:
@@ -1534,7 +1535,7 @@ class mparray:
         
     # calculate correlation matrix    
     def correlation_matrix(dataset, rows = True):
-        shp = dataset.shape()
+        shp = dataset.shape
         if len(shp) != 2:
             raise ValueError("correlation_matrix only defined for 2-dimensional datasets")
         if rows:
@@ -1553,8 +1554,8 @@ class mparray:
     # meshgrid allows to combine two 1D mparrays x, y to a coordinate
     # system spanned by x and y. It returns 2 2D arrays
     def meshgrid(mpx, mpy):
-        shp1 = mpx.shape()
-        shp2 = mpy.shape()
+        shp1 = mpx.shape
+        shp2 = mpy.shape
         if len(shp1) != 1 or len(shp2) != 1:
             raise ValueError("meshgrid expects 1D arrays as input")
         dim1 = shp1[0]
@@ -2291,6 +2292,7 @@ class Matrix:
         self.dtype = dtype
         
     # get the shape of the matrix, i.e. its numbers of rows and columns
+    @property
     def shape(self):
         return (self.dim1, self.dim2)
         
@@ -2635,7 +2637,7 @@ class Matrix:
     # sets all elements below the specified diag to 0 
     # diag = 0 is the main diagonal        
     def upper_triangle(self, diag = 0):
-        dim1, dim2 = self.shape()
+        dim1, dim2 = self.shape
         res = self.clone()
         max_axis = min(dim1,dim2)
         for r in range(0, dim1):
@@ -2647,7 +2649,7 @@ class Matrix:
     # sets all elements above the specified diag to 0 
     # diag = 0 is the main diagonal        
     def lower_triangle(self, diag = 0):
-        dim1, dim2 = self.shape()
+        dim1, dim2 = self.shape
         res = self.clone()
         max_axis = min(dim1,dim2)
         for r in range(0, dim1):
@@ -2708,7 +2710,7 @@ class Matrix:
     def thomas_algorithm(self, d):
         if not self.is_tridiagonal():
             raise ValueError("thomas algorithm works with tridiagonal matrices only")
-        n, _ = self.shape()
+        n, _ = self.shape
         if len(d) != n:
             raise ValueError("vector must have same length as self.dim1")
         if self.det() == 0:
@@ -2745,7 +2747,7 @@ class Matrix:
     def jacobi_method(self, b, tolerance = 1E-20, max_iter = 100):
         _max_iter = max_iter
         _tolerance = 1E-20
-        n,_ = self.shape()
+        n,_ = self.shape
         if not self.is_square():
             raise ValueError("only square matrices can be used")
         if len(b) != n:
@@ -2775,7 +2777,7 @@ class Matrix:
         
     # get all row vectors at once
     def all_row_vectors(self):
-        shape = self.shape()
+        shape = self.shape
         result = []
         for i in range(0, shape[0]):
             result.append(self.row_vector(i))
@@ -2790,7 +2792,7 @@ class Matrix:
         
     # get all column vectors at once
     def all_column_vectors(self):
-        shape = self.shape()
+        shape = self.shape
         result = []
         for j in range(0, shape[1]):
             result.append(self.column_vector(j))
@@ -2816,7 +2818,7 @@ class Matrix:
     # ... 
     # diag must exist, otherwise a ValueError is thrown
     def diagonal(self, diag = 0):
-        dim1, dim2 = self.shape()
+        dim1, dim2 = self.shape
         max_diag = min(dim1, dim2)-1
         if (abs(diag) > max_diag):
             raise ValueError("diag must be in [" + str(-max_diag) + "," + str(max_diag) + "]")
@@ -2845,7 +2847,7 @@ class Matrix:
         else:
             m = self.clone()
             
-        dim1, dim2 = self.shape()
+        dim1, dim2 = self.shape
         max_diag = min(dim1, dim2)-1
         if (abs(diag) > max_diag):
             raise ValueError("diag must be in [" + str(-max_diag) + "," + str(max_diag) + "]")
@@ -2859,7 +2861,7 @@ class Matrix:
     def is_tridiagonal(self):
         if not self.is_square():
             raise ValueError("is_tridiagonal only defined for square matrices")
-        dim1, dim2 = self.shape()
+        dim1, dim2 = self.shape
         for d in range(-dim1+1, dim1):
             n = Array.euclidean_norm(self.diagonal(d))
             if not d in range(-1,2) and n != 0:
@@ -3052,7 +3054,7 @@ class Matrix:
     # calculate exp(t*Matrix)
     def exp(self, t = 1):
         max_expansion = 20
-        shape = self.shape()
+        shape = self.shape
         if shape[0] != shape[1]:
             raise ValueError("exp only defined for square matrices")
         if t == 0:
@@ -3066,7 +3068,7 @@ class Matrix:
     # calculate sin of matrix    
     def sin(self):
         max_expansion = 20
-        shape = self.shape()
+        shape = self.shape
         if shape[0] != shape[1]:
             raise ValueError("sin only defined for square matrices")
         res = Matrix.identity(shape[0])
@@ -3077,7 +3079,7 @@ class Matrix:
     # calculate cosine of matrix 
     def cos(self):
         max_expansion = 20
-        shape = self.shape()
+        shape = self.shape
         if shape[0] != shape[1]:
             raise ValueError("cos only defined for square matrices")
         res = self.clone()
@@ -3356,11 +3358,11 @@ class Matrix:
             elif (len(vec_array) == 0): 
                 raise ValueError("empty argument list")
             else:
-                shape = vec_array[0].shape()
+                shape = vec_array[0].shape
                 m = Matrix(len(vec_array), shape[0])
                 i = 0
                 for vec in vec_array:
-                    v_shape = vec.shape()
+                    v_shape = vec.shape
                     if v_shape != shape or v_shape[1] != True:
                         raise ValueError("vectors must be transposed and share the same shape")    
                     m.m[i] = vec.to_list()
@@ -3381,12 +3383,12 @@ class Matrix:
             elif (len(vec_array) == 0): 
                 raise ValueError("empty argument list")
             else:
-                shape = vec_array[0].shape()
+                shape = vec_array[0].shape
                 m = Matrix(shape[0], len(vec_array))
                 i = 0
                 for col in range(0, len(vec_array)):
                     vec = vec_array[col]
-                    v_shape = vec.shape()
+                    v_shape = vec.shape
                     if v_shape != shape or v_shape[1] != False:
                         raise ValueError("vectors must be transposed and share the same shape")    
                     for j in range(0, v_shape[0]):
@@ -3398,7 +3400,7 @@ class Matrix:
         u = []
         e = []
         a = self.all_column_vectors()
-        shape = self.shape()
+        shape = self.shape
         e = [None for i in range(0, shape[1])]
         u = [None for i in range(0, shape[1])]
         if not shape[1] >= shape[0]:
@@ -3442,7 +3444,7 @@ class Matrix:
         
     # LU decomposition of square matrices using Gaussian decomposition
     def lu_decomposition(self):
-        m, n = self.shape()
+        m, n = self.shape
         if not self.is_square():
             raise ValueError("LU decomposition only defined for square matrices")
     
@@ -3609,7 +3611,7 @@ class Matrix:
     
     # remove a row from self and return result as a new matrix 
     def remove_row(self, i):
-        (dim1, dim2) = self.shape()
+        (dim1, dim2) = self.shape
         if not i in range(0, dim1):
             raise ValueError("row does not exist")
         else:
@@ -3620,7 +3622,7 @@ class Matrix:
             
     # remove a column from self and return result as a new matrix
     def remove_column(self, j):
-        (dim1, dim2) = self.shape()
+        (dim1, dim2) = self.shape
         if not j in range(0, dim2):
             raise ValueError("column does not exist")
         else:
@@ -3676,7 +3678,7 @@ class Matrix:
     # methods to add not transposed  vectors to all or a subset of cols
         
     def add_vector_to_all_rows(self, vector):
-        dim1, dim2 = self.shape()
+        dim1, dim2 = self.shape
         if len(vector) != dim2:
             raise ValueError("size of vector and dim2 do not match")
         elif not vector.is_transposed():
@@ -3690,7 +3692,7 @@ class Matrix:
         
     # rows must be iterable
     def add_vector_to_rows(self, rows, vector):
-        dim1, dim2 = self.shape()
+        dim1, dim2 = self.shape
         if len(vector) != dim2:
             raise ValueError("size of vector and dim2 do not match")
         elif not vector.is_transposed():
@@ -3703,7 +3705,7 @@ class Matrix:
             return result
             
     def add_vector_to_all_columns(self, vector):
-        dim1, dim2 = self.shape()
+        dim1, dim2 = self.shape
         if len(vector) != dim1:
             raise ValueError("size of vector and dim1 do not match")
         elif vector.is_transposed():
@@ -3717,7 +3719,7 @@ class Matrix:
     
     # cols mut be iterable    
     def add_vector_to_columns(self, cols, vector):
-        dim1, dim2 = self.shape()
+        dim1, dim2 = self.shape
         if len(vector) != dim1:
             raise ValueError("size of vector and dim1 do not match")
         elif not vector.is_transposed():
@@ -3758,7 +3760,7 @@ class Matrix:
         return self
         
     def __next__(self):
-        d1, _ = self.shape()
+        d1, _ = self.shape
         if self.row < d1:
             result = self.row_vector(self.row)
             self.row += 1
@@ -3846,6 +3848,7 @@ class Vector:
     # get the number of elements in the vector
     # if vector is transposed => (len(v), True)
     #                    else => (len(v), False)
+    @property
     def shape(self):
         if self.is_transposed():
             return (len(self), True)
@@ -4354,6 +4357,7 @@ class FunctionMatrix:
         return deepcopy(self)
     
     # return own shape
+    @property
     def shape(self):
         return(self.dim1,self.dim2)
         
@@ -4500,7 +4504,7 @@ class FunctionMatrix:
     def __add__(self, other):
         if not isinstance(other, FunctionMatrix):
             raise TypeError("can only add a FunctionMatrix to an FunctionMatrix")
-        if self.shape() != other.shape():
+        if self.shape != other.shape:
             raise ValueError("both matrices must have the same shape")
         o = FunctionMatrix(self.dim1, self.dim2)
         for r in range(0, self.dim1):
@@ -4527,7 +4531,7 @@ class FunctionMatrix:
     # corresponding elements in the regular
     # matrix.
     def apply(self, n):
-        if self.shape() != n.shape():
+        if self.shape != n.shape:
             raise ValueError("n must have the same dimensions like FunctionMatrix")
         result = Matrix(self.dim1, self.dim2)
         for r in range(0, self.dim1):
@@ -5502,7 +5506,7 @@ class ANN:
         # predict output for given input
         def predict(self, input_data):
             # sample dimension first
-            samples = input_data.shape()[0]
+            samples = input_data.shape[0]
             result = []
 
             # run network over all samples
@@ -5517,7 +5521,7 @@ class ANN:
         # train the network
         def fit(self, x_train, y_train, epochs, learning_rate, autostop = False):
             # sample dimension first
-            samples = x_train.shape()[0]
+            samples = x_train.shape[0]
             prev_err = 1
             # training loop
             for i in range(epochs):
@@ -5932,7 +5936,7 @@ class Transfer:
         return mparray(npa.tolist())
         
     def mparray_to_numpy(mpa):
-        shp = tuple(mpa.shape())
+        shp = tuple(mpa.shape)
         npa = np.array(mpa.flatten().to_list())
         return np.reshape(npa, shp)
             
@@ -6058,7 +6062,7 @@ class Transfer:
             header.append(1)
         elif a.dtype == complex:
             header.append(2)
-        shp = a.shape()
+        shp = a.shape
         header.append(len(shp))
         for i in range(len(shp)):
             header.append(shp[i])
@@ -6228,7 +6232,7 @@ class Transfer:
             writer = csv.writer(csvfile, delimiter=',',quoting=csv.QUOTE_NONE)
             if verbose: print("... writing file " + filename + "...")
             if verbose: print()
-            r, c = m.shape()
+            r, c = m.shape
             writer.writerow(Transfer.create_matrix_header(m))
             for i in range(r):
                 row = m.m[i]
