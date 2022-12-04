@@ -945,6 +945,43 @@ class mparray:
         else:
             raise StopIteration
             
+    # clip cuts values so that they fit in the specified interval
+    # _clip_helper support clip
+    def _clip_helper(arr, a_min, a_max, in_situ = False):
+        shp = arr.shape
+        result = []
+        if in_situ:
+            if len(shp) == 1:
+                for i in range(shp[0]):
+                    if arr[i] < a_min:
+                        arr[i] = a_min
+                    elif arr[i] > a_max:
+                        arr[i] = a_max
+            else:
+                for i in range(shp[0]):
+                    mparray._clip_helper(arr[i], a_min, a_max, in_situ)
+        else:
+            if len(shp) == 1:
+                for i in range(shp[0]):
+                    if arr[i] < a_min:
+                        result.append(a_min)
+                    elif arr[i] > a_max:
+                        result.append(a_max)
+                    else:
+                        result.append(arr[i])
+                return result
+            else:
+                for i in range(shp[0]):
+                    result.append(mparray._clip_helper(arr[i], a_min, a_max, in_situ))
+                return result
+                
+    def clip(arr, a_min, a_max, in_situ = False):
+        if in_situ:
+            mparray._clip_helper(arr, a_min, a_max, in_situ)
+        else:
+            return mparray(mparray._clip_helper(arr, a_min, a_max, in_situ), dtype = arr.dtype)
+        
+            
     # check whether a condition holds for at least one element
     # of the mparray
     def any(self, cond):
@@ -5649,7 +5686,7 @@ class ANN:
     
     # loss function and its derivative
     def mse(y_true, y_pred):
-        return ((y_true-y_pred) ** 2).mean();
+        return ((y_true-y_pred) ** 2).mean()
 
     def mse_prime(y_true, y_pred):
         return (y_pred - y_true) * (2 / y_true.size)
