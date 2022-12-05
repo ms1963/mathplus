@@ -4723,6 +4723,67 @@ class Tensor:
         else:
             raise ValueError("tensor product not compatible with type " + str(type(other)))
 
+    def mult(t1, t2):
+        return Tensor(kmult_helper(t1.mpa.a, t2.mpa.a), dtype = t1.dtype)
+        
+        
+    def kmult_helper(l1, l2):
+        def apply(l, lambda_f):
+            shp = Array.shape(l)
+            if len(shp) == 1:
+                result = []
+                for i in range(shp[0]):
+                    result.append(lambda_f(l[i]))
+                return result
+            else:
+                result = []
+                for i in range(shp[0]):
+                    result.append(apply(l[i], lambda_f))
+                return result
+        if (isinstance(l1,int) or isinstance(l1,float) or isinstance(l1, complex)) and (isinstance(l2, int) or isinstance(l2, float) or isinstance(l2, complex)):
+            return l1 * l2 
+        elif isinstance(l1, int) or isinstance(l1,float) or isinstance(l1, complex):
+            return apply(l2, lambda x: x * l1)
+        elif isinstance(l2, int) or isinstance(l2, float) or isinstance(l2, complex):
+            return apply(l1, lambda x: x * l2)
+        
+        shp1 = Array.shape(l1)
+        shp2 = Array.shape(l2)
+        ndim1 = len(shp1)
+        ndim2 = len(shp2)
+        if ndim1 == 1 and ndim2 == 1:
+            result = []
+            for i in range(shp1[0]):
+                row = []
+                for j in range(shp2[0]):
+                    row.append(l1[i] * l2[j])
+                result.append(row)
+            return result
+        elif ndim1 == 1 and ndim2 == 2:
+            result = []
+            for i in range(shp1[0]):            
+                result.append(kmult_helper(l1[i], l2))
+            return result
+        elif ndim1 == 2 and ndim2 == 1:
+            result = [] 
+            for i in range(shp1[0]):
+                row = []
+                for j in range(shp1[1]):
+                    row.append(kmult_helper(l1[i][j],l2))
+                result.append(row)               
+            return result
+        elif ndim1 == 2 and ndim2 == 2:
+            result = Array.create_2Darray(shp1[0], shp1[1])
+            for i in range(shp1[0]):
+                for j in range(shp1[1]):
+                    result[i][j] = kmult_helper(l1[i][j], l2)
+            return result
+        elif ndim1 >= 1:
+            result = []
+            for i in range(shp1[0]):
+                result.append(kmult_helper(l1[i], l2))
+            return result
+
     def _eq_helper(mpa1, mpa2):
         if len(mpa1.shape) == 1:
             for i in range(mpa1.shape[0]):
