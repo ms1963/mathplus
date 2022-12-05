@@ -442,7 +442,6 @@ class mparray:
         a = mparray._initializer(shp, init_value = init_value, dtype = dtype)
         return mparray(a, dtype)
         
-        
     def ones(shp, dtype = float):
         return mparray.filled_array(shp, init_value = 1, dtype = dtype)
         
@@ -517,6 +516,8 @@ class mparray:
             
     # create a new mparray using shp as shape
     def _initializer(shp, init_value = 0, dtype = float):
+        if not isinstance(shp, tuple) and not isinstance(shp,list):
+            raise ValueError("first argument must be a list or a tuple, not a " + str(type(shp)))
         if len(shp) == 1:
             a = []
             for i in range(shp[0]):
@@ -525,11 +526,11 @@ class mparray:
                 else:
                     a.append(dtype(init_value))
             return a
-        else: # len(dims) > 0
+        else: # len(shp) > 0
             a = []
             newshp = list(copy(shp))
             newshp.pop(0)
-            newshp = list(newshp)
+            newshp = tuple(newshp)
             for i in range(shp[0]):
                 a.append(mparray._initializer(newshp, init_value, dtype))
             return a
@@ -4606,12 +4607,12 @@ class Tensor:
     # created
     def apply(self, lambda_f, in_situ = False):
         if in_situ:
-            Tensor._apply_helper(lambda_f, self.mpa.a, in_situ)
+            Tensor._apply_helper(self.mpa.a, lambda_f, in_situ)
             return self
         else:
-            return Tensor(mparray(Tensor._apply_helper(lambda_f, self.mpa.a, in_situ)))
+            return Tensor(mparray(Tensor._apply_helper(self.mpa.a, lambda_f, in_situ)))
                     
-    def _apply_helper(lambda_f, lst, in_situ):
+    def _apply_helper(lst, lambda_f,  in_situ):
         shp = Array.shape(lst)
         if in_situ: 
             if len(shp) == 1:
@@ -4619,7 +4620,7 @@ class Tensor:
                     lst[i] = lambda_f(lst[i])
             else:
                 for i in range(shp[0]):
-                    Tensor._apply_helper(lambda_f, lst[i], in_situ)
+                    Tensor._apply_helper(lst[i], lambda_f, in_situ)
         else:
             if len(shp) == 1:
                 lst_new = []
@@ -4629,60 +4630,60 @@ class Tensor:
             else:
                 lst_new = []
                 for i in range(shp[0]):
-                    lst_new.append(Tensor._apply_helper(lambda_f, lst[i], in_situ))
+                    lst_new.append(Tensor._apply_helper(lst[i], lambda_f, in_situ))
                 return lst_new
             
-    def _apply(lambda_f, mpa, mpa1, mpa2):
+    def _apply(mpa, mpa1, mpa2, lambda_f):
         shp = mpa.shape
         if len(shp) == 1:
             for i in range(shp[0]):
                 mpa[i] = lambda_f(mpa1[i],mpa2[i])
         else:
             for i in range(shp[0]):
-                Tensor._apply(lambda_f, mpa[i], mpa1[i], mpa2[i])
+                Tensor._apply(mpa[i], mpa1[i], mpa2[i], lambda_f)
                 
-    def _apply_single(lambda_f, mpa, mpa1):
+    def _apply_single(mpa, mpa1, lambda_f):
         shp = mpa.shape
         if len(shp) == 1:
             for i in range(shp[0]):
                 mpa[i] = lambda_f(mpa1[i])
         else:
             for i in range(shp[0]):
-                Tensor._apply_single(lambda_f, mpa[i], mpa1[i])
+                Tensor._apply_single(mpa[i], mpa1[i], lambda_f)
                 
-    def _apply_const(lambda_f, mpa):
+    def _apply_const(mpa, lambda_f):
         shp = mpa.shape
         if len(shp) == 1:
             for i in range(shp[0]):
                 mpa[i] = lambda_f(mpa[i])
         else:
             for i in range(shp[0]):
-                Tensor._apply_const(lambda_f, mpa[i])
+                Tensor._apply_const(mpa[i], lambda_f)
         
     def __add__(self, other):
         if self.shape != other.shape:
             raise ValueError("only tensors with same shape can be added")
         mpa = mparray.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
-        Tensor._apply(lambda x,y: x+y, mpa, self.mpa, other.mpa)
+        Tensor._apply(mpa, self.mpa, other.mpa, lambda x,y: x+y)
         return Tensor(mpa)
         
     def __sub__(self, other):
         if self.shape != other.shape:
             raise ValueError("only tensors with same shape can be subtracted")
         mpa = mparray.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
-        Tensor._apply(lambda x,y: x-y, mpa, self.mpa, other.mpa)
+        Tensor._apply(mpa, self.mpa, other.mpa, lambda x,y: x-y)
         return Tensor(mpa)
         
     def __mul__(self, other):
         if isinstance(other, int) or isinstance(other, float) or isinstance(other, complex):
             mpa = deepcopy(self.mpa)
-            Tensor._apply_const(lambda x: x * other, mpa)
+            Tensor._apply_const(mpa, lambda x: x * other)
             return Tensor(mpa)
         elif isinstance(other, Tensor):
             if self.shape != other.shape:
                 raise ValueError("only tensors with same shape can be multiplied")
             mpa = mparray.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
-            Tensor._apply(lambda x,y: x*y, mpa, self.mpa, other.mpa)
+            Tensor._apply(mpa, self.mpa, other.mpa, lambda x,y: x*y)
             return Tensor(mpa)
         elif isinstance(other, list):
             return self * Tensor(mparray(other))
@@ -4695,7 +4696,7 @@ class Tensor:
         if self.shape != other.shape:
             raise ValueError("only tensors with same shape can be divided")
         mpa = mparray.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
-        Tensor._apply(lambda x,y: x/y, mpa, self.mpa, other.mpa)
+        Tensor._apply(mpa, self.mpa, other.mpa, lambda x,y: x/y)
         return Tensor(mpa)
         
     def mult(t1,t2): 
