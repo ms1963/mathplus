@@ -411,6 +411,14 @@ class mparray:
         self.dtype = dtype 
         self.ndim = len(self.shape)
         
+    @property
+    def count(self):
+        shp = self.shape
+        prod = 1
+        for i in range(len(shp)):
+            prod *= shp[i]
+        return prod
+        
     # creates a multidimensional array using a list
     def create_multidim_array(dims, lst, dtype = float):
         tmp = lst
@@ -777,7 +785,7 @@ class mparray:
                 else: return False
             return True
             
-  # allclose checks for two array whether their elements are equal
+    # allclose checks for two array whether their elements are equal
     # within a tolerance. It returns whether all elements were 
     # considered equal (True) ao at least one element was considered
     # not equal
@@ -1708,6 +1716,14 @@ class Array:
                     result.append(-1)
             return result
         
+    # count elements of list/array
+    def count(array):
+        shp = Array.shape(array)
+        prod = 1
+        for i in range(len(shp)):
+            prod *= shp[i]
+        return prod 
+        
     # this function does delegate to reduce() 
     # the lmbda is applied to all elements of 
     # array with init_val being the aggregator
@@ -2415,8 +2431,10 @@ class Matrix:
     def shape(self):
         return (self.dim1, self.dim2)
         
+        
     # returns the total number of elements in matrix
-    def size(self):
+    @property
+    def count(self):
         return self.dim1 * self.dim2
         
     # tr() denotes the trace of a matrix which is the elements
@@ -4055,7 +4073,8 @@ class Vector:
             return (len(self), False)
     
     # returns number of elements in vector (same as len(vector))        
-    def size(self):
+    @property    
+    def count(self):
         return len(self)
         
     # change format string. used by __str__            
@@ -4551,6 +4570,17 @@ class Tensor:
     @property
     def ndim(self):
         return len(self.mpa.shape)
+        
+    @property
+    def count(self):
+        shp = self.shape
+        prod = 1
+        for i in range(len(shp)):
+            prod *= shp[i]
+        return prod
+        
+    def clone(self):
+        return deepcopy(self)
         
     def __str__(self):
         return "tensor" + str(self.mpa)
@@ -5919,7 +5949,7 @@ class ANN:
         return ((y_true-y_pred) ** 2).mean()
 
     def mse_prime(y_true, y_pred):
-        return (y_pred - y_true) * (2 / y_true.size)
+        return (y_pred - y_true) * (2 / y_true.count)
     
     class Network:
         def __init__(self):
