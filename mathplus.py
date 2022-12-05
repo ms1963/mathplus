@@ -1912,11 +1912,11 @@ class Array:
         return mparray.correlation_matrix(marray, rows)
     
     # method to analyze the shape of a list or other sequence
-    def shape_analyzer(a, shp = ()):
+    def shape_analyzer(a, shp = tuple()):
         def all(a, lambda_f):
             result = True
             for i in range(len(a)):
-                result = result and a[i]
+                result = result and lambda_f(a[i])
             return result
         if not isinstance(a, Sequence):
             return shp
@@ -4608,7 +4608,6 @@ class Tensor:
     def apply(self, lambda_f, in_situ = False):
         if in_situ:
             Tensor._apply_helper(self.mpa.a, lambda_f, in_situ)
-            return self
         else:
             return Tensor(mparray(Tensor._apply_helper(self.mpa.a, lambda_f, in_situ)))
                     
