@@ -1914,20 +1914,18 @@ class Array:
     # method to analyze the shape of a list or other sequence
     def shape_analyzer(a):
         def all(a, lambda_f):
-            result = True
             for i in range(len(a)):
-                result = result and lambda_f(a[i])
-            return result
-        if not isinstance(a, Sequence):
-            return tuple()
-        elif not isinstance(a[0], list):
-            return (len(a),)
-        else: # isinstance(a[0], Sequence):
+                if not lambda_f(a[i]): return False
+            return True
+            
+        if isinstance(a[0], list):
             a0len = len(a[0])
             if not all(a, lambda x: a0len == len(x)):
                 raise ValueError("irregular sequence")
             else:
                 return (len(a),) + Array.shape_analyzer(a[0])
+        else:
+            return (len(a),)
         
     # just a wrapper for shape_analyzer
     def shape(a):
