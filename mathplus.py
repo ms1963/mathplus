@@ -144,6 +144,17 @@ class Common:
             a,b = b,a%b
         return a
         
+    # the kronecker delta is defined over fields, rings,  
+    # groups. elem0 is the 0-element of the domain, 
+    # elem1 is the 1-element.
+    # x == y => delta(x,y) <- elem1
+    # x != y => delta(x,y) <- elem0
+    def kronecker_delta(x, y, elem0 = 0, elem1 = 1):
+        if x == y:
+            return elem1
+        else:
+            return elem0
+        
     # calculate gcd for multiple numbers
     def gcdmult(args):
         if len(args) == 1:
