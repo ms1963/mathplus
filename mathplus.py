@@ -4703,6 +4703,32 @@ class Tensor:
     # delegates to corresponding access pattern for moparrays
     def __setitem__(self, arg, cont):
         self.mpa.__setitem__(arg, cont)
+        
+    # returns the Tensor as a list 
+    def to_list(self):
+        return deepcopy(self.mpa.to_list())
+        
+    def to_mparray(self):
+        return deepcopy(self.mpa)
+        
+    # turns a 2-dimensional tensor into a matrix
+    def asmatrix(self):
+        if self.ndim != 2:
+            raise ValueError("cannot convert a Tensor with " + str(self.ndim) + " dimensions to a matrix")
+        else:
+            lst = deepcopy(self.mpa.to_list())
+            return Matrix.from_list(lst, dtype = self.dtype)
+            
+    # turns a 1-dimensional tensor to a vector
+    def asvector(self):
+        if self.ndim != 1:
+            raise ValueError("cannot convert a Tensor with " + str(self.ndim) + " dimensions to a vector")
+        else:
+            lst = deepcopy(self.mpa.to_list())
+            return Vector.from_list(lst, dtype = self.dtype)
+            
+            
+            
            
         
         
