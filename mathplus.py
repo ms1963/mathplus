@@ -1912,21 +1912,22 @@ class Array:
         return mparray.correlation_matrix(marray, rows)
     
     # method to analyze the shape of a list or other sequence
-    def shape_analyzer(a, shp = tuple()):
+    def shape_analyzer(a):
         def all(a, lambda_f):
             result = True
             for i in range(len(a)):
                 result = result and lambda_f(a[i])
             return result
         if not isinstance(a, Sequence):
-            return shp
-        if isinstance(a[0], Sequence):
+            return tuple()
+        elif not isinstance(a[0], list):
+            return (len(a),)
+        else: # isinstance(a[0], Sequence):
             a0len = len(a[0])
             if not all(a, lambda x: a0len == len(x)):
                 raise ValueError("irregular sequence")
-        shp += (len(a),)
-        shp = Array.shape_analyzer(a[0], shp)
-        return shp
+            else:
+                return (len(a),) + Array.shape_analyzer(a[0])
         
     # just a wrapper for shape_analyzer
     def shape(a):
