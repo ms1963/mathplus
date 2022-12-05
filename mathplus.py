@@ -527,7 +527,7 @@ class mparray:
                 else:
                     a.append(dtype(random.uniform(fromvalue, tovalue)))
             return a
-        else: # len(dims) > 0
+        else: # len(dims) > 1
             a = []
             newshp = list(copy(dims))
             newshp.pop(0)
@@ -4092,7 +4092,6 @@ class Vector:
     def __repr__(self):
         return str(self)
     
-    
     # vector transposition        
     @property
     def T(self):
@@ -4527,6 +4526,160 @@ class Vector:
             if lambda_f(self.v[i]):
                 res.append(i)
         return res
+        
+#################################################
+################## class Tensor #################
+################################################# 
+# This is a highly experimental Tensor implementation.
+# with very limited functionality.
+# It will grow in the future.
+class Tensor:
+    def __init__(self, arr, dtype = float):
+        if isinstance(arr , list):
+            self.mpa = mparray(arr)
+            self.dtype = type(arr[0])
+        elif isinstance(arr, mparray):
+            self.mpa = arr
+            self.dtype = arr.dtype
+        else:
+            raise ValueError("tensor __init__ requires a list or an mparray as initializer")
+        
+    @property
+    def shape(self):
+        return self.mpa.shape
+        
+    @property
+    def ndim(self):
+        return len(self.mpa.shape)
+        
+    def __str__(self):
+        return "tensor" + str(self.mpa)
+        
+    def filled_tensor(shp, init_value = 0, dtype = float):
+        mpa = mparray.filled_array(shp, init_value, dtype)
+        return Tensor(mpa)
+        
+    def _apply(lambda_f, mpa, mpa1, mpa2):
+        shp = mpa.shape
+        if len(shp) == 1:
+            for i in range(shp[0]):
+                mpa[i] = lambda_f(mpa1[i],mpa2[i])
+        else:
+            for i in range(shp[0]):
+                Tensor._apply(lambda_f, mpa[i], mpa1[i], mpa2[i])
+                
+    def _apply_single(lambda_f, mpa, mpa1):
+        shp = mpa.shape
+        if len(shp) == 1:
+            for i in range(shp[0]):
+                mpa[i] = lambda_f(mpa1[i])
+        else:
+            for i in range(shp[0]):
+                Tensor._apply_single(lambda_f, mpa[i], mpa1[i])
+        
+    def __add__(self, other):
+        if self.shape != other.shape:
+            raise ValueError("only tensors with same shape can be added")
+        mpa = mparray.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
+        Tensor._apply(lambda x,y: x+y, mpa, self.mpa, other.mpa)
+        return Tensor(mpa)
+        
+    def __sub__(self, other):
+        if self.shape != other.shape:
+            raise ValueError("only tensors with same shape can be subtracted")
+        mpa = mparray.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
+        Tensor._apply(lambda x,y: x-y, mpa, self.mpa, other.mpa)
+        return Tensor(mpa)
+        
+    def __mul__(self, other):
+        if self.shape != other.shape:
+            raise ValueError("only tensors with same shape can be multiplied")
+        mpa = mparray.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
+        Tensor._apply(lambda x,y: x*y, mpa, self.mpa, other.mpa)
+        return Tensor(mpa)
+        
+    def __truediv__(self, other):
+        if self.shape != other.shape:
+            raise ValueError("only tensors with same shape can be divided")
+        mpa = mparray.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
+        Tensor._apply(lambda x,y: x/y, mpa, self.mpa, other.mpa)
+        return Tensor(mpa)
+        
+    def mult(t1,t2): 
+        t1a = t1.flatten()
+        t2b = t2.flatten()
+        shp1a = t1a.shape
+        shp2b = t2b.shape
+        newshp= shp1a + shp2b
+        result = []
+        for i in range(shp1a[0]):
+            for j in range(shp2b[0]):
+                result.append(t1a.mpa[i] * t2b.mpa[j])
+        return Tensor(mparray(result, t1.dtype).reshape(newshp))
+        
+    def __matmul__(self, other):
+        if isinstance(other, float) or isinstance(other, complex) or isinstance(other, int):
+            t = deepcopy(self)
+            Tensor._apply_single(lambda x: x * other, t.mpa, self.mpa)
+            return t
+        elif isinstance(other, Tensor):
+            return Tensor.mult(self, other)
+        else:
+            raise ValueError("tensor product not compatible with type " + str(type(other)))
+
+    def _eq_helper(mpa1, mpa2):
+        if len(mpa1.shape) == 1:
+            for i in range(mpa1.shape[0]):
+                if mpa1[i] != mpa2[i]:
+                    return False
+            return True
+        else:
+            for i in range(mpa1.shape[0]):
+                if Tensor._eq_helper(mpa1[i], mpa2[i]):
+                    continue
+                else: 
+                    return False
+            return True
+    
+    # checks two tensors for equality        
+    def __eq__(self, other):
+        shp1 = self.shape
+        shp2 = other.shape
+        if shp1 != shp2:
+            return False
+        else:
+            return Tensor._eq_helper(self.mpa, other.mpa)
+                        
+    def __ne__(self, other):
+        return not self == other
+        
+    def reshape(self, shp):
+        t = deepcopy(self)
+        t.mpa = t.mpa.reshape(shp)
+        return t
+        
+    def flatten(self):
+        t = deepcopy(self)
+        t.mpa = self.mpa.flatten()
+        return t
+        
+    def random_tensor(shp, fromvalue=0, tovalue=1, seed_value = 0, dtype=float):
+        mpa = mparray.random_array(shp, fromvalue, tovalue, seed_value, dtype)
+        return Tensor(mpa)
+        
+    # checks whether addressed element is a scalar and returns that scalar
+    # Otherwise, it returns an mparray object
+    def __getitem__(self, arg):
+        tmp = self.mpa.__getitem__(arg)
+        if not isinstance(tmp, list):
+            return tmp
+        else:
+            return mparray.from_list(tmp)
+        
+    # delegates to corresponding access pattern for moparrays
+    def __setitem__(self, arg, cont):
+        self.mpa.__setitem__(arg, cont)
+           
         
         
 #################################################
