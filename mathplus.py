@@ -4559,6 +4559,38 @@ class Tensor:
         mpa = mparray.filled_array(shp, init_value, dtype)
         return Tensor(mpa)
         
+    # apply a function on everey element of the tensor
+    # if in_situ == True, all modifications will be made
+    # to the tensor itself. Otherwise a new tensor is 
+    # created
+    def apply(self, lambda_f, in_situ = False):
+        if in_situ:
+            Tensor._apply_helper(lambda_f, self.mpa.a, in_situ)
+            return self
+        else:
+            return Tensor(mparray(Tensor._apply_helper(lambda_f, self.mpa.a, in_situ)))
+                    
+    def _apply_helper(lambda_f, lst, in_situ):
+        shp = Array.shape(lst)
+        if in_situ: 
+            if len(shp) == 1:
+                for i in range(shp[0]):
+                    lst[i] = lambda_f(lst[i])
+            else:
+                for i in range(shp[0]):
+                    Tensor._apply_helper(lambda_f, lst[i], in_situ)
+        else:
+            if len(shp) == 1:
+                lst_new = []
+                for i in range(shp[0]):
+                    lst_new.append(lambda_f(lst[i]))
+                return lst_new
+            else:
+                lst_new = []
+                for i in range(shp[0]):
+                    lst_new.append(Tensor._apply_helper(lambda_f, lst[i], in_situ))
+                return lst_new
+            
     def _apply(lambda_f, mpa, mpa1, mpa2):
         shp = mpa.shape
         if len(shp) == 1:
@@ -4726,11 +4758,6 @@ class Tensor:
         else:
             lst = deepcopy(self.mpa.to_list())
             return Vector.from_list(lst, dtype = self.dtype)
-            
-            
-            
-           
-        
         
 #################################################
 ############## class FunctionMatrix #############
