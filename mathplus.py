@@ -4576,6 +4576,16 @@ class Tensor:
         else:
             for i in range(shp[0]):
                 Tensor._apply_single(lambda_f, mpa[i], mpa1[i])
+                
+    def _apply_const(lambda_f, mpa):
+        shp = mpa.shape
+        if len(shp) == 1:
+            for i in range(shp[0]):
+                mpa[i] = lambda_f(mpa[i])
+        else:
+            for i in range(shp[0]):
+                Tensor._apply_const(lambda_f, mpa[i])
+        
         
     def __add__(self, other):
         if self.shape != other.shape:
@@ -4592,11 +4602,18 @@ class Tensor:
         return Tensor(mpa)
         
     def __mul__(self, other):
-        if self.shape != other.shape:
-            raise ValueError("only tensors with same shape can be multiplied")
-        mpa = mparray.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
-        Tensor._apply(lambda x,y: x*y, mpa, self.mpa, other.mpa)
-        return Tensor(mpa)
+        if isinstance(other, int) or isinstance(other, float) or isinstance(other, complex):
+            mpa = deepcopy(self.mpa)
+            Tensor._apply_const(lambda x: x * other, mpa)
+            return Tensor(mpa)
+        elif isinstance(other, Tensor):
+            if self.shape != other.shape:
+                raise ValueError("only tensors with same shape can be multiplied")
+            mpa = mparray.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
+            Tensor._apply(lambda x,y: x*y, mpa, self.mpa, other.mpa)
+            return Tensor(mpa)
+        else:
+            raise ValueError("cannot multiply a tensor with a " + str(type(other)))
         
     def __truediv__(self, other):
         if self.shape != other.shape:
@@ -4620,8 +4637,8 @@ class Tensor:
     def __matmul__(self, other):
         if isinstance(other, float) or isinstance(other, complex) or isinstance(other, int):
             t = deepcopy(self)
-            Tensor._apply_single(lambda x: x * other, t.mpa, self.mpa)
-            return t
+            Tensor._apply_const(lambda x: x * other, t.mpa)
+            return 
         elif isinstance(other, Tensor):
             return Tensor.mult(self, other)
         else:
