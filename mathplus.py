@@ -6460,8 +6460,9 @@ class Transfer:
     # of the matrix. 
 
                 
-    def create_mparray_header(a):
+    def create_tensor_header(a):
         header = ["#"]
+        header.append("tensor")
         if a.dtype == int:
             header.append(0)
         elif a.dtype == float:
@@ -6476,6 +6477,7 @@ class Transfer:
         
     def create_vector_header(v):
         header = ["#"]
+        header.append("vector")
         if v.dtype == int:
             header.append(0)
         elif v.dtype == float:
@@ -6487,9 +6489,25 @@ class Transfer:
         else:
             header.append(0)
         return header
+        
+    def create_mparray_header(a):
+        header = ["#"]
+        header.append("mparray")
+        if a.dtype == int:
+            header.append(0)
+        elif a.dtype == float:
+            header.append(1)
+        elif a.dtype == complex:
+            header.append(2)
+        shp = a.shape
+        header.append(len(shp))
+        for i in range(len(shp)):
+            header.append(shp[i])
+        return header
             
     def create_matrix_header(m):
         header = ["#"]
+        header.append("matrix")
         if m.dtype == int:
             header.append(0)
         elif m.dtype == float:
@@ -6498,43 +6516,65 @@ class Transfer:
             header.append(2)
         else: header.append(42)
         return header
-          
+              
+    def map_tensor_header(row):
+        dtype = None
+        shp = [] 
+        if row[1] != "tensor":
+            raise ValueError("file does not contain a tensor but a " + str(row[1]))
+        if int(row[2]) == 0:
+            dtype = int
+        elif int(row[2]) == 1:
+            dtype = float
+        elif int(row[2]) == 2:
+            dtype = complex
+        len_shp = int(row[3])
+        for i in range(len_shp):
+            shp.append(int(row[i+4]))
+        return (dtype, shp)
+        
     def map_mparray_header(row):
         dtype = None
         shp = [] 
-        if int(row[1]) == 0:
+        if row[1] != "mparray":
+            raise ValueError("file does not contain a mparray but a " + str(row[1]))
+        if int(row[2]) == 0:
             dtype = int
-        elif int(row[1]) == 1:
+        elif int(row[2]) == 1:
             dtype = float
-        elif int(row[1]) == 2:
+        elif int(row[2]) == 2:
             dtype = complex
-        len_shp = int(row[2])
+        len_shp = int(row[3])
         for i in range(len_shp):
-            shp.append(int(row[i+3]))
+            shp.append(int(row[i+4]))
         return (dtype, shp)
         
     def map_vector_header(row):
         trans = None
         dtype = None
-        if int(row[1]) == 0:
-            dtype = int
-        elif int(row[1]) == 1:
-            dtype = float
-        elif row[1] == 2:
-            dtype = complex
+        if row[1] != "vector":
+            raise ValueError("file does not contain a vector but a " + str(row[1]))
         if int(row[2]) == 0:
-            trans = False
+            dtype = int
         elif int(row[2]) == 1:
+            dtype = float
+        elif row[2] == 2:
+            dtype = complex
+        if int(row[3]) == 0:
+            trans = False
+        elif int(row[3]) == 1:
             trans = True          
         return (dtype, trans)
     
     def map_matrix_header(row):
         dtype = None
-        if int(row[1]) == 0:
+        if row[1] != "matrix":
+            raise ValueError("file does not contain a matrix but a " + str(row[1]))
+        if int(row[2]) == 0:
             dtype = int
-        elif int(row[1]) == 1:
+        elif int(row[2]) == 1:
             dtype = float
-        elif row[1] == 2:
+        elif row[2] == 2:
             dtype = complex
         return dtype
             
@@ -6643,3 +6683,39 @@ class Transfer:
             for i in range(r):
                 row = m.m[i]
                 writer.writerow(row)
+                
+    def readTensorFromCSV(filename, verbose = False):
+        csv.register_dialect('excel', delimiter=',', quoting=csv.QUOTE_NONE)
+        counter = 0
+        array = []
+        shp   = None
+        dtype = None
+        
+        with open(filename, newline='') as f:
+            try: 
+                reader = csv.reader(f, delimiter=",", quoting=csv.QUOTE_NONE)
+                if verbose: print("... reading file " + filename + " ...")
+                if verbose: print()
+                counter = 0
+                for row in reader:
+                    if row[0] == "#": 
+                        (dtype, shp) = Transfer.map_tensor_header(row)
+                        continue
+                    if counter > 1:
+                        raise ValueError("more than one row in file: this cannot be a flattened tensor")
+                    array_row = []
+                    for num in row:
+                        array.append(dtype(num))
+            except csv.Error as e:
+                print('file {}, line {}: {}'.format(filename, reader.line_num, e))
+        t = Tensor(mparray(array, dtype).reshape(shp))
+        return t
+
+    def writeTensorToCSV(a, filename, verbose = False):
+        with open(filename, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',',quoting=csv.QUOTE_NONE)
+            lst = a.flatten().to_list()
+            if verbose: print("... writing file " + filename + "...")
+            if verbose: print()
+            writer.writerow(Transfer.create_tensor_header(a))
+            writer.writerow(lst)                
