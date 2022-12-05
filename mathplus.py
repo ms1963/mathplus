@@ -499,7 +499,7 @@ class mparray:
             raise ValueError("mparray.column() requires a 2-dimensonal mparray")
         if not col in range(0, shp[1]):
             raise ValueError("index (col) out of range")
-        cvec = mparray.filled_array([shp[0]], dtype = self.dtype)
+        cvec = mparray.filled_array((shp[0],), dtype = self.dtype)
         for i in range(shp[0]):
             cvec[i] = self[i][col]  
         return cvec
@@ -549,7 +549,7 @@ class mparray:
             return a
         else: # len(dims) > 1
             a = []
-            newshp = list(copy(dims))
+            newshp = [copy(dims)]
             newshp.pop(0)
             newshp = tuple(newshp)
             for i in range(dims[0]):
