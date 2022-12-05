@@ -4586,7 +4586,6 @@ class Tensor:
             for i in range(shp[0]):
                 Tensor._apply_const(lambda_f, mpa[i])
         
-        
     def __add__(self, other):
         if self.shape != other.shape:
             raise ValueError("only tensors with same shape can be added")
@@ -4612,6 +4611,10 @@ class Tensor:
             mpa = mparray.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
             Tensor._apply(lambda x,y: x*y, mpa, self.mpa, other.mpa)
             return Tensor(mpa)
+        elif isinstance(other, list):
+            return self * Tensor(mparray(other))
+        elif isinstance(other, mparray):
+            return self * Tensor(other)
         else:
             raise ValueError("cannot multiply a tensor with a " + str(type(other)))
         
@@ -4636,11 +4639,15 @@ class Tensor:
         
     def __matmul__(self, other):
         if isinstance(other, float) or isinstance(other, complex) or isinstance(other, int):
-            t = deepcopy(self)
-            Tensor._apply_const(lambda x: x * other, t.mpa)
-            return 
+            mpa = deepcopy(self.mpa)
+            Tensor._apply_const(lambda x: x * other, mpa)
+            return Tensor(mpa)
         elif isinstance(other, Tensor):
             return Tensor.mult(self, other)
+        elif instance(other, list):
+            return self * Tensor(mparray(lst))
+        elif isinstance(other, mparray):
+            return self * Tensor(other)
         else:
             raise ValueError("tensor product not compatible with type " + str(type(other)))
 
