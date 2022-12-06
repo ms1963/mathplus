@@ -375,6 +375,33 @@ class Common:
     def gauss(n):
         return n//2 if n % 2 == 0 else (n - 1)//2
         
+    # compute continued_fraction expects a list with 
+    # coefficients b0, b1, ..., bn which represents the  
+    # number b0 + 1 / (b1 + 1 / (b2 + 1 / ....)))) 
+    # and calculates its value
+    def compute_continued_fraction(arr):
+        tmp = deepcopy(arr)
+        l = len(tmp)
+        if l == 0:
+            return None
+        elif l == 1:
+            return tmp[0]
+        elif l == 2:
+            return tmp[0] + 1 / tmp[1]
+        else:
+            tmp.pop(0)
+            return arr[0] + 1 / Common.compute_continued_fraction(tmp)
+            
+    # create continued fraction expects a number 
+    # and calculates its continued fraction
+    def create_continued_fraction(n, d):
+        a = []
+        while d:
+            a.append(n // d)
+            n, d = d, n % d
+        return a
+           
+    
     # print for matrices
     def print_matrix(m):   
         for r in range(0, m.dim1):
