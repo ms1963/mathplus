@@ -4723,7 +4723,7 @@ class Tensor:
         else:
             raise ValueError("tensor product not compatible with type " + str(type(other)))
 
-    def mult(t1, t2):
+    def kmult(t1, t2):
         return Tensor(kmult_helper(t1.mpa.a, t2.mpa.a), dtype = t1.dtype)
         
         
@@ -4762,26 +4762,26 @@ class Tensor:
         elif ndim1 == 1 and ndim2 == 2:
             result = []
             for i in range(shp1[0]):            
-                result.append(kmult_helper(l1[i], l2))
+                result.append(Tensor.kmult_helper(l1[i], l2))
             return result
         elif ndim1 == 2 and ndim2 == 1:
             result = [] 
             for i in range(shp1[0]):
                 row = []
                 for j in range(shp1[1]):
-                    row.append(kmult_helper(l1[i][j],l2))
+                    row.append(Tensor.kmult_helper(l1[i][j],l2))
                 result.append(row)               
             return result
         elif ndim1 == 2 and ndim2 == 2:
             result = Array.create_2Darray(shp1[0], shp1[1])
             for i in range(shp1[0]):
                 for j in range(shp1[1]):
-                    result[i][j] = kmult_helper(l1[i][j], l2)
+                    result[i][j] = Tensor.kmult_helper(l1[i][j], l2)
             return result
         elif ndim1 >= 1:
             result = []
             for i in range(shp1[0]):
-                result.append(kmult_helper(l1[i], l2))
+                result.append(Tensor.kmult_helper(l1[i], l2))
             return result
 
     def _eq_helper(mpa1, mpa2):
@@ -6473,6 +6473,36 @@ class Transfer:
         shp = tuple(mpa.shape)
         npa = np.array(mpa.flatten().to_list())
         return np.reshape(npa, shp)
+        
+    # Conversion routines to and from
+    # json 
+    def matrix_to_json(m):
+        return json.dumps(m.m)
+        
+    def json_to_matrix(s):
+        m = json.loads(s)
+        return Matrix.from_list(m)
+        
+    def vector_to_json(v):
+        return json.dumps(v.v)
+        
+    def json_to_vector(s):
+        v = json.loads(s)
+        return Vector.from_list(v)
+        
+    def tensor_to_json(t):
+        return json.dumps(t.mpa.a)
+        
+    def json_to_tensor(s):
+        a = json.loads(s)
+        return Tensor(mparray(a))
+        
+    def mparray_to_json(m):
+        return json.dumps(m.a)
+        
+    def json_to_mparray(s):
+        a = json.loads(s)
+        return mparray(a)
             
             
     # the draw function expects a mparray x with the arguments
