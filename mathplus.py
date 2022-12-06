@@ -36,6 +36,7 @@ from collections.abc import Sequence
 import json
 
 
+
 #################################################
 ################## class Common #################
 ################################################# 
@@ -4725,7 +4726,7 @@ class Tensor:
             raise ValueError("tensor product not compatible with type " + str(type(other)))
 
     def kmult(t1, t2):
-        return Tensor(kmult_helper(t1.mpa.a, t2.mpa.a), dtype = t1.dtype)
+        return Tensor(Tensor.kmult_helper(t1.mpa.a, t2.mpa.a), dtype = t1.dtype)
         
         
     def kmult_helper(l1, l2):
@@ -6416,8 +6417,194 @@ class Measurement:
         
     def pyramid_volume(h, base_area):
         return 1/3 * base_area * h
+
+#################################################
+##################  class Group  ################
+#################################################
+
+# Status: experimental
+# class Group implements finite groups
+# For initialization Elements and an operator need
+# to be provided. Instead, the user may initialize 
+# the class with an operator table, that specifies
+# the results of operations. In the subclass Abelian 
+# group, the functionality checks whether the 
+# conditions for an abelan group hold. For the 
+# class Ring additional elements and another
+# operator need to be specified.
+# Elements must be 0,1,2, ... so that the class 
+# can work properly. If necessary a user might
+# define a mapping from her own symbols to 0,1,... 
+class Group:
+    # initialize
+    def __init__(self, elements, operator):
+        self.elements = elements
+        self.operator = operator
+        self.null_ = None 
+        if not self.is_closed_group():
+            raise ValueError("Not all operation results are in elements")
         
+    # conducts the dot-operation between two elements
+    def op(self, elem1, elem2):
+        return self.operator(elem1, elem2)
+            
+    # initializing a new group with an op-table
+    # the rows and the columns of this table
+    # represent the elements of the group.
+    def from_op_table(table):
+        self.operator = lambda x,y: table[x][y] 
+        shp = Array.shape(table)
+    
+        if len(shp) != 2:
+            raise ValueError("need 2-dimensional table, but got array with " + str(len(shp)) + " dimensions")
+        if shp[0] != shp[1]:
+            raise ValueError("table must be a square array")
+        elements = []
+        for i in range(shp[0]):
+            elements.append(i)
+        return Group(elements, operator)
         
+    # here the null of the group is determined
+    def nullelem(self):
+        if self.null_ != None:
+            return self.null_
+        for i in range(0, len(self.elements)):
+            null_candidate = self.elements[i]
+            is_null = True
+            for j in range(0, len(self.elements)):
+                if self.operator(null_candidate, self.elements[j]) == self.elements[j] and self.operator(self.elements[j], null_candidate) == self.elements[j]:
+                    continue
+                else:
+                    is_null = False
+                    break
+            if is_null:
+                self.null_ = null_candidate
+                return self.null_
+        return None
+        
+    # inverse() searches for the inverse of the given 
+    # element, i.e., the element for which
+    # elem * inverse = inverseelem = null holds.
+    def inverse(self, element):
+        if not element in self.elements:
+            raise ValueError("element not available")
+        null_element =  self.null_
+        if self.null_ == None:
+            raise ValueError("null element does not exist")
+        else:
+            for i in range(0, len(self.elements)):
+                if self.operator(element, self.elements[i]) == self.null_ and self.operator(self.elements[i], element) == self.null_:
+                    return self.elements[i]
+            return None
+            
+    # check whether the operation is commutative
+    def is_commutative(self):
+        for i in range(0, len(self.elements)):
+            for j in range(0, len(self.elements)):
+                if self.operator(self.elements[i], self.elements[j]) != self.operator(self.elements[j], self.elements[i]):
+                    return False
+        return True
+        
+    # check that no operation a * b has a result
+    # that is not in the group
+    def is_closed_group(self):
+        for i in range(0, len(self.elements)):
+            for j in range(0, len(self.elements)):
+                if not self.operator(self.elements[i], self.elements[j]) in self.elements or not self.operator(self.elements[j], self.elements[i]) in self.elements:
+                    return False
+        return True
+        
+    # check for associativity
+    def is_associative(self):
+        for i in range(0, len(self.elements)):
+            for j in range(0, len(self.elements)):
+                for k in range(0, len(self.elements)):
+                    if self.operator(self.operator(self.elements[i], self.elements[j]), self.elements[k]) != self.operator(self.elements[i], self.operator(self.elements[j], self.elements[k])):
+                        return False
+        return True
+        
+    # prints the op table
+    def print_op_table(self):
+        print()
+        print("op1", end="")
+        for i in range(0, len(self.elements)):
+            print("\t", end="")
+            print(str(self.elements[i]), end = "")
+        print()
+        print()
+        for i in range(0, len(self.elements)):
+            print(str(self.elements[i]) + "\t", end = "")
+            for j in range(0, len(self.elements)):
+                print(str(self.operator(self.elements[i], self.elements[j])) + "\t", end ="") 
+            print()
+            print()
+    
+    # returns the op_table        
+    def op_table(self):
+        table = [[] for i in range(0, len(elements))]           
+        for i in range(0, len(elements)):
+            row = []
+            for j in range(0, len(elements)):
+                row.append(self.operator(self.elements[i], self.elements[j]))
+            table[i].append(row)     
+        return table
+        
+# an abelian group must meet some requirements such as commutativity
+# and associativity
+class AbelianGroup(Group):
+    def __init__(self, elements, operator):
+        super().__init__(elements, operator)
+        if not self.is_commutative():
+            raise ValueError("abelian group must be commutative")
+        if not self.is_associative():
+            raise ValueError("abelian group must be associative")
+        if self.get_null() == None:
+            raise ValueError("abelian group needs a null element")
+        for i in range(0, len(elements)):
+            if self.inverse(self.elements[i]) == None:
+                raise ValueError("in an abelian group every element must have an inverse")
+
+# a Ring consists of a Group plus another group with identical
+# elements and an additional operator
+class Ring(AbelianGroup):
+    def __init__(self, elements, operator, elements_mul, operator_mul):
+        super().__init__(elements, operator)
+        self.g = Group(elements_mul, operator_mul)
+        
+        for i in elements_mul:
+            for j in elements:
+                if not g.operator_mul(i, j) in elements:
+                    raise ValueError("mul-operator must map element_mul and element to elements. " + str(i) + "*" + str(j) + " = " + str(operator_mul(i, j)))
+        if not self.is_combinable():
+            raise ValueError("mul-operator is not associative when applied to elements")
+        if not self.is_left_associative():
+            raise ValueError("(i * j) * k <> i * (j * k)")
+            
+    # check whether bot operators can be combined
+    def is_combinable(self):
+        for i in self.elements_mul:
+            for j in self.elements:
+                for k in self.elements:
+                    if g.operator_mul(i, self.operator(j, k)) != self.operator(self.operator_mul(i, j), g.operator_mul(i,k)):
+                        raise ValueError("l*(a+b) != l*a + l*b for l = " + str(i) + " a = " + str(j) + " b = " + str(k))
+        return True
+        
+    def is_left_associative(self):
+        for i in elements_mul:
+            for j in elements_mul:
+                for k in elements:
+                    if g.operator_mul(operator_mul(i, j),k) != g.operator_mul(i, operator_mul(j,k)):
+                        return False
+        return True
+                    
+    # prints the op table of the second operator: operator_mul
+    def print_op2_table(self):
+        g.print_op_table()
+    
+    def op2_table(self):  
+        return g.op_table()
+                                       
+                                                                                    
 #################################################
 ################  class Transfer  ###############
 #################################################
