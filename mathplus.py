@@ -5613,9 +5613,9 @@ class RationalPolynomial:
     def compute(self, x):
         d = self.q.compute(x)
         if d == 0:
-            raise ValueError("division by zero die to denominator polynomial")
+            raise ValueError("division by zero due to denominator polynomial")
         else:
-            return self.p.compute(x) / self.q.compute(x)
+            return self.p.compute(x) / d
         
     def __str__(self):
         return str(self.p) + " / " + str(self.q) 
@@ -5626,8 +5626,16 @@ class RationalPolynomial:
     def __ne__(self, other):
         return not self == other
         
+    def __div__(self, other):
+        return RationalPolynomial(self.p * other.q, self.q * other.p)
+        
     def __add__(self, other):
         return RationalPolynomial(self.p * other.q + self.q * other.p, other.q * self.q)
+
+    def __neg__(self):
+        res = deepcopy(self)
+        res.p = -res.p
+        return res
 
     def __mul__(self, other):
         return RationalPolynomial(self.p*other.p, self.q*other.q)
