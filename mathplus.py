@@ -1706,7 +1706,7 @@ class mparray:
             
     # expand_add returns the addition of self and other even
     # if they have different lengths.
-    # for example, expamd_add applied to [1,2,3,4] and [2,1,4]
+    # for example, expand_add applied to [1,2,3,4] and [2,1,4]
     # leads to [3, 3, 7, 4]
     def expand_add(self, other):
         if self.ndim != 1 or other.ndim != 1:
@@ -2439,9 +2439,9 @@ class Array:
             dtype = type(lst[0])
             return Vector.from_list(lst, dtype=dtype)
             
-    # expand_add returns the addition of self and other even
+    # expand_add returns the addition of a1 and a2 even
     # if they have different lengths.
-    # for example, expamd_add applied to [1,2,3,4] and [2,1,4]
+    # for example, expand_add applied to [1,2,3,4] and [2,1,4]
     # leads to [3, 3, 7, 4]
     def expand_add(a1, a2):
         shp1 = Array.shape(a1)
