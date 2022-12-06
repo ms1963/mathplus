@@ -427,7 +427,6 @@ class mparray:
             raise ValueError("only 'rectangular' mparrays are supported")
         self.a = array
         self.dtype = dtype 
-        self.ndim = len(self.shape)
         
     @property
     def count(self):
@@ -566,6 +565,10 @@ class mparray:
     # degree of mparray, i.e., its dimensions
     def degree(self):
         return len(self.shape)
+		
+    @property
+    def ndim(self):
+        return len(self.shape)
         
     # this method shuffles all inner 1-dimensional arrays contained
     # in a mparray
@@ -589,7 +592,6 @@ class mparray:
                 a.append(elem.to_list()) 
             return mparray(a, self.dtype)
             
-        
     def _find(array, lambda_f):
         result = []
         shp = Array.shape(array)
