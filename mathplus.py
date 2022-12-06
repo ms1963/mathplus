@@ -852,8 +852,6 @@ class mparray:
                 for i in range(shp1[0]):
                     result.append(mparray.isclose(a1[i], a2[i], tol))       
             return result
-            
-            
         
     def __eq__(self, other):
         if not (isinstance(other, mparray) or isinstance(other, list)):
@@ -1706,8 +1704,26 @@ class mparray:
         else:
             return Vector.from_list(self.a, dtype = self.dtype)
             
+    # expand_add returns the addition of self and other even
+    # if they have different lengths.
+    # for example, expamd_add applied to [1,2,3,4] and [2,1,4]
+    # leads to [3, 3, 7, 4]
+    def expand_add(self, other):
+        if self.ndim != 1 or other.ndim != 1:
+            raise ValueError("expand_add() only defined for 1-dimensional mparrays")
+        else:
+            shp1 = self.shape
+            shp2 = other.shape
+            if shp1[0] > shp2[0]:
+                result = deepcopy(self)
+                for i in range(shp2[0]):
+                    result[i] = self[i] + other[i]
+            else: # shp2[0] >= shp1[0]
+                result = deepcopy(other)
+                for i in range(shp1[0]):
+                    result[i] = self[i] + other[i]
+            return result
             
-        
 #################################################
 ################## class Array ##################
 ################################################# 
@@ -2422,6 +2438,28 @@ class Array:
         else:
             dtype = type(lst[0])
             return Vector.from_list(lst, dtype=dtype)
+            
+    # expand_add returns the addition of self and other even
+    # if they have different lengths.
+    # for example, expamd_add applied to [1,2,3,4] and [2,1,4]
+    # leads to [3, 3, 7, 4]
+    def expand_add(a1, a2):
+        shp1 = Array.shape(a1)
+        shp2 = Array.shape(a2)
+        if len(shp1) != 1 or len(shp2) != 1:
+            raise ValueError("expand_add() only defined for 1-dimensional mparrays")
+        else:
+            shp1 = Array.shape(a1)
+            shp2 = Array.shape(a2)
+            if shp1[0] > shp2[0]:
+                result = deepcopy(a1)
+                for i in range(shp2[0]):
+                    result[i] = a1[i] + a2[i]
+            else: # shp2[0] >= shp1[0]
+                result = deepcopy(a2)
+                for i in range(shp1[0]):
+                    result[i] = a1[i] + a2[i]
+            return result
             
         
 #################################################
