@@ -6,7 +6,7 @@ GNU General Public License v3.0
 
 Permissions of this strong copyleft license are conditioned on making available complete source code of licensed works and modifications, which include larger works using a licensed work, under the same license. Copyright and license notices must be preserved. Contributors provide an express grant of patent rights.
 """
-
+import mathplus as mp
 from mathplus import *
 import matplotlib.pyplot as plt
 from matplotlib import cm
@@ -238,7 +238,6 @@ v7[9] = 99
 print(v7)
 
 
-
 print()
 print("QR factorization of m = ")
 m = Matrix.from_list([[1,1,0],[1,0,1],[0,1,1]])
@@ -248,8 +247,6 @@ print("Q = ")
 print(Q)
 print("R = ")
 print(R)
-
-
 
 print("For matrix : ")
 m = Matrix.from_list([[5,4],[1,2]])
@@ -650,34 +647,34 @@ print()
 print("Let us train a simple Artificial Neural Network")
 print("The library functions sought to train the ANN to act as a XOR logic gate.")
 # training data
-x_train = mparray([[[0,0]], [[0,1]], [[1,0]], [[1,1]]])
-y_train = mparray([[[0]], [[1]], [[1]], [[0]]])
+x_train = mp.array([[[0,0]], [[0,1]], [[1,0]], [[1,1]]])
+y_train = mp.array([[[0]], [[1]], [[1]], [[0]]])
 
-# network
+# create network model
 net = ANN.Network()
 net.add(ANN.FullyConnectedLayer(2, 3))
 net.add(ANN.ActivationLayer(ANN.tanh, ANN.tanh_prime))
 net.add(ANN.FullyConnectedLayer(3, 1))
 net.add(ANN.ActivationLayer(ANN.tanh, ANN.tanh_prime))
 
-# train
+# train the ANN
 net.use(ANN.mse, ANN.mse_prime)
 net.fit(x_train, y_train, epochs=1000, learning_rate=0.1, autostop = False)
 
-# test
+# test its predictions
 out = net.predict(x_train)
 print(out)
 print()
 
 print("Drawing a 2D function with matplotlib")
-print("First we create a mparray with linearly spaced numbers from -5 to 5 using mparray.lin_distribution(-5,5,100)")
+print("First we create a array with linearly spaced numbers from -5 to 5 using array.lin_distribution(-5,5,100)")
 # 100 linearly spaced numbers
-x = mparray.lin_distribution(-5,5,100)
+x = mp.array.lin_distribution(-5,5,100)
 print("Finally we draw the function using Transfer.draw_function_2D(x, lambda x: x**2)")
 Transfer.draw_function_2D(x,lambda x: x**2, color="r", label="y = x**2")
 print()
 print("Multiple functions may be drawn at once using Transfer.draw_functions_2D")
-x = mparray.lin_distribution(-5, 5, 100)
+x = mp.array.lin_distribution(-5, 5, 100)
 input = [] 
 input.append((math.sin, "r", "y = sin(x)"))
 input.append((math.cos, "b", "y = cos(x)"))
@@ -685,28 +682,27 @@ input.append((lambda x: x**2, "g", "y = x**2"))
 Transfer.draw_functions_2D(x, input)
 print()
 print("With draw_function_3D it is possible to draw 3D functions that are defined over t such as f(t) = (sin(t), cos(t))")
-t = mparray.arange(0, 10*np.pi, np.pi/50)
+t = mp.array.arange(0, 10*np.pi, np.pi/50)
 Transfer.draw_function_3D(t, math.sin, math.cos)
 print()
 print("draw_surface() allows to plot functions f(x,y) = (f1(x),f2(y)")
-xmp = mparray.arange(-3.1, 3.1, 0.01)
-ymp = mparray.arange(-3.1, 3.1, 0.01)
+xmp = mp.array.arange(-3.1, 3.1, 0.01)
+ymp = mp.array.arange(-3.1, 3.1, 0.01)
 Transfer.draw_surface(xmp, ymp, math.sin, math.cos)
-("Here comes another 3D surface with the more complex operations done in mparray. The results are then transferred to numpy arrays and plotted using mathplotlib.")
+("Here comes another 3D surface with the more complex operations done in array. The results are then transferred to numpy arrays and plotted using mathplotlib.")
 fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
-# Conduct operations in mparray.
-Xmp = mparray.arange(-5, 5, 0.1)
-Ymp = mparray.arange(-5, 5, 0.1)
-Xmp, Ymp = mparray.meshgrid(Xmp, Ymp)
+# Conduct operations in array.
+Xmp = mp.array.arange(-5, 5, 0.1)
+Ymp = mp.array.arange(-5, 5, 0.1)
+Xmp, Ymp = mp.array.meshgrid(Xmp, Ymp)
 Zmp = ((Xmp**2 + Ymp**2).apply(math.sqrt)).apply(math.sin)
 # transfer results to numpy
-X = Transfer.mparray_to_numpy(Xmp)
-Y = Transfer.mparray_to_numpy(Ymp)
-Z = Transfer.mparray_to_numpy(Zmp)
+X = Transfer.array_to_numpy(Xmp)
+Y = Transfer.array_to_numpy(Ymp)
+Z = Transfer.array_to_numpy(Zmp)
 # Plot the surface.
-surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm,
-                       linewidth=0, antialiased=False)
+surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
 # Customize the z axis.
 ax.set_zlim(-1.01, 1.01)
 ax.zaxis.set_major_locator(LinearLocator(10))
@@ -715,30 +711,27 @@ ax.zaxis.set_major_formatter('{x:.02f}')
 # Add a color bar which maps values to colors.
 fig.colorbar(surf, shrink=0.5, aspect=5)
 plt.show()
-print("Let us introduce a contour plot. Again all calculations happen within mparray. Only for matplotlib, we need to transfer data to numpy")
-feature_x = mparray.lin_distribution(-5.0, 3.0, 70)
-feature_y = mparray.lin_distribution(-5.0, 3.0, 70)
+print("Let us introduce a contour plot. Again all calculations happen within array. Only for matplotlib, we need to transfer data to numpy")
+feature_x = mp.array.lin_distribution(-5.0, 3.0, 70)
+feature_y = mp.array.lin_distribution(-5.0, 3.0, 70)
 # Creating 2-D grid of features
-[X, Y] = mparray.meshgrid(feature_x, feature_y)
+[X, Y] = mp.array.meshgrid(feature_x, feature_y)
 Z = X ** 2 + Y ** 2
 fig, ax = plt.subplots(1, 1)
-Xnp = Transfer.mparray_to_numpy(X)
-Ynp = Transfer.mparray_to_numpy(Y)
-Znp = Transfer.mparray_to_numpy(Z)
 # plots filled contour plot
-ax.contourf(Xnp, Ynp, Znp)
+ax.contourf(X.a, Y.a, Z.a)
 ax.set_title('mathplus example: filled contour')
 ax.set_xlabel('x coordinates')
 ax.set_ylabel('y coordinates')
 plt.show()
 print("Last but not least, a scatter plot of 1000 random points")
-print("Only mparray and no numpy structures are used in this example.")
+print("Only array and no numpy structures are used in this example.")
 print("By the way: this also illustrates the distribution of the python random generator.")
 fig = plt.figure(figsize=(12, 12))
 ax = fig.add_subplot(projection='3d')
-x_seq = mparray.random_array([1000], fromvalue = -500, tovalue= 500)
-y_seq = mparray.random_array([1000], fromvalue = -500, tovalue= 500)
-z_seq = mparray.random_array([1000], fromvalue = -500, tovalue= 500)
+x_seq = mp.array.random_array([1000], fromvalue = -500, tovalue= 500)
+y_seq = mp.array.random_array([1000], fromvalue = -500, tovalue= 500)
+z_seq = mp.array.random_array([1000], fromvalue = -500, tovalue= 500)
 ax.set_xlabel("x coordinates")
 ax.set_ylabel("y coordinates")
 ax.set_zlabel("z coordinates")

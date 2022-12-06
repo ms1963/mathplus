@@ -402,30 +402,30 @@ class Common:
             print("]")
                    
 #################################################
-################ class mparray  #################
+################# class array  ##################
 #################################################
 
 """
-mparray is based upon Python lists. It was created to
-shield users of the mparray from its implementation, so that
+array is based upon Python lists. It was created to
+shield users of the array from its implementation, so that
 the implementation may be changed (such as using C-arrays
 underneath).
 It implements "rectangular" arrays, but does not support
 irregular shapes where a one-dimensional may contain numbers
 and subarrays or subarrays may reveal different lengths.
 Some methods are constrained to one- or two-dimensional
-mparrays, for example, methods that may not be useful for other
+arrays, for example, methods that may not be useful for other
 dimensions. Consider transpose as an example.
 """
-class mparray:
-    # new mparray instances implement regular not rugged mparrays
-    # example: a = mparray([[1,2],[3,4]], dtype = int)
-    def __init__(self, array, dtype = float):
-        if not isinstance(array, list):
-            raise TypeError("mparray__init()__ expects a list as first parameter")
-        if array != [] and not mparray._is_regular(array):
-            raise ValueError("only 'rectangular' mparrays are supported")
-        self.a = array
+class array:
+    # new array instances implement regular not rugged arrays
+    # example: a = array([[1,2],[3,4]], dtype = int)
+    def __init__(self, arr, dtype = float):
+        if not isinstance(arr, list):
+            raise TypeError("array__init()__ expects a list as first parameter")
+        if arr != [] and not array._is_regular(arr):
+            raise ValueError("only 'rectangular' arrays are supported")
+        self.a = arr
         self.dtype = dtype 
         
     @property
@@ -440,53 +440,53 @@ class mparray:
     def create_multidim_array(dims, lst, dtype = float):
         tmp = lst
         for i in range(dims-1): tmp = [tmp]
-        return mparray(tmp, float)
+        return array(tmp, float)
             
-    # creates a new mparray with shp as shape and dtype as type,
+    # creates a new array with shp as shape and dtype as type,
     # filled with init_value
     def filled_array(shp, init_value = 0, dtype = float):
-        a = mparray._initializer(shp, init_value = init_value, dtype = dtype)
-        return mparray(a, dtype)
+        a = array._initializer(shp, init_value = init_value, dtype = dtype)
+        return array(a, dtype)
         
     def ones(shp, dtype = float):
-        return mparray.filled_array(shp, init_value = 1, dtype = dtype)
+        return array.filled_array(shp, init_value = 1, dtype = dtype)
         
     def zeros(shp, dtype = float):
-        return mparray.filled_array(shp, init_value = 0, dtype = dtype)
+        return array.filled_array(shp, init_value = 0, dtype = dtype)
         
-    # list passed to function is used to initialze new mparray object
-    def from_list(array, dtype = float):
-        if not mparray._is_regular(array):
-            raise ValueError("only 'rectangular' mparrays are supported")
-        shp = Array.shape(array)
-        t = mparray(array, dtype)
+    # list passed to function is used to initialze new array object
+    def from_list(arr, dtype = float):
+        if not array._is_regular(arr):
+            raise ValueError("only 'rectangular' arrays are supported")
+        shp = Array.shape(arr)
+        t = array(arr, dtype)
         return t
         
-    # rand() creates a mparray filled with random values in [0,1[ 
+    # rand() creates an array filled with random values in [0,1[ 
     # with the specified shape shp
     def rand(shp, seedval = 0):
         # determine number of elements
         prod = 1
         for i in range(len(shp)): prod *= shp[i]
         # create a flat array
-        mpa = mparray.random_array([prod], fromvalue=0, tovalue = 1, dtype = float, seedval = seedval)
+        mpa = array.random_array([prod], fromvalue=0, tovalue = 1, dtype = float, seedval = seedval)
         # reshape the flat array in the required shp
         return mpa.reshape(shp)
         
-    # extract a list from the mparray
+    # extract a list from the array
     def to_list(self):
         return deepcopy(self.a)
         
-    # extract a flat list from the mparray
+    # extract a flat list from the array
     def to_flat_list(self):
         return self.flatten().to_list()
         
-    # returns the actual size of the mparray
+    # returns the actual size of the array
     def __len__(self):
         return len(self.flatten().to_list())
         
     def empty():
-        return mparray.from_list([]) 
+        return array.from_list([]) 
         
     def square_shaped(self):
         if len(self.shp) == 1:
@@ -498,29 +498,29 @@ class mparray:
                     return False
             return True
             
-    # get a column of a 2-dimensional mparray
+    # get a column of a 2-dimensional array
     def column(self, col):
         shp = self.shape
         if len(shp) != 2:
-            raise ValueError("mparray.column() requires a 2-dimensonal mparray")
+            raise ValueError("array.column() requires a 2-dimensonal array")
         if not col in range(0, shp[1]):
             raise ValueError("index (col) out of range")
-        cvec = mparray.filled_array((shp[0],), dtype = self.dtype)
+        cvec = array.filled_array((shp[0],), dtype = self.dtype)
         for i in range(shp[0]):
             cvec[i] = self[i][col]  
         return cvec
         
-    # get a row of a 2-dimensional mparray
+    # get a row of a 2-dimensional array
     def row(self, row):
         shp = self.shape
         if len(shp) != 2:
-            raise ValueError("mparray.row() requires a 2-dimensonal mparray")
+            raise ValueError("array.row() requires a 2-dimensonal array")
         if not row in range(0, shp[0]):
             raise ValueError("index (row) out of range")
         return self[row]
         
             
-    # create a new mparray using shp as shape
+    # create a new array using shp as shape
     def _initializer(shp, init_value = 0, dtype = float):
         if not isinstance(shp, tuple) and not isinstance(shp,list):
             raise ValueError("first argument must be a list or a tuple, not a " + str(type(shp)))
@@ -538,7 +538,7 @@ class mparray:
             newshp.pop(0)
             newshp = tuple(newshp)
             for i in range(shp[0]):
-                a.append(mparray._initializer(newshp, init_value, dtype))
+                a.append(array._initializer(newshp, init_value, dtype))
             return a
             
     # helper function to initialize lists with random numbers
@@ -559,10 +559,10 @@ class mparray:
             newshp.pop(0)
             newshp = tuple(newshp)
             for i in range(dims[0]):
-                a.append(mparray._random_initializer(newshp, fromvalue, tovalue, None, dtype))
+                a.append(array._random_initializer(newshp, fromvalue, tovalue, None, dtype))
             return a
         
-    # degree of mparray, i.e., its dimensions
+    # degree of array, i.e., its dimensions
     def degree(self):
         return len(self.shape)
 		
@@ -571,26 +571,26 @@ class mparray:
         return len(self.shape)
         
     # this method shuffles all inner 1-dimensional arrays contained
-    # in a mparray
+    # in a array
     def shuffle(self):
         shp = self.shape
         if len(list(shp)) == 1:
             a = deepcopy(self.a)
             random.shuffle(a)
-            return mparray(a, self.dtype)
+            return array(a, self.dtype)
         elif len(shp) == 2:
             a = []
             for i in range(shp[0]):
                 elem = deepcopy(self.a[i])
                 random.shuffle(elem)
                 a.append(elem)
-            return mparray(a, self.dtype)
+            return array(a, self.dtype)
         else:
             a = []
             for i in range(shp[0]):
-                elem = mparray(self.a[i], self.dtype).shuffle()
+                elem = array(self.a[i], self.dtype).shuffle()
                 a.append(elem.to_list()) 
-            return mparray(a, self.dtype)
+            return array(a, self.dtype)
             
     def _find(array, lambda_f):
         result = []
@@ -602,7 +602,7 @@ class mparray:
             return result
         else:
             for i in range(shp[0]):
-                result += mparray._find(array[i], lambda_f)
+                result += array._find(array[i], lambda_f)
             return result
             
     def _find_with_path(array, path, lambda_f):
@@ -615,22 +615,22 @@ class mparray:
             return result
         else:
             for i in range(shp[0]):
-                result += mparray._find_with_path(array[i], path + [i], lambda_f)
+                result += array._find_with_path(array[i], path + [i], lambda_f)
             return result
             
-    # search for all elements in mparray that meet a condition
+    # search for all elements in array that meet a condition
     # defined by lambda_f
     def find(self, lambda_f):
-        return mparray._find(self.a, lambda_f)
+        return array._find(self.a, lambda_f)
         
     def find_where(self, lambda_f):
-        return mparray._find_with_path(self.a, [], lambda_f)
+        return array._find_with_path(self.a, [], lambda_f)
                     
-    # apply a lambda on all mparray elements and create a
-    # new mparray from result
+    # apply a lambda on all array elements and create a
+    # new array from result
     def apply(self, lambda_f):
-        t = mparray.filled_array(self.shape, dtype = self.dtype)
-        t.a = mparray._apply_op(self.a, lambda_f)
+        t = array.filled_array(self.shape, dtype = self.dtype)
+        t.a = array._apply_op(self.a, lambda_f)
         return t
         
     def sign(self):
@@ -643,7 +643,7 @@ class mparray:
     # helper function that gets two arrays as arguments
     # and is called for each pair. The result is then used
     # to create a new array with the same shape. This is useful
-    # to implement operators such as __add__ for mparrays
+    # to implement operators such as __add__ for arrays
     def _apply_on_multiDarrays(a1, a2, lambda_f):
         shp = Array.shape(a1)
         if len(shp) == 1:
@@ -654,26 +654,26 @@ class mparray:
         else:
             a = []
             for j in range(shp[0]):
-                a.append(mparray._apply_on_multiDarrays(a1[j],a2[j], lambda_f))
+                a.append(array._apply_on_multiDarrays(a1[j],a2[j], lambda_f))
             return a
             
     # helper function for apply used to apply a lambda on each
     # element of a multidimensional list and create an square_shaped
-    # new mparray from the results
-    def _apply_op(array, lambda_f):
-        shp = Array.shape(array)
+    # new array from the results
+    def _apply_op(arr, lambda_f):
+        shp = Array.shape(arr)
         if len(shp) == 1:
             a = []
             for j in range(shp[0]):
-                a.append(lambda_f(array[j]))
+                a.append(lambda_f(arr[j]))
             return a
         else:
             a = []
             for j in range(0, shp[0]):
-                a.append(mparray._apply_op(array[j], lambda_f))
+                a.append(array._apply_op(arr[j], lambda_f))
             return a
                 
-    # get shape of mparray
+    # get shape of array
     @property
     def shape(self):
         return Array.shape(self.a)
@@ -695,75 +695,75 @@ class mparray:
         
     # helper function to determine whether a list
     # is regular
-    def _is_regular(array):
-        if not isinstance(array, list):
+    def _is_regular(arr):
+        if not isinstance(arr, list):
             raise ValueError("_is_regular() only applicable to lists")
-        if type(array[0]) == list:
-            size = len(array[0])
-            for i in range(1, len(array)):
-                if type(array[i]) != list:
+        if type(arr[0]) == list:
+            size = len(arr[0])
+            for i in range(1, len(arr)):
+                if type(arr[i]) != list:
                     return False
                 else:
-                    if len(array[i]) != size:
+                    if len(arr[i]) != size:
                         return False
-            for i in range(len(array)):
-                if not mparray._is_regular(array[i]):
+            for i in range(len(arr)):
+                if not array._is_regular(arr[i]):
                     return False
             return True
         else:
-            for i in range(1, len(array)):
-                if isinstance(array[i], list):
+            for i in range(1, len(arr)):
+                if isinstance(arr[i], list):
                     return False
             return True
             
-    # subtraction of two equal-shaped mparrays. Pairwise addition
-    # with results used to create a new mparray
+    # subtraction of two equal-shaped arrays. Pairwise addition
+    # with results used to create a new array
     def __sub__(self, other):
-        if isinstance(other, mparray):
+        if isinstance(other, array):
             if self.shape != other.shape:
                 raise ValueError("shapes of operands do not match")
-            t = mparray.filled_array(self.shape, init_value = self.dtype(0), dtype=self.dtype)
-            t.a = mparray._apply_on_multiDarrays(self.a, other.a, lambda x,y: x-y)
+            t = array.filled_array(self.shape, init_value = self.dtype(0), dtype=self.dtype)
+            t.a = array._apply_on_multiDarrays(self.a, other.a, lambda x,y: x-y)
             return t
         elif isinstance(other, float) or isinstance(other, int):
-            t = mparray.filled_array(self.shape, init_value = self.dtype(0), dtype = self.dtype)
-            t.a = mparray._apply_op(self.a, lambda x: x - self.dtype(other))
+            t = array.filled_array(self.shape, init_value = self.dtype(0), dtype = self.dtype)
+            t.a = array._apply_op(self.a, lambda x: x - self.dtype(other))
             return t
         else:
-            raise TypeError("both operands must be mparrays")
+            raise TypeError("both operands must be arrays")
         
-    # addition of mparrays: similar implementation like that in __sub__
+    # addition of arrays: similar implementation like that in __sub__
     def __add__(self, other):
-        if isinstance(other, mparray):
+        if isinstance(other, array):
             if self.shape != other.shape:
                 raise ValueError("shapes of operands do not match")
-            t = mparray.filled_array(self.shape, init_value = 0,dtype=self.dtype)
-            t.a = mparray._apply_on_multiDarrays(self.a, other.a, lambda x,y: x+y)
+            t = array.filled_array(self.shape, init_value = 0,dtype=self.dtype)
+            t.a = array._apply_on_multiDarrays(self.a, other.a, lambda x,y: x+y)
             return t
         elif isinstance(other, float) or isinstance(other, int):
-            t = mparray.filled_array(self.shape, init_value = 0, dtype = self.dtype)
-            t.a = mparray._apply_op(self.a, lambda x: x + self.dtype(other))
+            t = array.filled_array(self.shape, init_value = 0, dtype = self.dtype)
+            t.a = array._apply_op(self.a, lambda x: x + self.dtype(other))
             return t
         else:
-            raise TypeError("operands must be mparrays or a mparray and a number")
+            raise TypeError("operands must be arrays or a array and a number")
         
-    # scalar multiplication and multiplication between mparrays is supported
+    # scalar multiplication and multiplication between arrays is supported
     def __mul__(self, other):
-        return mparray.multiply(self, other)
+        return array.multiply(self, other)
         
     # pair-wise multiplication
     def multiply(arr1, arr2):
-        if isinstance(arr1, mparray) and not isinstance(arr2, mparray):
+        if isinstance(arr1, array) and not isinstance(arr2, array):
             return deepcopy(arr1).apply(lambda x: x * arr2)
-        elif not isinstance(arr1, mparray) and isinstance(arr2, mparray):
+        elif not isinstance(arr1, array) and isinstance(arr2, array):
             return deepcopy(arr2).apply(lambda x: x * arr1)
-        elif not isinstance(arr1, mparray) and not isinstance(arr2, mparray):
+        elif not isinstance(arr1, array) and not isinstance(arr2, array):
             return arr1 * arr2
-        # both operands are mparrays:
+        # both operands are arrays:
         if arr1.shape != arr2.shape:
             raise ValueError("multiply only defined for arrays with same shape")
         shp = arr1.shape
-        result = mparray.filled_array(shp, dtype = arr1.dtype)
+        result = array.filled_array(shp, dtype = arr1.dtype)
         if arr1.degree() == 1:
             for i in range(shp1[0]):
                 result[i] = arr1[i] * arr2[i]
@@ -775,15 +775,15 @@ class mparray:
             return result
         else:
             for i in range(arr1.shape[0]):
-                result[i] = mparray.mul_pairwise(arr1[i], arr2[i])
+                result[i] = array.mul_pairwise(arr1[i], arr2[i])
             return result
         
         
-    # negation of mparray:
+    # negation of array:
     def __neg__(self):
         return self.apply(lambda x: -x)
         
-    # return mparray where all elems of self are powered to exponent
+    # return array where all elems of self are powered to exponent
     def __pow__(self, exponent):
         return self.apply(lambda x: x ** exponent)
         
@@ -801,7 +801,7 @@ class mparray:
             newshp.pop(0)
             newshp = tuple(newshp)
             for i in range(shp1[0]):
-                if mparray._compare_arrays(a1[i], newshp, a2[i], newshp):
+                if array._compare_arrays(a1[i], newshp, a2[i], newshp):
                     continue
                 else: return False
             return True
@@ -814,7 +814,7 @@ class mparray:
         shp1 = a1.shape
         shp2 = a2.shape
         if shp1 != shp2:
-            raise ValueError("can not compare mparrays with different shapes")
+            raise ValueError("can not compare arrays with different shapes")
         else:
             if len(shp1) == 1:
                 for i in range(shp1[0]):
@@ -826,7 +826,7 @@ class mparray:
                         return False
             else:
                 for i in range(shp1[0]):
-                    if mparray.allclose(a1[i], a2[i], tol):
+                    if array.allclose(a1[i], a2[i], tol):
                         continue
                     else:
                         return False
@@ -834,14 +834,14 @@ class mparray:
             
             
     # isclose checks two arrays whether their elements are equal
-    # within a tolerance. It returns a mparray with bools specifying
+    # within a tolerance. It returns an array with bools specifying
     # where the elements were considered equal and where they were 
     # considered not equal
     def isclose(a1, a2, tol = 1E-10):
         shp1 = a1.shape
         shp2 = a2.shape
         if shp1 != shp2:
-            raise ValueError("can not compare mparrays with different shapes")
+            raise ValueError("can not compare arrays with different shapes")
         else:
             result = []
             if len(shp1) == 1:
@@ -852,52 +852,52 @@ class mparray:
                         result.append(False)
             else:
                 for i in range(shp1[0]):
-                    result.append(mparray.isclose(a1[i], a2[i], tol))       
+                    result.append(array.isclose(a1[i], a2[i], tol))       
             return result
         
     def __eq__(self, other):
-        if not (isinstance(other, mparray) or isinstance(other, list)):
-            raise TypeError("left operand must be mparray, right an mparray or a list")
-        if isinstance(other, mparray):
+        if not (isinstance(other, array) or isinstance(other, list)):
+            raise TypeError("left operand must be array, right an array or a list")
+        if isinstance(other, array):
             operand2 = other
         else:
-            operand2 = mparray(other, self.dtype)
+            operand2 = array(other, self.dtype)
         if self.shape != operand2.shape:
             raise ValueError("cannot compare objects with different shapes")
-        return mparray._compare_arrays(self.a, self.shape, operand2.a, operand2.shape)
+        return array._compare_arrays(self.a, self.shape, operand2.a, operand2.shape)
 
     def _ne__(self, other):
         return not self == other
         
     # create a random array of given shape and size
     def random_array(shp, fromvalue, tovalue, seedval = None, dtype = float):
-        a = mparray._random_initializer(shp, fromvalue, tovalue, seedval, dtype)
-        t = mparray(a, dtype)
+        a = array._random_initializer(shp, fromvalue, tovalue, seedval, dtype)
+        t = array(a, dtype)
         return t
         
-    # recursive helper method for mparray flattening
-    def _flattener(array):
+    # recursive helper method for array flattening
+    def _flattener(arr):
         a = []
-        shp = Array.shape(array)
+        shp = Array.shape(arr)
         if len(shp) == 1:
-            for i in range(shp[0]): a.append(array[i])
+            for i in range(shp[0]): a.append(arr[i])
             return a
         else:
             for i in range(shp[0]):
-                sub_array = mparray._flattener(array[i])
+                sub_array = array._flattener(arr[i])
                 a += sub_array
             return a
     
-    # convert mparray object to flat mparray
+    # convert array object to flat array
     def flatten(self):
-        return mparray.from_list(mparray._flattener(self.a), dtype = self.dtype)
+        return array.from_list(array._flattener(self.a), dtype = self.dtype)
         
-    # recursive helper function for mparray reshaping
-    def _filler(array, idx, shp):
+    # recursive helper function for array reshaping
+    def _filler(arr, idx, shp):
         if len(shp) == 1:
             tmp = []
             for i in range(shp[0]):
-                tmp.append(array[idx])
+                tmp.append(arr[idx])
                 idx += 1
             return (tmp, idx)
         else:
@@ -907,58 +907,58 @@ class mparray:
             new_shape.pop(0)
             new_shape = tuple(new_shape)
             for i in range(shp[0]):
-                sub_arr, new_idx = mparray._filler(array, new_idx, new_shape)
+                sub_arr, new_idx = array._filler(arr, new_idx, new_shape)
                 tmp.append(sub_arr)
             return (tmp, new_idx)
             
     def reshape(self, new_shape):
-        # Flatten the whole mparray to a mpone-dimenional array
-        array = self.flatten()
+        # Flatten the whole array to a mpone-dimenional array
+        arr = self.flatten()
         # calculate size required by new shape
         prod = 1
         for num in new_shape: prod *= num
         # if sizes do not match raise ValueError
-        if prod != len(array.a):
+        if prod != len(arr.a):
             raise ValueError("cannot reshape a + " + str(self.shape) + " array into a " + str(new_shape) + " array")
         else:
             # call _filler with flattened array, index 0, and desired shape
-            new_a, _ = mparray._filler(array.a, 0, new_shape)
-            # use list to create mparray
-            return mparray.from_list(new_a, dtype = self.dtype)
+            new_a, _ = array._filler(arr.a, 0, new_shape)
+            # use list to create array
+            return array.from_list(new_a, dtype = self.dtype)
     
-    # method adds an additional matrix on front of mparray,
+    # method adds an additional matrix on front of array,
     # copies elements of self and adds them to the expanded
-    # mparray. This, the degree of the new mparray is one plus
-    # degree of old mparray.
+    # array. This, the degree of the new array is one plus
+    # degree of old array.
     # When using newarray[0] this sub array whill have
     # exactly the shape and elements of self
     def expand(self):
         tmp=[]
         tmp.append(deepcopy(self.a))
-        newarray = mparray.from_list(tmp, self.dtype)
+        newarray = array.from_list(tmp, self.dtype)
         return newarray
         
     def compress(self):
         if len(self.shape) > 1 and self.shape[0] == 1:
             tmp = self.a[0]
-            return mparray.from_list(tmp, self.dtype)
+            return array.from_list(tmp, self.dtype)
         
     # checks whether addressed element is a scalar and returns that scalar
-    # Otherwise, it returns an mparray object
+    # Otherwise, it returns an array object
     def __getitem__(self, arg):
         tmp = self.a.__getitem__(arg)
         if not isinstance(tmp, list):
             return tmp
         else:
-            return mparray.from_list(tmp)
+            return array.from_list(tmp)
         
     # delegates to corresponding access pattern for lists
     def __setitem__(self, arg, cont):
         self.a.__setitem__(arg, cont)
         
     # iterator implementation. The iterator walks through
-    # all elements of mparray. For this purpose, the flattened
-    # mparray is used
+    # all elements of array. For this purpose, the flattened
+    # array is used
     def __iter__(self):
         self.idx = 0
         self.elements = (self.flatten()).a
@@ -986,7 +986,7 @@ class mparray:
                         arr[i] = a_max
             else:
                 for i in range(shp[0]):
-                    mparray._clip_helper(arr[i], a_min, a_max, in_situ)
+                    array._clip_helper(arr[i], a_min, a_max, in_situ)
         else:
             if len(shp) == 1:
                 for i in range(shp[0]):
@@ -999,18 +999,18 @@ class mparray:
                 return result
             else:
                 for i in range(shp[0]):
-                    result.append(mparray._clip_helper(arr[i], a_min, a_max, in_situ))
+                    result.append(array._clip_helper(arr[i], a_min, a_max, in_situ))
                 return result
                 
     def clip(arr, a_min, a_max, in_situ = False):
         if in_situ:
-            mparray._clip_helper(arr, a_min, a_max, in_situ)
+            array._clip_helper(arr, a_min, a_max, in_situ)
         else:
-            return mparray(mparray._clip_helper(arr, a_min, a_max, in_situ), dtype = arr.dtype)
+            return array(array._clip_helper(arr, a_min, a_max, in_situ), dtype = arr.dtype)
         
             
     # check whether a condition holds for at least one element
-    # of the mparray
+    # of the array
     def any(self, cond):
         tmp = self.flatten()
         for  elem in tmp:
@@ -1019,7 +1019,7 @@ class mparray:
         return False
         
     # check whether a condition holds for all elements
-    # of the mparray
+    # of the array
     def all(self, cond):
         tmp = self.flatten()
         for  elem in tmp:
@@ -1036,13 +1036,13 @@ class mparray:
         while act_value < stop:
             result.append(act_value)
             act_value += step
-        return mparray(result, dtype)
+        return array(result, dtype)
         
     # creates a linear distribution from start point startp to endpoint endp
     # consisting of size elements with the specified datatype dtype, If
     # with_endp is set to True the distribution will contain the endpoint.
     def lin_distribution(startp, endp, size, with_endp = False, dtype = float):
-        array = []
+        arr = []
         if size == 1:
             sz = 1
         else:
@@ -1055,8 +1055,8 @@ class mparray:
         incr =(endp-startp)/sz
     
         for i in range(0, size):
-            array.append(dtype(startp + i * incr))
-        return mparray.from_list(array, dtype)
+            arr.append(dtype(startp + i * incr))
+        return array.from_list(arr, dtype)
         
     # creates a logarithmic distribution of size elements starting
     # with base ** startp and ending with base ** endp (if with_endp
@@ -1072,9 +1072,9 @@ class mparray:
     
         for i in range(0, size):
             array.append(dtype(base ** (startp + i * incr)))
-        return mparray.from_list(array, dtype)
+        return array.from_list(array, dtype)
         
-    # calculates the mean of mparray elements
+    # calculates the mean of array elements
     def mean(self):
         sum = 0
         t = self.flatten()
@@ -1092,7 +1092,7 @@ class mparray:
         res = math.sqrt(sum / (len(t.a)-1))
         return res
         
-    # calculates the variance of mparray elements
+    # calculates the variance of array elements
     def variance(self):
         return self.std_dev() ** 2
         
@@ -1117,7 +1117,7 @@ class mparray:
            
     # this function does delegate to reduce()
     # the lmbda is applied to all elements of
-    # mparray with init_val being the aggregator
+    # array with init_val being the aggregator
     def reduce_general(self, lmbda, init_val = None):
         array = self.flatten().a
         if init_val == None:
@@ -1125,7 +1125,7 @@ class mparray:
         else:
             return reduce(lmbda, array, init_val)
         
-    # calculate the sum of all elements in a mparray
+    # calculate the sum of all elements in an array
     # using init_val as the base value
     def sum(self, init_val = None):
         if init_val == None:
@@ -1133,7 +1133,7 @@ class mparray:
         else:
             return self.reduce_general(operator.add, init_val)
         
-    # calculate the product of all elements in a mparray
+    # calculate the product of all elements in a array
     # using init_val as the base value
     def mul(self, init_val = None):
         if init_val == None:
@@ -1141,20 +1141,20 @@ class mparray:
         else:
             return self.reduce_general(operator.mul, init_val)
             
-    # transpose() is defined for all 2D mparrays. It returns a new
-    # mparray with: new_array[r][c] = array[c][r] for all
+    # transpose() is defined for all 2D arrays. It returns a new
+    # array with: new_array[r][c] = array[c][r] for all
     # valid (row,column)-combinations
     def transpose(self):
         assert self.degree() == 2, "transpose only defined for 2d-arrays"
-        result = mparray.array_transpose(self.a)
-        return mparray(result, self.dtype)
+        result = array.array_transpose(self.a)
+        return array(result, self.dtype)
     
     # returns the transposed array
     @property
     def T(self):
         return self.transpose()
         
-    # returns the total number of elements in the mparray
+    # returns the total number of elements in the array
     @property
     def size(self):
         prod = 1
@@ -1165,18 +1165,18 @@ class mparray:
     
         
     def dot(arg1, arg2):
-        if isinstance(arg1, mparray) and not isinstance(arg2, mparray):
+        if isinstance(arg1, array) and not isinstance(arg2, array):
             return arg1 * arg2 # multiplication with scalar
-        elif not isinstance(arg1, mparray) and isinstance(arg2, mparray):
+        elif not isinstance(arg1, array) and isinstance(arg2, array):
             return arg2 * arg1 # multiplication with scalar
-        elif not isinstance(arg1, mparray) and not isinstance(arg2, mparray):
+        elif not isinstance(arg1, array) and not isinstance(arg2, array):
             return arg1*arg2 # simple scalar multiplication
-        else: # isinstance(arg1,mparray) and isinstance(arg2.mparray)
+        else: # isinstance(arg1,array) and isinstance(arg2.array)
             shp1 = arg1.shape
             shp2 = arg2.shape
             # inner product
             if arg1.degree() == 1 and arg2.degree() == 1:
-                result = mparray.filled_array(shp1, dtype=arg1.dtype)
+                result = array.filled_array(shp1, dtype=arg1.dtype)
                 sum = 0
                 for i in range(shp1[0]):
                     sum += arg1[i] * arg2[i]
@@ -1185,7 +1185,7 @@ class mparray:
                 n = shp1[0]
                 m = shp1[1]
                 k = shp2[0]
-                result = mparray.filled_array([n], dtype=arg1.dtype)
+                result = array.filled_array([n], dtype=arg1.dtype)
                 for i in range(n):
                     sum = 0
                     for j in range(k):
@@ -1195,22 +1195,22 @@ class mparray:
             elif arg1.degree() == 2 and arg2.degree() == 2:
                 return arg1 @ arg2
             elif arg1.degree() > 2 and arg2.degree() > 2:
-                result = mparray.filled_array(shp1, dtype=arg1.dtype)
+                result = array.filled_array(shp1, dtype=arg1.dtype)
                 for i in range(shp1[0]):
-                    result[i] = mparray.dot(arg1[i], arg2[i])
-                return mparray([result])
+                    result[i] = array.dot(arg1[i], arg2[i])
+                return array([result])
             else:
-                raise TypeError("Incompatible operands for mparray.dot()")
+                raise TypeError("Incompatible operands for array.dot()")
         
     def __matmul__(self , other):
-        if not isinstance(other, mparray):
+        if not isinstance(other, array):
             return self.apply(lambda x: x * other)
         shp1 = self.shape
         shp2 = other.shape
         if len(shp1) == 2 and len(shp2) == 2:
             if shp1[1] != shp2[0]:
-                raise ValueError("the 2-dimensional mparrays have incompatible shapes for multiplication")
-            res = mparray.filled_array([shp1[0], shp2[1]], dtype=self.dtype)
+                raise ValueError("the 2-dimensional arrays have incompatible shapes for multiplication")
+            res = array.filled_array([shp1[0], shp2[1]], dtype=self.dtype)
             for r in range(shp1[0]):
                 for c in range(shp2[1]):
                     sum = 0
@@ -1220,7 +1220,7 @@ class mparray:
             return res
         elif len(shp1) == 2 and len(shp2) == 1:
             if shp1[1] == shp2[0]:
-                res = mparray.filled_array([shp1[0], 1], dtype=self.dtype)
+                res = array.filled_array([shp1[0], 1], dtype=self.dtype)
                 for i in range(shp1[0]):
                     sum = 0
                     for j in range(shp1[1]):
@@ -1228,7 +1228,7 @@ class mparray:
                     res[i] = sum
                 return res
             else:
-                raise ValueError("the 2- and -dimensional mparrays have incompatible shapes for multiplication")
+                raise ValueError("the 2- and -dimensional arrays have incompatible shapes for multiplication")
             
         
     # transpose() transposes nxm-arrays
@@ -1242,7 +1242,7 @@ class mparray:
                 result[r][c] = array[c][r]
         return result
         
-    # extract a subarray from mparray
+    # extract a subarray from array
     def subarray(self, top, bottom, left, right):
         shp = self.shape
         dim1 = shp[0]
@@ -1259,10 +1259,10 @@ class mparray:
                 for c in range(right - left + 1):
                     row.append(self[top + r][left + c])
                 result.append(row)
-            return mparray(result, dtype=self.dtype)
+            return array(result, dtype=self.dtype)
         
-    # split splits a mparray in different sub-arrays. It is only defined
-    # for 1-D and 2-D mparrays.
+    # split splits an array in different sub-arrays. It is only defined
+    # for 1-D and 2-D arrays.
     # arg is an integer when the split should happen into same-size-pieces
     # or as a tupel if the split should happen at specified positions.
     # For 2-D arrays axis defines along which axis the split is going to
@@ -1290,7 +1290,7 @@ class mparray:
                 split_indices = [0]
                 for pos in arg:
                     if pos < 0 or pos >= n:
-                        raise ValueError("attempt to split mparray of size = " + str(n) + " at nonexistent position " + str(pos))
+                        raise ValueError("attempt to split array of size = " + str(n) + " at nonexistent position " + str(pos))
                     split_indices.append(pos)
                 split_indices.append(len(array))
                 split_indices = list(set(split_indices))
@@ -1303,19 +1303,19 @@ class mparray:
                     result.append(tmp)
                 return result
     
-        def split_2D(array, arg, axis = 0):
-            shp = Array.shape(array)
+        def split_2D(arr, arg, axis = 0):
+            shp = Array.shape(arr)
             n = shp[0]
             m = shp[1]
             if axis == 0:
                 if isinstance(arg, int):
                     if arg == 0 or m % arg != 0:
-                        raise ValueError("equal split of mparray with size = " + str(m) + " impossible with arg = " + str(arg))
+                        raise ValueError("equal split of array with size = " + str(m) + " impossible with arg = " + str(arg))
                     else:
                         result = []
                         tmp = []
                         for i in range(n):
-                            tmp.append(split_1D(array[i], arg))
+                            tmp.append(split_1D(arr[i], arg))
                         for j in range(len(tmp[0])):
                             single = []
                             for i in range(n):
@@ -1326,7 +1326,7 @@ class mparray:
                     result = []
                     tmp = []
                     for i in range(n):
-                        tmp.append(split_1D(array[i], arg))
+                        tmp.append(split_1D(arr[i], arg))
                     for j in range(len(tmp[0])):
                         single=[]
                         for i in range(n):
@@ -1338,48 +1338,48 @@ class mparray:
                     if arg == 0 or n % arg != 0:
                         raise ValueError("equal split of array with size = " + str(n) + " impossible with arg = " + str(arg))
                 result = []
-                array_tmp = mparray.array_transpose(array)
+                array_tmp = array.array_transpose(arr)
                 tmp = split_2D(array_tmp, arg, axis = 0)
             
                 for k in range(len(tmp)):
-                    result.append(mparray.array_transpose(tmp[k]))
+                    result.append(array.array_transpose(tmp[k]))
                 return result
                 
-        array = self.a
+        arr = self.a
         if self.degree() == 1:
-            return split_1D(array, arg)
+            return split_1D(arr, arg)
         elif self.degree() == 2:
-            return split_2D(array, arg, axis)
+            return split_2D(arr, arg, axis)
         else:
-            raise ValueError("split only defined for one- and two-dimensional mparrays")
+            raise ValueError("split only defined for one- and two-dimensional arrays")
 
-    # block allows to combine different mparrays to a larger
-    # mparray
+    # block allows to combine different arrays to a larger
+    # array
     def block(lst, axis = 0):
         shp = Array.shape(lst)
         if len(shp) == 1:
             if shp[0] == 0:
-                return mparray([])
+                return array([])
             else:
                 result = lst[0]
                 for i in range(1, shp[0]):
-                    result = mparray.concat(result, lst[i], axis = 0)
+                    result = array.concat(result, lst[i], axis = 0)
                 return result
         elif len(shp) == 2:
             rows = []
             for i in range(shp[0]):
-                rows.append(mparray.block(lst[i]))
+                rows.append(array.block(lst[i]))
             result = rows[0]
             for j in range(1, len(rows)):
-                result = mparray.concat(result, rows[j], axis = 1)
+                result = array.concat(result, rows[j], axis = 1)
             return result       
         else:
-            raise ValueError("mparray.block() onls supports 1-dimensional and 2-dimensional arrays")
+            raise ValueError("array.block() onls supports 1-dimensional and 2-dimensional arrays")
         
-    # concat combines two mparrays along axis 0 or axis 1
+    # concat combines two arrays along axis 0 or axis 1
     def concat(mp1, mp2, axis = 0):
         result = Array.concat(mp1.to_list(), mp2.to_list(), axis)
-        return mparray(result, mp1.dtype)
+        return array(result, mp1.dtype)
                 
     # vstack is based on concat. Two arrays are stacked horizontally
     def vstack(self):
@@ -1390,10 +1390,10 @@ class mparray:
         return self.concat(other, axis = 1)
         
     # diff takes in each row a[r,c]-a[r,c-1] for c in 1 .. len(row)
-    # if the original mparray has dimension dim1 x dim2, then the result
+    # if the original array has dimension dim1 x dim2, then the result
     # will have dimension dim1 x (dim2 - 1)
     def diff(self):
-        assert self.degree() == 1 or self.degree() == 2, "diff only defined for 1d and 2d mparrays"
+        assert self.degree() == 1 or self.degree() == 2, "diff only defined for 1d and 2d arrays"
         shp = self.shape
         if self.degree() == 2:
             result = []
@@ -1402,18 +1402,18 @@ class mparray:
                 for c in range(1, shp[1]):
                     row.append(self[r][c] - self[r][c-1])
                 result.append(row)
-            return mparray.from_list(result, self.dtype)
+            return array.from_list(result, self.dtype)
         elif self.degree() == 1:
             result = []
             for i in range(1, shp[0]):
                 result.append(self[i]-self[i-1])
             return result
             
-    # An 2D mparray can be rotated 90° to the left or right.
+    # A 2D array can be rotated 90° to the left or right.
     # if left = True  => left  rotation
     # if left = False => right rotation
     def rotate(self, left = True):
-        assert self.degree() == 2, "can only rotate 2d mparrays"
+        assert self.degree() == 2, "can only rotate 2d arrays"
         shp = self.shape
         n = shp[0]
         m = shp[1]
@@ -1424,67 +1424,67 @@ class mparray:
                 for r in range(n):
                     row.append(self[r][m-c-1])
                 res.append(row)
-            return mparray.from_list(res, self.dtype)
+            return array.from_list(res, self.dtype)
         else: # right!
             for c in range(m):
                 row = []
                 for r in range(n):
                     row.append(self[n-r-1][c])
                 res.append(row)
-            return mparray.from_list(res, self.dtype)
+            return array.from_list(res, self.dtype)
         
     # remove duplicates from a one-dimensional array
     def remove_duplicates(arr):
         return list(set(arr))
         
     # the following helper functions are wrappers
-    # that use mparray.apply. They are implemented
+    # that use array.apply. They are implemented
     # for the users convenience.
     
-    # sin for mparrays based on apply()
+    # sin for arrays based on apply()
     def sin(self):
         res = self.apply(math.sin)
         return res
         
-    # cos for mparrays based on apply()
+    # cos for arrays based on apply()
     def cos(self):
         res = self.apply(math.cos)
         return res
         
-    # tan for mparrays based on apply()
+    # tan for arrays based on apply()
     def tan(self):
         res = self.apply(math.tan)
         return res
                 
-    # tanh for mparrays based on apply()
+    # tanh for arrays based on apply()
     def tanh(self):
         res = self.apply(math.tanh)
         return res           
                 
-    # exp for mparrays based on apply()
+    # exp for arrays based on apply()
     # apply_1D
     def exp(array):
         res = self.apply(math.exp)
         return res
         
-    # log for mparrays based on apply()
+    # log for arrays based on apply()
     def log(self, base):
         res = self.apply(lambda x: math.log(x,base))
         return res
         
-    # pow for mparrays based on apply()
+    # pow for arrays based on apply()
     def pow(self, exponent):
         res = self.apply(lambda x: pow(x,exponent))
         return res
         
     # calculate the mean-normalized form of the
-    # input mparray:
+    # input array:
     def mean_normalization(self):
         array = self.flatten().to_list()
         maximum = max(array)
         mean    = self.mean()
         result  = [(array[i] - mean) / maximum for i in range(0, len(array))]
-        return mparray(result, self.dtype)
+        return array(result, self.dtype)
         
     def euclidean_norm(self):
         sum = 0
@@ -1493,7 +1493,7 @@ class mparray:
             sum += array[i] ** 2
         return math.sqrt(sum)
         
-    # calculate minima of mparray
+    # calculate minima of array
     def argmin(self, axis = None):
         if self.degree() > 2:
             raise ValueError("argmin only defined for 1-D or 2-D")
@@ -1504,7 +1504,7 @@ class mparray:
             result = []
             for i in range(0, self.shape[0]):
                 result.append(min(self.a[i]))
-            return mparray(result, self.dtype)
+            return array(result, self.dtype)
         elif axis == 1:
             result = []
             for c in range(0, self.shape[1]):
@@ -1512,9 +1512,9 @@ class mparray:
                 for r in range(0, self.shape[0]):
                     tmp.append(self.a[r][c])
                 result.append(min(tmp))
-            return mparray(result, self.dtype)
+            return array(result, self.dtype)
                 
-    # calculate maxima of mparray
+    # calculate maxima of array
     def argmax(self, axis = None):
         if self.degree() > 2:
             raise ValueError("argmax only defined for 1-D or 2-D")
@@ -1524,7 +1524,7 @@ class mparray:
             result = []
             for i in range(0, self.shape[0]):
                 result.append(max(self[i]))
-            return mparray(result, self.dtype)
+            return array(result, self.dtype)
         elif axis == 1:
             result = []
             for c in range(0, self.shape[1]):
@@ -1532,21 +1532,21 @@ class mparray:
                 for r in range(0, self.shape[0]):
                     tmp.append(self.a[r][c])
                 result.append(max(tmp))
-            return mparray(result, self.dtype)
+            return array(result, self.dtype)
             
     # delete elements from an array with indices of elements
     # to delete given in indices
-    def delete(array, indices):
+    def delete(arr, indices):
         new_array = []
         for i in range(0, len(array)):
             if not i in indices:
-                new_array.append(array[i])
+                new_array.append(arr[i])
         return new_array
         
     # erase values from array so that that none of
-    # these numbers is left in the mparray
-    def erase(array, values):
-        new_array = deepcopy(array)
+    # these numbers is left in the array
+    def erase(arr, values):
+        new_array = deepcopy(arr)
         for val in values:
             while val in new_array:
                 new_array.remove(val)
@@ -1569,7 +1569,7 @@ class mparray:
     # if in_situ = False, the sort will be
     # conducted on a copy of a so that a remains
     # unchanged       
-    def sort(array, in_situ = True):
+    def sort(arr, in_situ = True):
         def quicksort(array, indices):
             smaller = []
             equal   = []
@@ -1578,31 +1578,31 @@ class mparray:
             idx_equal   = []
             idx_larger  = []
         
-            if len(array) > 1:
+            if len(arr) > 1:
                 pivot = array[0]
-                for i in range(len(array)):
-                    if array[i] < pivot:
-                        smaller.append(array[i])
+                for i in range(len(arr)):
+                    if arr[i] < pivot:
+                        smaller.append(arr[i])
                         idx_smaller.append(indices[i])
-                    elif array[i] == pivot:
-                        equal.append(array[i])
+                    elif arr[i] == pivot:
+                        equal.append(arr[i])
                         idx_equal.append(indices[i])
-                    elif array[i] > pivot:
-                        larger.append(array[i])
+                    elif arr[i] > pivot:
+                        larger.append(arr[i])
                         idx_larger.append(indices[i])
                 sma, sidx = quicksort(smaller, idx_smaller)
                 equ, eidx = equal, idx_equal
                 lar, lidx = quicksort(larger, idx_larger)
                 return (sma + equ + lar, sidx + eidx + lidx)
-            elif len(array) == 1: 
-                return array, [indices[0]]
+            elif len(arr) == 1: 
+                return arr, [indices[0]]
             else:
                 return [],[]
                 
-        sortedarr, indices = quicksort(array, [i for i in range(len(array))])
+        sortedarr, indices = quicksort(arr, [i for i in range(len(arr))])
         if in_situ:
-            for i in range(len(array)):
-                array[i] = sortedarr[i]
+            for i in range(len(arr)):
+                arr[i] = sortedarr[i]
             return indices
         else:
             return sortedarr, indices
@@ -1640,12 +1640,12 @@ class mparray:
             for i in range(shp[0]):
                 for j in range(shp[0]):
                     if i == j: 
-                        result[i,j] = mparray.variance(dataset[i])
+                        result[i,j] = array.variance(dataset[i])
                     else:
-                        result[i,j] = mparray.covariance(dataset[i], dataset[j])
+                        result[i,j] = array.covariance(dataset[i], dataset[j])
             return result
         else:
-            cov = mparray.covariance_matrix(dataset.T)
+            cov = array.covariance_matrix(dataset.T)
             return cov.T
     
         
@@ -1661,13 +1661,13 @@ class mparray:
                     if i == j: 
                         result[i,j] = 1
                     else:
-                        result[i,j] = mparray.covariance(dataset[i], dataset[j]) / (dataset[i].variance() * dataset[j].variance())
+                        result[i,j] = array.covariance(dataset[i], dataset[j]) / (dataset[i].variance() * dataset[j].variance())
             return result
         else:
-            cor = mparray.covariance_matrix(dataset.T)
+            cor = array.covariance_matrix(dataset.T)
             return cor.T
             
-    # meshgrid allows to combine two 1D mparrays x, y to a coordinate
+    # meshgrid allows to combine two 1D arrays x, y to a coordinate
     # system spanned by x and y. It returns 2 2D arrays
     def meshgrid(mpx, mpy):
         shp1 = mpx.shape
@@ -1682,24 +1682,24 @@ class mparray:
             for  c in range(dim1):
                 row.append(mpx[c])
             xarray.append(row)
-        x = mparray(xarray, mpx.dtype)
+        x = array(xarray, mpx.dtype)
         yarray = []
         for r in range(dim2):
             row = []
             for c in range(dim1):
                 row.append(mpy[r])
             yarray.append(row)
-        y = mparray(yarray, mpx.dtype)
+        y = array(yarray, mpx.dtype)
         return (x,y)
         
-    # creates a matrix from a 2-dimensional mparray        
+    # creates a matrix from a 2-dimensional array        
     def asmatrix(self):
         if self.ndim != 2:
             raise ValueError("Cannot convert an array with  " + str(ndim) + " dimensions to a matrix")
         else:
             return Matrix.from_list(self.a, dtype = self.dtype)
             
-    # creates a vector from a 1-dimensional mparray
+    # creates a vector from a 1-dimensional array
     def asvector(self):
         if self.ndim != 1:
             raise ValueError("Cannot convert an array with  " + str(ndim) + " dimensions to a vector")
@@ -1712,7 +1712,7 @@ class mparray:
     # leads to [3, 3, 7, 4]
     def expand_add(self, other):
         if self.ndim != 1 or other.ndim != 1:
-            raise ValueError("expand_add() only defined for 1-dimensional mparrays")
+            raise ValueError("expand_add() only defined for 1-dimensional arrays")
         else:
             shp1 = self.shape
             shp2 = other.shape
@@ -1928,13 +1928,13 @@ class Array:
                 
     # returns the covariance matrix
     def covariance_matrix(dataset, rows = True):
-        marray = mparray(dataset)
-        return mparray.covariance_matrix(marray, rows)
+        marray = array(dataset)
+        return array.covariance_matrix(marray, rows)
         
     # returns the correlation_matrix
     def correlation_matrix(dataset, rows = True):
-        marray = mparray(dataset)
-        return mparray.correlation_matrix(marray, rows)
+        marray = array(dataset)
+        return array.correlation_matrix(marray, rows)
     
     # method to analyze the shape of a list or other sequence
     def shape_analyzer(a):
@@ -1978,7 +1978,7 @@ class Array:
             result.append(arr[i]-arr[i-1])
         return result
         
-    # sorting mparray. in_situ = True => array is sorted in place.
+    # sorting array. in_situ = True => array is sorted in place.
     # otherwise, the sorted array is returned leaving the original
     # array unchanged. The return value consists of two arrays,  
     # the first one containing the sorted array, the second one 
@@ -1987,9 +1987,9 @@ class Array:
     # return value contains the indices of the original array 
     # elements, i.e. 0..len(self)-1
     def sort(self, in_situ = True):
-        array, indices =  mparray.sort(self.a, in_situ = in_situ)
+        arr, indices =  array.sort(self.a, in_situ = in_situ)
         if not in_situ:
-            return mparray(array), mparray(indices)
+            return array(arr), array(indices)
     
     # mul_2d multiplies each element of arr with num  
     def mul_2D(num, arr):
@@ -2449,7 +2449,7 @@ class Array:
         shp1 = Array.shape(a1)
         shp2 = Array.shape(a2)
         if len(shp1) != 1 or len(shp2) != 1:
-            raise ValueError("expand_add() only defined for 1-dimensional mparrays")
+            raise ValueError("expand_add() only defined for 1-dimensional arrays")
         else:
             shp1 = Array.shape(a1)
             shp2 = Array.shape(a2)
@@ -3390,9 +3390,9 @@ class Matrix:
     def to_list(self):
         return self.m
         
-    # return an mparray
-    def to_mparray(self):
-        return mparray(self.a, dtype=self.dtype)
+    # return an array
+    def to_array(self):
+        return array(self.a, dtype=self.dtype)
         
     # converts matrix row-by-row elements to one-dimensional array    
     def to_flat_list(self):
@@ -4084,22 +4084,22 @@ class Matrix:
             return Vector.from_list(array, dtype = self.dtype, transposed = False)
         
     # 2-dim array required as input 
-    def covariance_matrix(array, rows):
-        if isinstance(array, list):
-            return mparray.covariance_matrix(mparray(array), rows)
-        elif isinstance(array, mparray):
-            return mparray.covariance_matrix(array)
+    def covariance_matrix(arr, rows):
+        if isinstance(arr, list):
+            return array.covariance_matrix(array(arr), rows)
+        elif isinstance(arr, array):
+            return array.covariance_matrix(arr)
         else:
-            raise ValueError("either list or mparray object expected as argument in Matrix.covariance_matrix()")
+            raise ValueError("either list or array object expected as argument in Matrix.covariance_matrix()")
         
    # 2-dim array required as input 
-    def correlation_matrix(array, rows):
-        if isinstance(array, list):
-            return mparray.correlation_matrix(mparray(array), rows)
-        elif isinstance(array, mparray):
-            return mparray.correlation_matrix(array)
+    def correlation_matrix(arr, rows):
+        if isinstance(arr, list):
+            return array.correlation_matrix(array(arr), rows)
+        elif isinstance(arr, array):
+            return array.correlation_matrix(arr)
         else:
-            raise ValueError("either list or mparray object expected as argument in Matrix.correlation_matrix()")
+            raise ValueError("either list or array object expected as argument in Matrix.correlation_matrix()")
             
  #################################################              
  ################## class Vector #################
@@ -4529,9 +4529,9 @@ class Vector:
     def to_list(self):
         return self.v
         
-    # return the vector transformed to an mparray
-    def to_mparray(self):
-        return mparray(self.v, dtype=self.dtype)
+    # return the vector transformed to an array
+    def to_array(self):
+        return array(self.v, dtype=self.dtype)
         
     # get a new Vector by removing elements from self
     # indices to remove are passed as the indices list
@@ -4613,13 +4613,13 @@ class Vector:
 class Tensor:
     def __init__(self, arr, dtype = float):
         if isinstance(arr , list):
-            self.mpa = mparray(arr)
+            self.mpa = array(arr)
             self.dtype = type(arr[0])
-        elif isinstance(arr, mparray):
+        elif isinstance(arr, array):
             self.mpa = arr
             self.dtype = arr.dtype
         else:
-            raise ValueError("tensor __init__ requires a list or an mparray as initializer")
+            raise ValueError("tensor __init__ requires a list or an array as initializer")
         
     @property
     def shape(self):
@@ -4644,7 +4644,7 @@ class Tensor:
         return "tensor" + str(self.mpa)
         
     def filled_tensor(shp, init_value = 0, dtype = float):
-        mpa = mparray.filled_array(shp, init_value, dtype)
+        mpa = array.filled_array(shp, init_value, dtype)
         return Tensor(mpa)
         
     # apply a function on everey element of the tensor
@@ -4655,7 +4655,7 @@ class Tensor:
         if in_situ:
             Tensor._apply_helper(self.mpa.a, lambda_f, in_situ)
         else:
-            return Tensor(mparray(Tensor._apply_helper(self.mpa.a, lambda_f, in_situ)))
+            return Tensor(array(Tensor._apply_helper(self.mpa.a, lambda_f, in_situ)))
                     
     def _apply_helper(lst, lambda_f,  in_situ):
         shp = Array.shape(lst)
@@ -4708,14 +4708,14 @@ class Tensor:
     def __add__(self, other):
         if self.shape != other.shape:
             raise ValueError("only tensors with same shape can be added")
-        mpa = mparray.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
+        mpa = array.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
         Tensor._apply(mpa, self.mpa, other.mpa, lambda x,y: x+y)
         return Tensor(mpa)
         
     def __sub__(self, other):
         if self.shape != other.shape:
             raise ValueError("only tensors with same shape can be subtracted")
-        mpa = mparray.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
+        mpa = array.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
         Tensor._apply(mpa, self.mpa, other.mpa, lambda x,y: x-y)
         return Tensor(mpa)
         
@@ -4727,12 +4727,12 @@ class Tensor:
         elif isinstance(other, Tensor):
             if self.shape != other.shape:
                 raise ValueError("only tensors with same shape can be multiplied")
-            mpa = mparray.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
+            mpa = array.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
             Tensor._apply(mpa, self.mpa, other.mpa, lambda x,y: x*y)
             return Tensor(mpa)
         elif isinstance(other, list):
-            return self * Tensor(mparray(other))
-        elif isinstance(other, mparray):
+            return self * Tensor(array(other))
+        elif isinstance(other, array):
             return self * Tensor(other)
         else:
             raise ValueError("cannot multiply a tensor with a " + str(type(other)))
@@ -4740,7 +4740,7 @@ class Tensor:
     def __truediv__(self, other):
         if self.shape != other.shape:
             raise ValueError("only tensors with same shape can be divided")
-        mpa = mparray.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
+        mpa = array.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
         Tensor._apply(mpa, self.mpa, other.mpa, lambda x,y: x/y)
         return Tensor(mpa)
         
@@ -4754,7 +4754,7 @@ class Tensor:
         for i in range(shp1a[0]):
             for j in range(shp2b[0]):
                 result.append(t1a.mpa[i] * t2b.mpa[j])
-        return Tensor(mparray(result, t1.dtype).reshape(newshp))
+        return Tensor(array(result, t1.dtype).reshape(newshp))
         
     def __matmul__(self, other):
         if isinstance(other, float) or isinstance(other, complex) or isinstance(other, int):
@@ -4764,8 +4764,8 @@ class Tensor:
         elif isinstance(other, Tensor):
             return Tensor.mult(self, other)
         elif instance(other, list):
-            return self * Tensor(mparray(lst))
-        elif isinstance(other, mparray):
+            return self * Tensor(array(lst))
+        elif isinstance(other, array):
             return self * Tensor(other)
         else:
             raise ValueError("tensor product not compatible with type " + str(type(other)))
@@ -4868,17 +4868,17 @@ class Tensor:
         return t
         
     def random_tensor(shp, fromvalue=0, tovalue=1, seed_value = 0, dtype=float):
-        mpa = mparray.random_array(shp, fromvalue, tovalue, seed_value, dtype)
+        mpa = array.random_array(shp, fromvalue, tovalue, seed_value, dtype)
         return Tensor(mpa)
         
     # checks whether addressed element is a scalar and returns that scalar
-    # Otherwise, it returns an mparray object
+    # Otherwise, it returns an array object
     def __getitem__(self, arg):
         tmp = self.mpa.__getitem__(arg)
         if not isinstance(tmp, list):
             return tmp
         else:
-            return mparray.from_list(tmp)
+            return array.from_list(tmp)
         
     # delegates to corresponding access pattern for moparrays
     def __setitem__(self, arg, cont):
@@ -4888,7 +4888,7 @@ class Tensor:
     def to_list(self):
         return deepcopy(self.mpa.to_list())
         
-    def to_mparray(self):
+    def to_array(self):
         return deepcopy(self.mpa)
         
     # turns a 2-dimensional tensor into a matrix
@@ -6022,20 +6022,20 @@ class ANN:
         # input_size = number of input neurons
         # output_size = number of output neurons
         def __init__(self, in_neurons, out_neurons):
-            self.weights = mparray.rand((in_neurons, out_neurons), seedval=time.gmtime()) - 0.5
-            self.bias = mparray.rand((1, out_neurons),seedval=time.gmtime()) - 0.5
+            self.weights = array.rand((in_neurons, out_neurons), seedval=time.gmtime()) - 0.5
+            self.bias = array.rand((1, out_neurons),seedval=time.gmtime()) - 0.5
         
         # receice signals on channels, assign a weight to them. Returns  
         # corresponding output
         def forward_propagation(self, input_data):
             self.input = input_data
-            self.output = mparray.dot(self.input, self.weights) + self.bias
+            self.output = array.dot(self.input, self.weights) + self.bias
             return self.output
 
         # computes the input_error from the output_error
         def backward_propagation(self, output_error, learning_rate):
-            input_error = mparray.dot(output_error, self.weights.T)
-            weights_error = mparray.dot(self.input.T, output_error)
+            input_error = array.dot(output_error, self.weights.T)
+            weights_error = array.dot(self.input.T, output_error)
             # dBias = output_error
 
             # update parameters
@@ -6670,27 +6670,27 @@ class Ring(AbelianGroup):
 ################  class Transfer  ###############
 #################################################
 
-# Functionality to transfer mparrays, Vectors, Matrices 
+# Functionality to transfer arrays, Vectors, Matrices 
 # between mathplus and other libraries, primarily numpy
         
 class Transfer:
-    def numpy_to_array(nparray):
+    def numpy_to_list(nparray):
         return nparray.tolist()
         
-    def array_to_numpy(array):
-        return np.array(array)
+    def list_to_numpy(arr):
+        return np.array(arr)
         
     def matrix_to_numpy(m):
-        return np.asmatrix(Transfer.array_to_numpy(m.m))
+        return np.asmatrix(Transfer.list_to_numpy(m.m))
         
     def vector_to_numpy(v):
         if not v.is_transposed():
-            return Transfer.array_to_numpy(v.v)
+            return Transfer.list_to_numpy(v.v)
         else:
             list = [] 
             for i in range(0, len(v)):
                 list.append([v[i]])
-            return Transfer.array_to_numpy(list)
+            return Transfer.list_to_numpy(list)
         
     def numpy_to_matrix(nparray):
         npshp = nparray.shape
@@ -6715,10 +6715,10 @@ class Transfer:
         else: # len(npshp) == 1 
             return Vector.from_list(nparray.tolist())
             
-    def numpy_to_mparray(npa):
-        return mparray(npa.tolist())
+    def numpy_to_array(mpa):
+        return array(mpa.tolist())
         
-    def mparray_to_numpy(mpa):
+    def array_to_numpy(mpa):
         shp = tuple(mpa.shape)
         npa = np.array(mpa.flatten().to_list())
         return np.reshape(npa, shp)
@@ -6744,23 +6744,23 @@ class Transfer:
         
     def json_to_tensor(s):
         a = json.loads(s)
-        return Tensor(mparray(a))
+        return Tensor(array(a))
         
-    def mparray_to_json(m):
+    def array_to_json(m):
         return json.dumps(m.a)
         
-    def json_to_mparray(s):
+    def json_to_array(s):
         a = json.loads(s)
-        return mparray(a)
+        return array(a)
             
             
-    # the draw function expects a mparray x with the arguments
+    # the draw function expects a array x with the arguments
     # and thre function to be applied as a lambda. This function 
     # is drawn using matplotlib
     def draw_function_2D(xmp, lambda_f, color = 'r', label = ""): 
         ymp = xmp.apply(lambda_f)
-        x = Transfer.mparray_to_numpy(xmp)
-        y = Transfer.mparray_to_numpy(ymp)
+        x = Transfer.array_to_numpy(xmp)
+        y = Transfer.array_to_numpy(ymp)
         # setting the axes at the centre
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
@@ -6781,13 +6781,13 @@ class Transfer:
     def draw_functions_2D(xmp, input):
         if len(input) == 0:
             raise ValueError("received an empty input vector")
-        x = Transfer.mparray_to_numpy(xmp)
+        x = Transfer.array_to_numpy(xmp)
         y_array = [] 
         col_array = []
         lbl_array = []
         for entry in input:
             lambda_f, color, label = entry
-            y_array.append(Transfer.mparray_to_numpy(xmp.apply(lambda_f)))
+            y_array.append(Transfer.array_to_numpy(xmp.apply(lambda_f)))
             col_array.append(color)
             lbl_array.append(label)
         # setting the axes at the centre
@@ -6812,9 +6812,9 @@ class Transfer:
         
         xmp = tmp.apply(lambda_f1)
         ymp = tmp.apply(lambda_f2)
-        t = Transfer.mparray_to_numpy(tmp)
-        x = Transfer.mparray_to_numpy(xmp)
-        y = Transfer.mparray_to_numpy(ymp)
+        t = Transfer.array_to_numpy(tmp)
+        x = Transfer.array_to_numpy(xmp)
+        y = Transfer.array_to_numpy(ymp)
 
         ax.plot3D(x, y, t)
         ax.set_title(title)
@@ -6830,15 +6830,15 @@ class Transfer:
         fig = plt.figure(figsize = (12,10))
         ax = plt.axes(projection='3d')
 
-        xmp = mparray.arange(-5, 5.1, 0.2)    
-        ymp = mparray.arange(-5, 5.1, 0.2)
+        xmp = array.arange(-5, 5.1, 0.2)    
+        ymp = array.arange(-5, 5.1, 0.2)
 
-        Xmp, Ymp = mparray.meshgrid(xmp, ymp)
+        Xmp, Ymp = array.meshgrid(xmp, ymp)
         Zmp = Xmp.apply(lambda_x) * Ymp.apply(lambda_y)
 
-        X = Transfer.mparray_to_numpy(Xmp)
-        Y = Transfer.mparray_to_numpy(Ymp)
-        Z = Transfer.mparray_to_numpy(Zmp)
+        X = Transfer.array_to_numpy(Xmp)
+        Y = Transfer.array_to_numpy(Ymp)
+        Z = Transfer.array_to_numpy(Zmp)
 
         surf = ax.plot_surface(X, Y, Z, cmap = plt.cm.cividis)
 
@@ -6855,10 +6855,10 @@ class Transfer:
             
     # the following read/write-methods writea matrix or array to a
     # file or read a matrix or array from a file. The format is "csv".
-    # Note: mparrays are stored as flattened arrays to the CSV file.
+    # Note: arrays are stored as flattened arrays to the CSV file.
     # The header will store the dtype of the array, as well as its 
-    # shape. When retrieving the mparray back from file, a flattened
-    # mparray will be created which will then be reshaped into the 
+    # shape. When retrieving the array back from file, a flattened
+    # array will be created which will then be reshaped into the 
     # original shape with the original type using the file's header 
     # information.
     # The headers of vectors will store the type as well as the 
@@ -6897,9 +6897,9 @@ class Transfer:
             header.append(0)
         return header
         
-    def create_mparray_header(a):
+    def create_array_header(a):
         header = ["#"]
-        header.append("mparray")
+        header.append("array")
         if a.dtype == int:
             header.append(0)
         elif a.dtype == float:
@@ -6940,11 +6940,11 @@ class Transfer:
             shp.append(int(row[i+4]))
         return (dtype, shp)
         
-    def map_mparray_header(row):
+    def map_array_header(row):
         dtype = None
         shp = [] 
-        if row[1] != "mparray":
-            raise ValueError("file does not contain a mparray but a " + str(row[1]))
+        if row[1] != "array":
+            raise ValueError("file does not contain a array but a " + str(row[1]))
         if int(row[2]) == 0:
             dtype = int
         elif int(row[2]) == 1:
@@ -6985,7 +6985,7 @@ class Transfer:
             dtype = complex
         return dtype
             
-    def readMParrayFromCSV(filename, verbose = False):
+    def readArrayFromCSV(filename, verbose = False):
         csv.register_dialect('excel', delimiter=',', quoting=csv.QUOTE_NONE)
         counter = 0
         array = []
@@ -7000,25 +7000,25 @@ class Transfer:
                 counter = 0
                 for row in reader:
                     if row[0] == "#": 
-                        (dtype, shp) = Transfer.map_mparray_header(row)
+                        (dtype, shp) = Transfer.map_array_header(row)
                         continue
                     if counter > 1:
-                        raise ValueError("more than one row in file: this cannot be a flattened mparray")
+                        raise ValueError("more than one row in file: this cannot be a flattened array")
                     array_row = []
                     for num in row:
                         array.append(dtype(num))
             except csv.Error as e:
                 print('file {}, line {}: {}'.format(filename, reader.line_num, e))
-        a = mparray(array, dtype)
+        a = array(array, dtype)
         return a.reshape(shp)
 
-    def writeMParrayToCSV(a, filename, verbose = False):
+    def writeArrayToCSV(a, filename, verbose = False):
         with open(filename, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=',',quoting=csv.QUOTE_NONE)
             lst = a.flatten().to_list()
             if verbose: print("... writing file " + filename + "...")
             if verbose: print()
-            writer.writerow(Transfer.create_mparray_header(a))
+            writer.writerow(Transfer.create_array_header(a))
             writer.writerow(lst)                
                
     def readVectorFromCSV(filename, verbose = False):
@@ -7094,7 +7094,7 @@ class Transfer:
     def readTensorFromCSV(filename, verbose = False):
         csv.register_dialect('excel', delimiter=',', quoting=csv.QUOTE_NONE)
         counter = 0
-        array = []
+        arr = []
         shp   = None
         dtype = None
         
@@ -7112,10 +7112,10 @@ class Transfer:
                         raise ValueError("more than one row in file: this cannot be a flattened tensor")
                     array_row = []
                     for num in row:
-                        array.append(dtype(num))
+                        arr.append(dtype(num))
             except csv.Error as e:
                 print('file {}, line {}: {}'.format(filename, reader.line_num, e))
-        t = Tensor(mparray(array, dtype).reshape(shp))
+        t = Tensor(array(arr, dtype).reshape(shp))
         return t
 
     def writeTensorToCSV(a, filename, verbose = False):
