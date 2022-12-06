@@ -680,7 +680,7 @@ class array:
             
     def __str__(self):
         def helper(arr):
-            res = "["
+            res = "array["
             for i in range(len(arr)):
                 if not isinstance(arr[i], list):
                     res += " " + str(arr[i]) + " "
@@ -2755,7 +2755,7 @@ class Matrix:
     
     # string representation of matrix 
     def __str__(self):
-        s = "\n"
+        s = "\nmatrix\n"
         for r in range(0, self.dim1):
             line = Matrix.left_sep
             for c in range(0, self.dim2):
@@ -4155,13 +4155,13 @@ class Vector:
     # string representation of vector
     def __str__(self):
         if self._transposed:
-            res = Vector.left_sep
+            res = "vector" + Vector.left_sep
             for i in range(0, len(self.v)): 
                 res += " " + Vector.fstring.format(self.v[i])
             res += Vector.right_sep
             return res
         else:
-            res = "\n"
+            res = "\nvector\n"
             for i in range(0, len(self.v)):
                 res +=  Vector.left_sep + Vector.fstring.format(self.v[i]) + Vector.right_sep + "\n"
             return res
