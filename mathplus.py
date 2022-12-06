@@ -370,6 +370,11 @@ class Common:
     def slice_length(slc, array):
         return len(array[slc])
         
+    # for even n, the gauss-function returns n // 2
+    # for odd  n, the gauss-function returns (n-1)//2
+    def gauss(n):
+        return n//2 if n % 2 == 0 else (n - 1)//2
+        
     # print for matrices
     def print_matrix(m):   
         for r in range(0, m.dim1):
@@ -5465,7 +5470,6 @@ class Polynomial:
         theta = Vector.from_list([0 for i in range(0,n_plus_1)])
         pow_matrix = Matrix(m, n_plus_1, dtype = x_vector.dtype)
         
-        
         for r in range(0, m):
             for c in range(0, n_plus_1):
                 pow_matrix[r][c] = x_vector[r] ** c
@@ -5478,8 +5482,25 @@ class Polynomial:
             
         return Polynomial(theta.v)
             
-            
-            
+# Rational polynomials have a polynomial as nominator 
+# and another polynomial as denominator            
+class RationalPolynomials:
+    def __init__(self, pcoeffs, qcoeffs):
+        self.p = Polynomial(pcoeffs)
+        self.q = Polynomial(qcoeffs)
+        
+        # computes the value of the polynom at x
+    def compute(self, x):
+        return self.p.compute(x) / self.q.compute(x)
+        
+    def __str__(self):
+        return str(self.p) + " / " + str(self.q) 
+        
+    def __eq__(self, other):
+        return self.p == other.p and self.q == other.q
+        
+    def __ne__(self, other):
+        return not self == other
             
 #################################################
 ################ class Rational #################
