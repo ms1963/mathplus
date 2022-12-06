@@ -5590,11 +5590,11 @@ class Polynomial:
             for k in range(n + 1):
                 coeff = calc_coefficient(k,n)
                 p = Polynomial.single_p(coeff,k)
-                print(p)
                 if res == None:
                     res = p
                 else:
                     res = res + p
+            return res
                 
             
 # Rational polynomials have a polynomial as nominator 
