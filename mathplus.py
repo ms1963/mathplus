@@ -5311,6 +5311,9 @@ class Polynomial:
                 a.append(other.a[i])
         return Polynomial(a)
         
+    def __sub__(self, other):
+        return self + -other
+        
     # getting length of polynomial
     def __len__(self):
         return len(self.a)
@@ -5382,14 +5385,7 @@ class Polynomial:
     def __mod__(self, other):
         result = self / other
         return result[1]
-               
-    # negation of polynom, for example, x => -x
-    def __neg__(self):
-        neg = deepcopy(self)
-        for i in range(0, len(neg.a)):
-            neg.a[i] = -neg.a[i]
-        return neg
-        
+              
     # identity
     def __pos__(self):
         return deepcopy(self)
@@ -5400,14 +5396,15 @@ class Polynomial:
         
     # check for equality
     def __eq__(self, other):
-        if len(self.a) != len(other.a):
+        if other == None:
+            return False
+        elif len(self.a) != len(other.a):
             return False
         else:
             for i in range(0, len(self.a)):
                 if self.a[i] != other.a[i]:
                     return False
             return True 
-            
             
     # check for inequality
     def __ne__(self, other):   
@@ -5521,17 +5518,102 @@ class Polynomial:
             theta = theta - delta 
             
         return Polynomial(theta.v)
+    
+    ##################################################
+    #### Implementation of Chebyshev polynomials ##### 
+    ##################################################
+    cheby1_cache = dict() # caches for polynomials
+    cheby2_cache = dict()
+    
+    def chebyshev_1(n):
+        if n == 0:
+            return Polynomial([1])
+        elif n == 1:
+            return Polynomial([0,1])
+        else:
+            if not n in Polynomial.cheby1_cache:
+                c = Polynomial([0,2])
+                cp = c * Polynomial.chebyshev_1(n-1) - Polynomial.chebyshev_1(n-2)
+                Polynomial.cheby1_cache[n] = cp
+                return cp
+            else:
+                return Polynomial.cheby1_cache[n]
+            
+    def chebyshev_2(n):
+        if n == 0:
+            return Polynomial([1])
+        elif n == 1:
+            return Polynomial([0,2])
+        else:
+            if not n in Polynomial.cheby2_cache:
+                c = Polynomial([0,2])
+                cp = c * Polynomial.chebyshev_2(n-1) - Polynomial.chebyshev_2(n-2)
+                Polynomial.cheby2_cache[n] = cp
+                return cp
+            else:
+                return Polynomial.cheby2_cache[n]
+    ##################################################
+    ##### Implementation of Legendre polynomials ##### 
+    ##################################################           
+    def legendre(n):
+        def calc_coefficient(k,n):
+            sign = 1 if k % 2 == 0 else -1
+            return sign * Common.fac(2 * n - 2 * k)/(Common.fac(n - k) * Common.fac(n - 2 * k) * Common.fac(k) * (2 ** n))
+        if n == 0:
+            return Polynomial([1])
+        elif n == 1:
+            return Polynomial([0,1]) 
+        else:
+            res = None
+            for k in range(0, Common.gauss(n) + 1):
+                coeff = calc_coefficient(k,n)
+                p = Polynomial.single_p(coeff, n-2*k)
+                if res == None:
+                    res = p
+                else:
+                    res = res + p
+            return res
+            
+    ##################################################
+    ##### Implementation of Laguerre polynomials ##### 
+    ##################################################
+    def laguerre(n):
+        def calc_coefficient(k,n):
+            sign = 1 if k % 2 == 0 else -1
+            return sign * Common.n_over_k(n,k) / fac(k)
+        if n == 0:
+            return Polynomial([1])
+        elif n == 1:
+            return Polynomial([1,-1]) 
+        else:
+            res = None
+            for k in range(n + 1):
+                coeff = calc_coefficient(k,n)
+                p = Polynomial.single_p(coeff,k)
+                print(p)
+                if res == None:
+                    res = p
+                else:
+                    res = res + p
+                
             
 # Rational polynomials have a polynomial as nominator 
 # and another polynomial as denominator            
-class RationalPolynomials:
+class RationalPolynomial:
     def __init__(self, pcoeffs, qcoeffs):
         self.p = Polynomial(pcoeffs)
         self.q = Polynomial(qcoeffs)
         
+    def from_polynomials(p, q):
+        return RationalPolynomial(p.a, q.q)
+        
         # computes the value of the polynom at x
     def compute(self, x):
-        return self.p.compute(x) / self.q.compute(x)
+        d = self.q.compute(x)
+        if d == 0:
+            raise ValueError("division by zero die to denominator polynomial")
+        else:
+            return self.p.compute(x) / self.q.compute(x)
         
     def __str__(self):
         return str(self.p) + " / " + str(self.q) 
@@ -5541,6 +5623,12 @@ class RationalPolynomials:
         
     def __ne__(self, other):
         return not self == other
+        
+    def __add__(self, other):
+        return RationalPolynomial(self.p * other.q + self.q * other.p, other.q * self.q)
+
+    def __mul__(self, other):
+        return RationalPolynomial(self.p*other.p, self.q*other.q)
             
 #################################################
 ################ class Rational #################
