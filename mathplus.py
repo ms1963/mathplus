@@ -367,8 +367,8 @@ class Common:
             
     # determines how many items are covered by a 
     # slice slc applied to array        
-    def slice_length(slc, array):
-        return len(array[slc])
+    def slice_length(slc, arr):
+        return len(arr[slc])
         
     # for even n, the gauss-function returns n // 2
     # for odd  n, the gauss-function returns (n-1)//2
@@ -542,12 +542,12 @@ class array:
             return a
             
     # helper function to initialize lists with random numbers
-    def _random_initializer(dims, fromvalue, tovalue, seed_val = None, dtype = float):
+    def _random_initializer(shp, fromvalue, tovalue, seed_val = None, dtype = float):
         if seed_val != None:
             random.seed(seed_val)
-        if len(list(dims)) == 1:
+        if len(list(shp)) == 1:
             a = []
-            for i in range(dims[0]):
+            for i in range(shp[0]):
                 if dtype == int:
                     a.append(int(random.randrange(fromvalue, tovalue)))
                 else:
@@ -555,10 +555,10 @@ class array:
             return a
         else: # len(dims) > 1
             a = []
-            newshp = [copy(dims)]
+            newshp = [copy(shp)]
             newshp.pop(0)
             newshp = tuple(newshp)
-            for i in range(dims[0]):
+            for i in range(shp[0]):
                 a.append(array._random_initializer(newshp, fromvalue, tovalue, None, dtype))
             return a
         
@@ -592,30 +592,30 @@ class array:
                 a.append(elem.to_list()) 
             return array(a, self.dtype)
             
-    def _find(array, lambda_f):
+    def _find(arr, lambda_f):
         result = []
-        shp = Array.shape(array)
+        shp = Array.shape(arr)
         if len(shp) == 1:
             for i in range(shp[0]):
-                if lambda_f(array[i]):
-                    result.append(array[i])
+                if lambda_f(arr[i]):
+                    result.append(arr[i])
             return result
         else:
             for i in range(shp[0]):
-                result += array._find(array[i], lambda_f)
+                result += array._find(arr[i], lambda_f)
             return result
             
-    def _find_with_path(array, path, lambda_f):
+    def _find_with_path(arr, path, lambda_f):
         result = []
-        shp = Array.shape(array)
+        shp = Array.shape(arr)
         if len(shp) == 1:
             for i in range(shp[0]):
-                if lambda_f(array[i]):
+                if lambda_f(arr[i]):
                     result.append(path+[i])
             return result
         else:
             for i in range(shp[0]):
-                result += array._find_with_path(array[i], path + [i], lambda_f)
+                result += array._find_with_path(arr[i], path + [i], lambda_f)
             return result
             
     # search for all elements in array that meet a condition
@@ -679,13 +679,13 @@ class array:
         return Array.shape(self.a)
             
     def __str__(self):
-        def helper(array):
+        def helper(arr):
             res = "["
-            for i in range(len(array)):
-                if not isinstance(array[i], list):
-                    res += " " + str(array[i]) + " "
+            for i in range(len(arr)):
+                if not isinstance(arr[i], list):
+                    res += " " + str(arr[i]) + " "
                 else:
-                    res += helper(array[i])
+                    res += helper(arr[i])
             res += "]"
             return res
         return helper(self.a)
@@ -1062,7 +1062,7 @@ class array:
     # with base ** startp and ending with base ** endp (if with_endp
     # is set to True)
     def log_distribution(startp, endp, size, base = 10.0, with_endp = True, dtype = float):
-        array = []
+        arr = []
         if size == 1:
             sz = 1
         else:
@@ -1071,8 +1071,8 @@ class array:
         incr = float((endp-startp)/sz)
     
         for i in range(0, size):
-            array.append(dtype(base ** (startp + i * incr)))
-        return array.from_list(array, dtype)
+            arr.append(dtype(base ** (startp + i * incr)))
+        return array.from_list(arr, dtype)
         
     # calculates the mean of array elements
     def mean(self):
@@ -1119,11 +1119,11 @@ class array:
     # the lmbda is applied to all elements of
     # array with init_val being the aggregator
     def reduce_general(self, lmbda, init_val = None):
-        array = self.flatten().a
+        arr = self.flatten().a
         if init_val == None:
-            return reduce(lmbda, array)
+            return reduce(lmbda, arr)
         else:
-            return reduce(lmbda, array, init_val)
+            return reduce(lmbda, arr, init_val)
         
     # calculate the sum of all elements in an array
     # using init_val as the base value
@@ -1232,14 +1232,14 @@ class array:
             
         
     # transpose() transposes nxm-arrays
-    def array_transpose(array):
-        shp = Array.shape(array)
+    def array_transpose(arr):
+        shp = Array.shape(arr)
         n = shp[0]
         m = shp[1]
         result = [[0 for i in range(n)] for j in range(m)]
         for r in range(m):
             for c in range(n):
-                result[r][c] = array[c][r]
+                result[r][c] = arr[c][r]
         return result
         
     # extract a subarray from array
@@ -1270,8 +1270,8 @@ class array:
     def split(self, arg, axis = 0):
         shp = self.shape
     
-        def split_1D(array, arg):
-            n = len(array)
+        def split_1D(arr, arg):
+            n = len(arr)
             if isinstance(arg, int):
                 if arg == 0 or n % arg != 0:
                     raise ValueError("equal split of array with size = " + str(n) + " impossible with arg = " + str(arg))
@@ -1279,11 +1279,11 @@ class array:
                     result = []
                     i = 0
                     while i < n:
-                        arr = []
+                        arr_ = []
                         for j in range(n // arg):
-                            arr.append(array[i + j])
+                            arr_.append(arr[i + j])
                         i += n // arg
-                        result.append(arr)
+                        result.append(arr_)
                 return result
             elif isinstance(arg, tuple) or isinstance(arg, list):
                 last_pos = 0
@@ -1292,14 +1292,14 @@ class array:
                     if pos < 0 or pos >= n:
                         raise ValueError("attempt to split array of size = " + str(n) + " at nonexistent position " + str(pos))
                     split_indices.append(pos)
-                split_indices.append(len(array))
+                split_indices.append(len(arr))
                 split_indices = list(set(split_indices))
                 split_indices.sort()
                 result = []
                 for i in range(len(split_indices)-1):
                     tmp = []
                     for j in range(split_indices[i], split_indices[i+1]):
-                        tmp.append(array[j])
+                        tmp.append(arr[j])
                     result.append(tmp)
                 return result
     
@@ -1463,7 +1463,7 @@ class array:
                 
     # exp for arrays based on apply()
     # apply_1D
-    def exp(array):
+    def exp(self):
         res = self.apply(math.exp)
         return res
         
@@ -1480,17 +1480,17 @@ class array:
     # calculate the mean-normalized form of the
     # input array:
     def mean_normalization(self):
-        array = self.flatten().to_list()
-        maximum = max(array)
+        arr = self.flatten().to_list()
+        maximum = max(arr)
         mean    = self.mean()
-        result  = [(array[i] - mean) / maximum for i in range(0, len(array))]
+        result  = [(arr[i] - mean) / maximum for i in range(0, len(arr))]
         return array(result, self.dtype)
         
     def euclidean_norm(self):
         sum = 0
-        array = self.flatten()
+        arr = self.flatten()
         for i in range(array.shape[0]):
-            sum += array[i] ** 2
+            sum += arr[i] ** 2
         return math.sqrt(sum)
         
     # calculate minima of array
@@ -1570,7 +1570,7 @@ class array:
     # conducted on a copy of a so that a remains
     # unchanged       
     def sort(arr, in_situ = True):
-        def quicksort(array, indices):
+        def quicksort(arr, indices):
             smaller = []
             equal   = []
             larger  = []
@@ -1579,7 +1579,7 @@ class array:
             idx_larger  = []
         
             if len(arr) > 1:
-                pivot = array[0]
+                pivot = arr[0]
                 for i in range(len(arr)):
                     if arr[i] < pivot:
                         smaller.append(arr[i])
@@ -1754,8 +1754,8 @@ class Array:
             return result
         
     # count elements of list/array
-    def count(array):
-        shp = Array.shape(array)
+    def count(arr):
+        shp = Array.shape(arr)
         prod = 1
         for i in range(len(shp)):
             prod *= shp[i]
@@ -1764,27 +1764,27 @@ class Array:
     # this function does delegate to reduce() 
     # the lmbda is applied to all elements of 
     # array with init_val being the aggregator
-    def reduce_general(lmbda, array, init_val = None):
+    def reduce_general(lmbda, arr, init_val = None):
         if init_val == None:
-            return reduce(lmbda, array)
+            return reduce(lmbda, arr)
         else:
-            return reduce(lmbda, array, init_val)
+            return reduce(lmbda, arr, init_val)
         
     # calculate the sum of all elements in an array 
     # using init_val as the base value
-    def sum(array, init_val = None):
+    def sum(arr, init_val = None):
         if init_val == None:
-            return reduce(operator.add, array)
+            return reduce(operator.add, arr)
         else:
-            return reduce(operator.add, array, init_val)
+            return reduce(operator.add, arr, init_val)
         
     # calculate the product of all elements in an array 
     # using init_val as the base value
-    def mul(array, init_val = None):
+    def mul(arr, init_val = None):
         if init_val == None:
-            return reduce(operator.mul, array)
+            return reduce(operator.mul, arr)
         else:
-            return reduce(operator.mul, array, init_val)
+            return reduce(operator.mul, arr, init_val)
           
     # methods to create array with different dimensions filled
     # with init_value
@@ -1797,12 +1797,12 @@ class Array:
     # transpose() is defined for all 2Darrays. It returns a new
     # array with: new_array[r][c] = array[c][r] for all
     # valid (row,column)-combinations
-    def transpose(array):
-        n,m = Array.shape(array)
+    def transpose(arr):
+        n,m = Array.shape(arr)
         result = Array.create_2Darray(m,n)
         for r in range(m):
             for c in range(n):
-                result[r][c] = array[c][r]
+                result[r][c] = arr[c][r]
         return result
         
     def create_3Darray(dim1count, dim2count, dim3count, init_value = 0):
@@ -1811,8 +1811,8 @@ class Array:
     # split_1D splits a one-dimensional array in arg pieces if 
     # arg is an integer, or at the specified positions if arg 
     # is a list or tupel
-    def split_1D(array, arg):
-        n = len(array)
+    def split_1D(arr, arg):
+        n = len(arr)
         if isinstance(arg, int):
             if arg == 0 or n % arg != 0:
                 raise ValueError("equal split of array with size = " + str(n) + " impossible with arg = " + str(arg))
@@ -1820,11 +1820,11 @@ class Array:
                 result = []
                 i = 0
                 while i < n:
-                    arr = []
+                    arr_ = []
                     for j in range(n // arg):
-                        arr.append(array[i + j])
+                        arr_.append(arr[i + j])
                     i += n // arg
-                    result.append(arr)
+                    result.append(arr_)
             return result
         elif isinstance(arg, tuple) or isinstance(arg, list):
             last_pos = 0
@@ -1833,14 +1833,14 @@ class Array:
                 if pos < 0 or pos >= n:
                     raise ValueError("attempt to split array of size = " + str(n) + " at nonexistent position " + str(pos))
                 split_indices.append(pos)
-            split_indices.append(len(array))
+            split_indices.append(len(arr))
             split_indices = list(set(split_indices))
             split_indices.sort()
             result = []
             for i in range(len(split_indices)-1):
                 tmp = []
                 for j in range(split_indices[i], split_indices[i+1]):
-                    tmp.append(array[j])
+                    tmp.append(arr[j])
                 result.append(tmp)
             return result
     
@@ -1848,8 +1848,8 @@ class Array:
     # arg is an integer, or at the specified positions if arg 
     # is a list or tupel. The split can be conducted along 
     # axis = 0 or axis = 1
-    def split_2D(array, arg, axis = 0):
-        n,m = Array.shape(array)
+    def split_2D(arr, arg, axis = 0):
+        n,m = Array.shape(arr)
         if axis == 0:
             if isinstance(arg, int):
                 if arg == 0 or m % arg != 0:
@@ -1858,7 +1858,7 @@ class Array:
                     result = []
                     tmp = []
                     for i in range(n):
-                        tmp.append(Array.split_1D(array[i], arg))
+                        tmp.append(Array.split_1D(arr[i], arg))
                     for j in range(len(tmp[0])):
                         single = []
                         for i in range(n):
@@ -1870,7 +1870,7 @@ class Array:
                 result = []
                 tmp = []
                 for i in range(n):
-                    tmp.append(Array.split_1D(array[i], arg))
+                    tmp.append(Array.split_1D(arr[i], arg))
                 for j in range(len(tmp[0])):
                     single=[]
                     for i in range(n):
@@ -1882,7 +1882,7 @@ class Array:
                 if arg == 0 or n % arg != 0:
                     raise ValueError("equal split of array with size = " + str(n) + " impossible with arg = " + str(arg))
             result = []
-            array_tmp = Array.transpose(array)
+            array_tmp = Array.transpose(arr)
             tmp = Array.split_2D(array_tmp, arg, axis = 0)
             
             for k in range(len(tmp)):
@@ -1890,37 +1890,37 @@ class Array:
             return result
             
     # extract a subarray from array
-    def subarray(array, top, bottom, left, right):
-        shp = Array.shape(array)
+    def subarray(arr, top, bottom, left, right):
+        shp = Array.shape(arr)
         dim1 = shp[0]
         dim2 = shp[1]
         if not(left <= right and top <= bottom and right <= dim2 and bottom <= dim1):
             raise ValueError("index out of range")
             
         if left == right and top == bottom:
-            return array[top][left]
+            return arr[top][left]
         else: 
             result = []
             for r in range(bottom - top + 1):
                 row = []
                 for c in range(right - left + 1):
-                    row.append(array[top + r][left + c])
+                    row.append(arr[top + r][left + c])
                 result.append(row)
             return result
     
     # delete elements from an array with indices of elements           
     # to delete given in indices
-    def delete(array, indices):
+    def delete(arr, indices):
         new_array = []
-        for i in range(0, len(array)):
+        for i in range(0, len(arr)):
             if not i in indices:
-                new_array.append(array[i])
+                new_array.append(arr[i])
         return new_array
         
     # erase values from array so that that none of 
     # these numbers is left in the array 
-    def erase(array, values):
-        new_array = deepcopy(array)
+    def erase(arr, values):
+        new_array = deepcopy(arr)
         for val in values:
             while val in new_array:
                 new_array.remove(val)
@@ -2030,8 +2030,8 @@ class Array:
     # if in_situ = False, the sort will be 
     # conducted on a copy of a so that a remains
     # unchanged
-    def sort(array, in_situ = True):
-        def quicksort(array, indices):
+    def sort(arr, in_situ = True):
+        def quicksort(arr, indices):
             smaller = []
             equal   = []
             larger  = []
@@ -2039,31 +2039,31 @@ class Array:
             idx_equal   = []
             idx_larger  = []
         
-            if len(array) > 1:
-                pivot = array[0]
-                for i in range(len(array)):
-                    if array[i] < pivot:
-                        smaller.append(array[i])
+            if len(arr) > 1:
+                pivot = arr[0]
+                for i in range(len(arr)):
+                    if arr[i] < pivot:
+                        smaller.append(arr[i])
                         idx_smaller.append(indices[i])
-                    elif array[i] == pivot:
-                        equal.append(array[i])
+                    elif arr[i] == pivot:
+                        equal.append(arr[i])
                         idx_equal.append(indices[i])
-                    elif array[i] > pivot:
-                        larger.append(array[i])
+                    elif arr[i] > pivot:
+                        larger.append(arr[i])
                         idx_larger.append(indices[i])
                 sma, sidx = quicksort(smaller, idx_smaller)
                 equ, eidx = equal, idx_equal
                 lar, lidx = quicksort(larger, idx_larger)
                 return (sma + equ + lar, sidx + eidx + lidx)
-            elif len(array) == 1: 
-                return array, [indices[0]]
+            elif len(arr) == 1: 
+                return arr, [indices[0]]
             else:
                 return [],[]
                 
-        sortedarr, indices = quicksort(array, [i for i in range(len(array))])
+        sortedarr, indices = quicksort(arr, [i for i in range(len(arr))])
         if in_situ:
-            for i in range(len(array)):
-                array[i] = sortedarr[i]
+            for i in range(len(arr)):
+                arr[i] = sortedarr[i]
             return indices
         else:
             return sortedarr, indices
@@ -2180,17 +2180,17 @@ class Array:
             
     # checks whether condition cond (lambda or function type)
     # holds for all elements of an array
-    def all(array, cond):
-        for i in range(0, len(array)):
-            if not cond(array[i]):
+    def all(arr, cond):
+        for i in range(0, len(arr)):
+            if not cond(arr[i]):
                 return False
         return True
     
     # checks whether condition cond (lambda or function type)
     # holds for at least one element of an array
-    def any(array, cond):
-        for i in range(0, len(array)):
-            if cond(array[i]):
+    def any(arr, cond):
+        for i in range(0, len(arr)):
+            if cond(arr[i]):
                 return True
         return False
         
@@ -2209,7 +2209,7 @@ class Array:
     # consisting of size elements with the specified datatype dtype, If 
     # with_endp is set to True the distribution will contain the endpoint.
     def lin_distribution(startp, endp, size, with_endp = False, dtype = float):
-        array = []
+        arr = []
         if size == 1:
             sz = 1
         else:
@@ -2222,14 +2222,14 @@ class Array:
         incr =(endp-startp)/sz
     
         for i in range(0, size):
-            array.append(dtype(startp + i * incr))
-        return array
+            arr.append(dtype(startp + i * incr))
+        return arr
         
     # creates a logarithmic distribution of size elements starting 
     # with base ** startp and ending with base ** endp (if with_endp 
     # is set to True)
     def log_distribution(startp, endp, size, base = 10.0, with_endp = True, dtype = float):
-        array = []
+        arr = []
         if size == 1:
             sz = 1
         else:
@@ -2238,56 +2238,56 @@ class Array:
         incr =(endp-startp)/sz
     
         for i in range(0, size):
-            array.append(dtype(base ** (startp + i * incr)))
-        return array
+            arr.append(dtype(base ** (startp + i * incr)))
+        return arr
         
     # calculate the mean-normalized form of the 
     # input array: 
-    def mean_normalization(array):
-        maximum = max(array)
-        mean    = Array.mean(array)
-        result  = [(array[i] - mean) / maximum for i in range(0, len(array))]
+    def mean_normalization(arr):
+        maximum = max(arr)
+        mean    = Array.mean(arr)
+        result  = [(arr[i] - mean) / maximum for i in range(0, len(arr))]
         return result
         
-    def euclidean_norm(array):
+    def euclidean_norm(arr):
         sum = 0
-        for i in range(len(array)):
-            sum += array[i] ** 2
+        for i in range(len(arr)):
+            sum += arr[i] ** 2
         return math.sqrt(sum)
             
     # calculate minima of array        
-    def argmin(array, axis = None):
-        if axis == None or Array.shape(array)[0] == 1:
-            return min(array)
+    def argmin(arr, axis = None):
+        if axis == None or Array.shape(arr)[0] == 1:
+            return min(arr)
         elif axis == 0:
             result = []
-            for i in range(0, Array.shape(array)[0]):
-                result.append(min(array[i]))
+            for i in range(0, Array.shape(arr)[0]):
+                result.append(min(arr[i]))
             return result
         elif axis == 1:
             result = []
-            for c in range(0, Array.shape(array)[1]):
+            for c in range(0, Array.shape(arr)[1]):
                 tmp = []
-                for r in range(0, Array.shape(array)[0]):
-                    tmp.append(array[r][c])
+                for r in range(0, Array.shape(arr)[0]):
+                    tmp.append(arr[r][c])
                 result.append(min(tmp))
             return result
                 
     # calculate maxima of array
-    def argmax(array, axis = None):
-        if axis == None or Array.shape(array)[0] == 1:
-            return max(array)
+    def argmax(arr, axis = None):
+        if axis == None or Array.shape(arr)[0] == 1:
+            return max(arr)
         elif axis == 0:
             result = []
-            for i in range(0, Array.shape(array)[0]):
-                result.append(max(array[i]))
+            for i in range(0, Array.shape(arr)[0]):
+                result.append(max(arr[i]))
             return result
         elif axis == 1:
             result = []
-            for c in range(0, Array.shape(array)[1]):
+            for c in range(0, Array.shape(arr)[1]):
                 tmp = []
-                for r in range(0, Array.shape(array)[0]):
-                    tmp.append(array[r][c])
+                for r in range(0, Array.shape(arr)[0]):
+                    tmp.append(arr[r][c])
                 result.append(max(tmp))
             return result
             
@@ -2295,64 +2295,64 @@ class Array:
     # elements in the array. All elements satisfying the 
     # predicate are appended to the result list 
     # returns result list
-    def find(lambda_f, array):
+    def find(lambda_f, arr):
         result = [] 
-        dim1, dim2 = Array.shape(array)
+        dim1, dim2 = Array.shape(arr)
         for i in range(0, dim1):
             for j in range(0, dim2):
-                if lambda_f(array[i][j]):
-                    result.append(array[i][j])
+                if lambda_f(arr[i][j]):
+                    result.append(arr[i][j])
         return result
     
     # same as find, but returns as a list all of all indices
     # where the condition lambda_f holds            
-    def find_where(lambda_f, array):
+    def find_where(lambda_f, arr):
         result = [] 
-        dim1, dim2 = Array.shape(array)
+        dim1, dim2 = Array.shape(arr)
         for i in range(0, dim1):
             for j in range(0, dim2):
-                if lambda_f(array[i][j]):
+                if lambda_f(arr[i][j]):
                     result.append((i,j))
         return result
         
     # apply_1D applies a function to all elements 
     # of a 1D array
-    def apply_1D(lambda_f, array):
+    def apply_1D(lambda_f, arr):
         result = []
-        for i in range(len(array)):
-            result.append(lambda_f(array[i]))
+        for i in range(len(arr)):
+            result.append(lambda_f(arr[i]))
         return result
             
     # apply_2D applies a function to all elements
     # of a 2D array
-    def apply_2D(lambda_f, array):
-        d1,d2 = Array.shape(array)
+    def apply_2D(lambda_f, arr):
+        d1,d2 = Array.shape(arr)
         result = []
         for i in range(d1):
             row = []
             for j in range(d2):
-                row.append(lambda_f(array[i][j]))
+                row.append(lambda_f(arr[i][j]))
             result.append(row)
         return result
     
     # An 2D array can be rotated 90° to the left or right.
     # if left = True  => left  rotation
     # if left = False => right rotation           
-    def rotate(array, left = True):
-        n,m = Array.shape(array)
+    def rotate(arr, left = True):
+        n,m = Array.shape(arr)
         res = []
         if left:
             for c in range(m):
                 row = []
                 for r in range(n):
-                    row.append(array[r][m-c-1])
+                    row.append(arr[r][m-c-1])
                 res.append(row)
             return res
         else: 
             for c in range(m):
                 row = []
                 for r in range(n):
-                    row.append(array[n-r-1][c])
+                    row.append(arr[n-r-1][c])
                 res.append(row)
             return res
         
@@ -2362,39 +2362,39 @@ class Array:
     
     # sin for one dimensional arrays based on 
     # apply_1D
-    def sin(array):
-        res = Array.apply_1D(math.sin, array)
+    def sin(arr):
+        res = Array.apply_1D(math.sin, arr)
         return res
         
     # cos for one dimensional arrays based on 
     # apply_1D
-    def cos(array):
-        res = Array.apply_1D(math.cos, array)
+    def cos(arr):
+        res = Array.apply_1D(math.cos, arr)
         return res
         
     # tan for one dimensional arrays based on 
     # apply_1D
-    def tan(array):
-        res = Array.apply_1D(math.tan, array)
+    def tan(arr):
+        res = Array.apply_1D(math.tan, arr)
         return res
                 
 
     # exp for one dimensional arrays based on 
     # apply_1D
-    def exp(array):
-        res = Array.apply_1D(math.exp, array)
+    def exp(arr):
+        res = Array.apply_1D(math.exp, arr)
         return res
         
     # log for one dimensional arrays based on 
     # apply_1D
-    def log(array, base):
-        res = Array.apply_1D(lambda x: math.log(x,base), array)
+    def log(arr, base):
+        res = Array.apply_1D(lambda x: math.log(x,base), arr)
         return res
         
     # pow for one dimensional arrays based on 
     # apply_1D
-    def pow(array, exponent):
-        res = Array.apply_1D(lambda x: pow(x,exponent), array)
+    def pow(arr, exponent):
+        res = Array.apply_1D(lambda x: pow(x,exponent), arr)
         return res
         
     # get a two dimensional array filled with random numbers
@@ -2403,27 +2403,27 @@ class Array:
             seed(seedval)
         rows = shp[0]
         cols = shp[1]
-        array = [[dtype(0) for i in range(cols)] for j in range(rows)]
+        arr = [[dtype(0) for i in range(cols)] for j in range(rows)]
         for r in range(0, rows):
             for c in range(0, cols):
                 if dtype == int:
-                    array[r][c] = int(randrange(fromvalue, tovalue))
+                    arr[r][c] = int(randrange(fromvalue, tovalue))
                 else:
-                    array[r][c] = dtype(uniform(fromvalue, tovalue))
-        return array
+                    arr[r][c] = dtype(uniform(fromvalue, tovalue))
+        return arr
         
     # get a one-dimensional array filled with random numbers
     def random_1D(length, fromvalue, tovalue, dtype, seedval = None):
         if seedval != None:
             seed(seedval)
-        array = [dtype(0) for i in range(length)]
+        arr = [dtype(0) for i in range(length)]
         if dtype == int:
             for i in range(length):
-                array[i] = int(randrange(fromvalue, tovalue))
+                arr[i] = int(randrange(fromvalue, tovalue))
         else:
             for i in range(length):
-                array[i] = dtype(uniform(fromvalue, tovalue))
-        return array
+                arr[i] = dtype(uniform(fromvalue, tovalue))
+        return arr
         
     def asmatrix(lst):
         shape = Array.shape(lst)
@@ -4065,23 +4065,23 @@ class Matrix:
     # concatenation of the rows or columns of matrix other
     # to matrix self depending on axis
     def concatenate(self, other, axis = 0):
-        array =  Array.concatenate(self.m, other.m, axis)
-        m = Matrix.from_list(array, dtype = self.dtype)
+        arr =  Array.concatenate(self.m, other.m, axis)
+        m = Matrix.from_list(arr, dtype = self.dtype)
         return m
         
     # this method stacks the rows or columns of a m x n-matrix
     # on top of each other which results in a 1 x m*n row vector 
     # (axis == 0) or in a m*n x 1 column vector
     def vectorize(self, axis = 0):
-        array = []
+        arr = []
         if axis == 0:
             for i in range(0, self.dim1):
-                array += self.row_vector(i).v
-            return Vector.from_list(array, dtype = self.dtype, transposed = True)
+                arr += self.row_vector(i).v
+            return Vector.from_list(arr, dtype = self.dtype, transposed = True)
         else: # axis != 0 
             for i in range(0, self.dim2):
-                array += self.column_vector(i).v
-            return Vector.from_list(array, dtype = self.dtype, transposed = False)
+                arr += self.column_vector(i).v
+            return Vector.from_list(arr, dtype = self.dtype, transposed = False)
         
     # 2-dim array required as input 
     def covariance_matrix(arr, rows):
@@ -5123,12 +5123,12 @@ class FunctionMatrix:
     # initialize a FunctionMatrix using
     # a list. The list shape is mapped to the
     # Matrix shape.
-    def from_list(array):
-        shape = Array.shape(array)
+    def from_list(arr):
+        shape = Array.shape(arr)
         o = FunctionMatrix(shape[0], shape[1])
         for r in range (0, shape[0]):
             for c in range(0, shape[1]):
-                o.m[r][c] = array[r][c]
+                o.m[r][c] = arr[r][c]
         return o
         
 #################################################
@@ -5955,8 +5955,8 @@ class Classification:
         2 is euclidean/L2 norm, 1 is Manhattan/L1 norm, 2 is Lp norm
     """
     class KNearestNeighbor:
-        def most_frequent(self, array):
-            data = Counter(array)
+        def most_frequent(self, arr):
+            data = Counter(arr)
             return data.most_common(1)[0][0]
 
         def __init__(self, datapoints, labels, norm):
@@ -6988,7 +6988,7 @@ class Transfer:
     def readArrayFromCSV(filename, verbose = False):
         csv.register_dialect('excel', delimiter=',', quoting=csv.QUOTE_NONE)
         counter = 0
-        array = []
+        arr = []
         shp   = None
         dtype = None
         
@@ -7006,10 +7006,10 @@ class Transfer:
                         raise ValueError("more than one row in file: this cannot be a flattened array")
                     array_row = []
                     for num in row:
-                        array.append(dtype(num))
+                        arr.append(dtype(num))
             except csv.Error as e:
                 print('file {}, line {}: {}'.format(filename, reader.line_num, e))
-        a = array(array, dtype)
+        a = array(arr, dtype)
         return a.reshape(shp)
 
     def writeArrayToCSV(a, filename, verbose = False):
@@ -7024,7 +7024,7 @@ class Transfer:
     def readVectorFromCSV(filename, verbose = False):
         csv.register_dialect('excel', delimiter=',', quoting=csv.QUOTE_NONE)
         counter = 0
-        array = []
+        arr = []
         trans = None
         dtype = None
         
@@ -7042,10 +7042,10 @@ class Transfer:
                         raise ValueError("more than one row in file: this cannot be a vector")
                     array_row = []
                     for num in row:
-                        array.append(dtype(num))
+                        arr.append(dtype(num))
             except csv.Error as e:
                 print('file {}, line {}: {}'.format(filename, reader.line_num, e))
-        v = Vector.from_list(array, dtype, trans)
+        v = Vector.from_list(arr, dtype, trans)
         return v
         
     def writeVectorToCSV(v, filename, verbose = False):
@@ -7059,7 +7059,7 @@ class Transfer:
 
     def readMatrixFromCSV(filename, verbose = False):
         csv.register_dialect('excel', delimiter=',', quoting=csv.QUOTE_NONE)
-        array = []
+        arr = []
         dtype = None
         with open(filename, newline='') as f:
             try: 
@@ -7075,10 +7075,10 @@ class Transfer:
                     array_row = []
                     for num in row:
                         array_row.append(dtype(num))
-                    array.append(array_row)
+                    arr.append(array_row)
             except csv.Error as e:
                 print('file {}, line {}: {}'.format(filename, reader.line_num, e))
-        return Matrix.from_list(array, dtype)
+        return Matrix.from_list(arr, dtype)
         
     def writeMatrixToCSV(m, filename, verbose = False):
         with open(filename, 'w', newline='') as csvfile:

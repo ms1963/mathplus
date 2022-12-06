@@ -359,8 +359,8 @@ v = Vector.random_vector(6, dtype = float, fromvalue = -2, tovalue = 2)
 print("Generating random vector = \n" + str(v))
 print("Removing values at vector[1,3, and 5] " + str(v.remove(indices=[1,3,5])))
 print()
-array = [[1 for i in range(0,5)] for row in range(0,5)]
-m = Matrix.from_list(array, dtype = int)
+arr = [[1 for i in range(0,5)] for row in range(0,5)]
+m = Matrix.from_list(arr, dtype = int)
 print("Matrix m = " + str(m))
 v = Vector.from_list([1 for i in range(0,5)], dtype = int)
 print("Vector v is " + str(v))
