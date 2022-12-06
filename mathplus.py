@@ -5390,9 +5390,11 @@ class Polynomial:
     def __pos__(self):
         return deepcopy(self)
         
-    # subtraction of polynoms is delegated to negation and addition
-    def __sub__(self,other):
-        return self.__add__(-other)
+    def __neg__(self):
+        res = deepcopy(self)
+        for i in range(len(self.a)):
+            res.a[i] = -self.a[i]
+        return res
         
     # check for equality
     def __eq__(self, other):
