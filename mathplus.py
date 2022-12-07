@@ -6893,7 +6893,7 @@ class Transfer:
     # the draw function expects a array x with the arguments
     # and thre function to be applied as a lambda. This function 
     # is drawn using matplotlib
-    def draw_function_2D(xmp, lambda_f, color = 'r', label = ""): 
+    def draw_function_2D(xmp, lambda_f, color = 'r', label = "", title = None, legend_loc = "upper left", xlabel = None, ylabel = None): 
         ymp = xmp.apply(lambda_f)
         x = Transfer.array_to_numpy(xmp)
         y = Transfer.array_to_numpy(ymp)
@@ -6908,13 +6908,20 @@ class Transfer:
         ax.yaxis.set_ticks_position('left')
         # plot the function
         plt.plot(x, y, color = color, label = label)
-        plt.legend(loc='upper left')
+        if title != None:
+            plt.title(title)
+        if xlabel != None:
+            plt.xlabel(xlabel)
+        if ylabel != None:
+            plt.ylabel(ylabel)
+        if legend_loc != None:
+            plt.legend(loc='upper left')
         plt.show()
         
     # draw_functions_2D is used to draw multiple functions
     # at once. It expects an input list as an argument that
     # contain entries of the form (lambda, color, label)
-    def draw_functions_2D(xmp, input):
+    def draw_functions_2D(xmp, input, title = None, legend_loc = "upper left", xlabel = None, ylabel = None):
         if len(input) == 0:
             raise ValueError("received an empty input vector")
         x = Transfer.array_to_numpy(xmp)
@@ -6938,7 +6945,15 @@ class Transfer:
         
         for i in range(len(y_array)):
             plt.plot(x, y_array[i], color = col_array[i], label = lbl_array[i])
-        plt.legend(loc='upper left')
+            
+        if title != None:
+            plt.title(title)
+        if xlabel != None:
+            plt.xlabel(xlabel)
+        if ylabel != None:
+            plt.ylabel(ylabel)
+        if legend_loc != None:
+            plt.legend(loc=legend_loc)
         plt.show()
         
     def draw_function_3D(tmp, lambda_f1, lambda_f2, title ="mathplus 3D function"):
