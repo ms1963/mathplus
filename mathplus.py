@@ -4848,7 +4848,7 @@ class Tensor:
             return result
         else: # ndim1 <= 2, but ndim2 > 2
             result = []
-            for i in range(shp2[1]):
+            for i in range(shp2[0]):
                 result += Tensor._kmult_helper(t1, t2[i])
             return result
                 
