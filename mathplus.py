@@ -4667,7 +4667,7 @@ class Tensor:
         return deepcopy(self)
         
     def __str__(self):
-        return "tensor" + str(self.mpa)
+        return "tensor" + str(self.mpa.a)
         
     def filled_tensor(shp, init_value = 0, dtype = float):
         mpa = array.filled_array(shp, init_value, dtype)
@@ -4745,6 +4745,8 @@ class Tensor:
         Tensor._apply(mpa, self.mpa, other.mpa, lambda x,y: x-y)
         return Tensor(mpa)
         
+    # implements multiplication with constants and Hadamon multiplication
+    # of tensors
     def __mul__(self, other):
         if isinstance(other, int) or isinstance(other, float) or isinstance(other, complex):
             mpa = deepcopy(self.mpa)
@@ -4796,9 +4798,9 @@ class Tensor:
         else:
             raise ValueError("tensor product not compatible with type " + str(type(other)))
 
+    # implements Kronecker Multiplication
     def kmult(t1, t2):
         return Tensor(Tensor.kmult_helper(t1.mpa.a, t2.mpa.a), dtype = t1.dtype)
-        
         
     def kmult_helper(l1, l2):
         def apply(l, lambda_f):
@@ -4824,26 +4826,23 @@ class Tensor:
         shp2 = Array.shape(l2)
         ndim1 = len(shp1)
         ndim2 = len(shp2)
-        if ndim1 == 1 and ndim2 == 1:
+        if ndim1 == 1 and ndim2 == 2:
             result = []
-            for i in range(shp1[0]):
-                row = []
-                for j in range(shp2[0]):
-                    row.append(l1[i] * l2[j])
-                result.append(row)
-            return result
-        elif ndim1 == 1 and ndim2 == 2:
-            result = []
-            for i in range(shp1[0]):            
-                result.append(Tensor.kmult_helper(l1[i], l2))
+            for i in range(shp1[0]): 
+                tmp = []
+                for j in range(shp2[0]):   
+                    for k in range(shp2[1]):
+                        tmp.append(l1[i] * l2[j][k])
+                result.append(tmp)
             return result
         elif ndim1 == 2 and ndim2 == 1:
-            result = [] 
+            result = Array.create_2Darray(shp1[0], shp2[0])
             for i in range(shp1[0]):
-                row = []
                 for j in range(shp1[1]):
-                    row.append(Tensor.kmult_helper(l1[i][j],l2))
-                result.append(row)               
+                    tmp = []
+                    for k in range(shp2[0]):
+                        tmp.append(l1[i][j] * l2[k])
+                    result[i][j] = tmp               
             return result
         elif ndim1 == 2 and ndim2 == 2:
             result = Array.create_2Darray(shp1[0], shp1[1])
