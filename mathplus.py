@@ -5572,6 +5572,35 @@ class Polynomial:
             theta = theta - delta 
             
         return Polynomial(theta.v)
+        
+    # the draw function expects an interval [left, right] 
+    # and the polynomial to be drawn. This function 
+    # is drawn using matplotlib
+    def draw_poly(poly, left, right, color = 'r', label = "", title = None, legend_loc = "upper left", xlabel = None, ylabel = None): 
+        xmp = array.lin_distribution(left, right, 100)
+        ymp = xmp.apply(lambda x: poly.compute(x))
+        x = Transfer.array_to_numpy(xmp)
+        y = Transfer.array_to_numpy(ymp)
+        # setting the axes at the centre
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+        ax.spines['left'].set_position('center')
+        ax.spines['bottom'].set_position('zero')
+        ax.spines['right'].set_color('none')
+        ax.spines['top'].set_color('none')
+        ax.xaxis.set_ticks_position('bottom')
+        ax.yaxis.set_ticks_position('left')
+        # plot the function
+        plt.plot(x, y, color = color, label = label)
+        if title != None:
+            plt.title(title)
+        if xlabel != None:
+            plt.xlabel(xlabel)
+        if ylabel != None:
+            plt.ylabel(ylabel)
+        if legend_loc != None:
+            plt.legend(loc='upper left')
+        plt.show()
     
     ##################################################
     #### Implementation of Chebyshev polynomials ##### 
@@ -6159,10 +6188,7 @@ class Classification:
 #################################################
 #################### class ANN ##################
 #################################################  
-########### Implementation  of a simple Artificial Neural Network ######### 
-
-            
-
+########### Implementation  of a simple Artificial Neural Network #########
 
 # Base class
 class ANN:
