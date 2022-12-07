@@ -52,6 +52,16 @@ class Common:
     def get_author():
         return "Author: Michael Stal"
         
+    NumberTypes = {int, float, complex}
+    
+    # helper function that checks whether object x 
+    # is instance of one of the types in the set
+    def isinstance(x, typeset = NumberTypes):
+        for datatype in typeset:
+            if isinstance(x, datatype):
+                return True   
+        return False
+        
     # n!
     def fac(n):
         result = 1
