@@ -5353,14 +5353,22 @@ class Polynomial:
         
     # multiplication of polynomials
     def __mul__(self, other):
-        m1 = self._max_index()
-        m2 = other._max_index()
-        arr = [0 for i in range(0, m1+m2+1)]
-        for i in range(0, len(self)):
-            for j in range(0, len(other)):
-                arr[i+j] += self.a[i] * other.a[j]
-        result = Polynomial(arr)
-        return result
+        if  isinstance(other, Polynomial):
+            m1 = self._max_index()
+            m2 = other._max_index()
+            arr = [0 for i in range(0, m1+m2+1)]
+            for i in range(0, len(self)):
+                for j in range(0, len(other)):
+                    arr[i+j] += self.a[i] * other.a[j]
+            result = Polynomial(arr)
+            return result 
+        elif isinstance(other, float) or isinstance(other, int):
+            tmp = deepcopy(self)
+            for i in range(len(self.a)):
+                tmp.a[i] *= other
+            return tmp
+        else:
+            raise ValueError("Polynomial: mul not defined for arguments of type " + str(type(other)))
     
     # power of polynomials
     def __pow__(self, factor):
@@ -5623,6 +5631,17 @@ class Polynomial:
                     res = res + p
             return res
                 
+    ##################################################
+    ### Implementation of Power series polynomials ###
+    ##################################################
+    def power_series(a, c):
+        if len(a) == 0:
+            raise ValueError("can't build power series from an empty list'")
+        res = Polynomial([a[0]])
+        for i in range(1, len(a)):
+            tmp = Polynomial([-c, 1]) # (x-c)
+            res = res +  (tmp ** i) * a[i] # (x-c)^i
+        return res
             
 # Rational polynomials have a polynomial as nominator 
 # and another polynomial as denominator            
