@@ -21,7 +21,7 @@ Pros:
 Cons:
 
 + requires more memory than the runtime- and memory-efficient numpy arrays
-+ uses efficient algorithms whenever possible, but is not optimized for runtime efficiency
++ uses efficient algorithms whenever possible, but is not optimized for runtime efficiency. This means, numpy is significantly faster.
 + does not provide any means for multithreading
 
 Usage: see demo code
