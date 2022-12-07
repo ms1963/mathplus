@@ -4842,16 +4842,16 @@ class Tensor:
         elif ndim1 == 2 and ndim2 == 2: 
             return [[n1 * n2 for n1 in e1 for n2 in t2[r]] for e1 in t1 for r in range(len(t2))]
         elif ndim1 > 2:
-            result = [] 
+            result = Array.create_1Darray(shp1[0])
             for i in range(shp1[0]):
-                result.append(Tensor._kmult_helper(t1[i], t2))  
+                result[i] = Tensor._kmult_helper(t1[i], t2)
             return result
-        elif ndim2 > 2:
+        else: # ndim1 <= 2, but ndim2 > 2
             result = []
-            for i in range(shp2[0]):
-                result.append(Tensor._kmult_helper(t1, t2[i]))
+            for i in range(shp2[1]):
+                result += Tensor._kmult_helper(t1, t2[i])
             return result
-   
+                
     def kmult(tensor1,tensor2):
         result = Tensor._kmult_helper(tensor1.mpa.a,tensor2.mpa.a)
         if Common.isinstance(tensor1) and Common.isinstance(tensor2):
