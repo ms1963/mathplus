@@ -463,7 +463,10 @@ class array:
             raise TypeError("array__init()__ expects a list as first parameter")
         if arr != [] and not array._is_regular(arr):
             raise ValueError("only 'rectangular' arrays are supported")
-        self.a = arr
+        if isinstance(arr, list):
+            self.a = arr 
+        elif isinstance(arr, array):
+            self.a = arr.a
         self.dtype = dtype 
         
     @property
@@ -718,7 +721,7 @@ class array:
             
     def __str__(self):
         def helper(arr):
-            res = "array["
+            res = "["
             for i in range(len(arr)):
                 if not isinstance(arr[i], list):
                     res += " " + str(arr[i]) + " "
@@ -5179,9 +5182,19 @@ class Polynomial:
             raise TypeError("None is not permitted as initializer")
         elif a == []: 
             raise ValueError("initializer must not be empty")
+        elif len(a) > 1 and a[len(a)-1] == 0:
+            raise ValueError("for polynomials with more than one element the highest coefficient must not be 0")
         else:
             self.a = a           
     
+    # zero Polynomial p(x) = 0
+    def zero():
+        return Polynomial([0])
+        
+    # one Polynomial p(x) = 1
+    def one():
+        return Polynomial([1])
+        
     # returns the coefficients of p with increasing i (x^i)
     def coeffs(self):
         if len(self) == 0:
@@ -5652,7 +5665,11 @@ class Polynomial:
             tmp = Polynomial([-c, 1]) # (x-c)
             res = res +  (tmp ** i) * a[i] # (x-c)^i
         return res
-            
+        
+##################################################### 
+############## class RationalPolynomial #############
+##################################################### 
+
 # Rational polynomials have a polynomial as nominator 
 # and another polynomial as denominator            
 class RationalPolynomial:
