@@ -5362,7 +5362,7 @@ class Polynomial:
                     arr[i+j] += self.a[i] * other.a[j]
             result = Polynomial(arr)
             return result 
-        elif isinstance(other, float) or isinstance(other, int):
+        elif isinstance(other, float) or isinstance(other, int) or isinstance(other, complex):
             tmp = deepcopy(self)
             for i in range(len(self.a)):
                 tmp.a[i] *= other
