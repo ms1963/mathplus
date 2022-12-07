@@ -769,6 +769,8 @@ input.append((lambda x: Polynomial.laguerre(4).compute(x), "y", "n = 4"))
 input.append((lambda x: Polynomial.laguerre(5).compute(x), "b", "n = 5"))
 Transfer.draw_functions_2D(x, input, title = "Laguerre polynomials", legend_loc = "lower left")
 print()
+p = Polynomial([1,1]) * Polynomial([-2,1]) * Polynomial([3,1])
 
+Polynomial.draw_poly(p, -4, 4, color = 'violet', label = str(p), title = "Polynomial visualization", legend_loc = "upper left", xlabel = "x", ylabel = "y")
 
 
