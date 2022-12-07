@@ -34,6 +34,7 @@ from enum import Enum
 from collections import Counter
 from collections.abc import Sequence
 import json
+import dill
 
 
 
@@ -845,8 +846,6 @@ class array:
         else:
             if len(shp1) == 1:
                 for i in range(shp1[0]):
-                    print(a1)
-                    print(a2)
                     if abs(a1[i] - a2[i]) <=  tol:
                         continue
                     else:
@@ -6239,6 +6238,19 @@ class ANN:
                     output = layer.forward_propagation(output)
                 result.append(output)
             return result
+            
+        # dumping a Network instance to a file 
+        def dump(net, pathname):
+            ofile = open(pathname, "wb")
+            dill.dump(net, ofile)
+            ofile.close()
+            
+        # loading a Network from a file
+        def load(pathname):
+            ifile = open(pathname, "rb")
+            net_new = dill.load(ifile)
+            ifile.close()
+            return net_new
 
         # train the network
         def fit(self, x_train, y_train, epochs, learning_rate, autostop = False):
