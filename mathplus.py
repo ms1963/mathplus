@@ -4755,7 +4755,7 @@ class Tensor:
         Tensor._apply(mpa, self.mpa, other.mpa, lambda x,y: x-y)
         return Tensor(mpa)
         
-    # implements multiplication with constants and Hadamon multiplication
+    # implements multiplication with constants and Hadamard multiplication
     # of tensors
     def __mul__(self, other):
         if isinstance(other, int) or isinstance(other, float) or isinstance(other, complex):
