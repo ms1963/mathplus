@@ -2373,6 +2373,24 @@ class Array:
                 row.append(lambda_f(arr[i][j]))
             result.append(row)
         return result
+        
+    # note: _array_nd_helper work in situ
+    def _apply_nd_helper(arr, lambda_f):
+        shp = Array.shape(arr)
+        ndim = len(shp)
+        if ndim == 1:
+            for i in range(shp[0]):
+                res[i] = lambda_f(arr[i])
+        elif ndim > 1:
+            for i in range(shp[0]):
+                T._apply_nd_helper(arr[i], lambda_f)
+    
+    # apply lambda_f to all elemens of multidimensional array            
+    def apply_nd(arr, lambda_f):
+        res = deepcopy(arr)
+        T._apply_nd_helper(tmp, lambda_f)
+        return res 
+            
     
     # An 2D array can be rotated 90° to the left or right.
     # if left = True  => left  rotation
@@ -4798,76 +4816,54 @@ class Tensor:
         return Tensor(array(result, t1.dtype).reshape(newshp))
         
     def __matmul__(self, other):
-        if isinstance(other, float) or isinstance(other, complex) or isinstance(other, int):
-            mpa = deepcopy(self.mpa)
-            Tensor._apply_const(lambda x: x * other, mpa)
-            return Tensor(mpa)
-        elif isinstance(other, Tensor):
-            return Tensor.mult(self, other)
-        elif instance(other, list):
-            return self * Tensor(array(lst))
-        elif isinstance(other, array):
-            return self * Tensor(other)
-        else:
-            raise ValueError("tensor product not compatible with type " + str(type(other)))
+        return Tensor.kmult(self, other)
 
     # implements Kronecker Multiplication
-    def kmult(t1, t2):
-        return Tensor(Tensor.kmult_helper(t1.mpa.a, t2.mpa.a), dtype = t1.dtype)
-        
-    def kmult_helper(l1, l2):
-        def apply(l, lambda_f):
-            shp = Array.shape(l)
-            if len(shp) == 1:
-                result = []
-                for i in range(shp[0]):
-                    result.append(lambda_f(l[i]))
-                return result
-            else:
-                result = []
-                for i in range(shp[0]):
-                    result.append(apply(l[i], lambda_f))
-                return result
-        if (isinstance(l1,int) or isinstance(l1,float) or isinstance(l1, complex)) and (isinstance(l2, int) or isinstance(l2, float) or isinstance(l2, complex)):
-            return l1 * l2 
-        elif isinstance(l1, int) or isinstance(l1,float) or isinstance(l1, complex):
-            return apply(l2, lambda x: x * l1)
-        elif isinstance(l2, int) or isinstance(l2, float) or isinstance(l2, complex):
-            return apply(l1, lambda x: x * l2)
-        
-        shp1 = Array.shape(l1)
-        shp2 = Array.shape(l2)
+    def _kmult_helper(t1,t2):
+        if Common.isinstance(t1) and Common.isinstance(t2):
+            return t1 * t2
+        elif Common.isinstance(t1) and isinstance(t2, list):
+            return T.apply_nd(t2, lambda x: x * t1)
+        elif isinstance(t1, list) and Common.isinstance(t2):
+            return T.apply_nd(t1, lambda x: x * t2)
+        shp1 = Array.shape(t1)
+        shp2 = Array.shape(t2)
         ndim1 = len(shp1)
         ndim2 = len(shp2)
-        if ndim1 == 1 and ndim2 == 2:
+        if ndim1 == 1 and ndim2 == 1:
             result = []
-            for i in range(shp1[0]): 
-                tmp = []
-                for j in range(shp2[0]):   
-                    for k in range(shp2[1]):
-                        tmp.append(l1[i] * l2[j][k])
-                result.append(tmp)
-            return result
+            for i in range(shp1[0]):
+                for j in range(shp2[0]):
+                    result.append(t1[i] * t2[j])
+        elif ndim1 == 1 and ndim2 == 2:
+            return T.kmult([t1], t2)
         elif ndim1 == 2 and ndim2 == 1:
-            result = Array.create_2Darray(shp1[0], shp2[0])
+            return Tensor._kmult_helper(t2, [t2])
+        elif ndim1 == 2 and ndim2 == 2: 
+            return [[n1 * n2 for n1 in e1 for n2 in t2[r]] for e1 in t1 for r in range(len(t2))]
+        elif ndim1 > 2:
+            result = [] 
             for i in range(shp1[0]):
-                for j in range(shp1[1]):
-                    tmp = []
-                    for k in range(shp2[0]):
-                        tmp.append(l1[i][j] * l2[k])
-                    result[i][j] = tmp               
+                result.append(Tensor._kmult_helper(t1[i], t2))  
             return result
-        elif ndim1 == 2 and ndim2 == 2:
-            result = Array.create_2Darray(shp1[0], shp1[1])
-            for i in range(shp1[0]):
-                for j in range(shp1[1]):
-                    result[i][j] = Tensor.kmult_helper(l1[i][j], l2)
-            return result
-        elif ndim1 >= 1:
+        elif ndim2 > 2:
             result = []
-            for i in range(shp1[0]):
-                result.append(Tensor.kmult_helper(l1[i], l2))
+            for i in range(shp2[0]):
+                result.append(Tensor._kmult_helper(t1, t2[i]))
             return result
+   
+    def kmult(tensor1,tensor2):
+        result = Tensor._kmult_helper(tensor1.mpa.a,tensor2.mpa.a)
+        if Common.isinstance(tensor1) and Common.isinstance(tensor2):
+            return result
+        dtype = None
+        if isinstance(tensor1, Tensor):
+            dtype = tensor1.dtype
+        elif isinstance(tensor2, Tensor):
+            dtype = tensor2.dtype
+        else:
+            raise ValueError("arguments must be Tensors or numbers")
+        return Tensor(result, dtype)
 
     def _eq_helper(mpa1, mpa2):
         if len(mpa1.shape) == 1:
