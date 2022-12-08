@@ -686,17 +686,21 @@ class array:
     # to create a new array with the same shape. This is useful
     # to implement operators such as __add__ for arrays
     def _apply_on_multiDarrays(a1, a2, lambda_f):
-        shp = Array.shape(a1)
-        if len(shp) == 1:
-            a = []
-            for j in range(shp[0]):
-                a.append(lambda_f(a1[j],a2[j]))
+        shp1 = Array.shape(a1)
+        shp2 = Array.shape(a2)
+        if shp1 != shp2:
+            raise ValueError("a1 and a2 must have the same shape")
+        if len(shp1) == 1:
+            a = [lambda_f(a1[j],a2[j]) for j in range(shp1[0])]
             return a
         else:
-            a = []
-            for j in range(shp[0]):
-                a.append(array._apply_on_multiDarrays(a1[j],a2[j], lambda_f))
+            a = [[] for i in range(shp1[0])]
+            for i in range(shp1[0]):
+                a[i] = array._apply_on_multiDarrays(a1[i],a2[i], lambda_f)
             return a
+            
+    def map(a1, a2, lambda_f):
+        return array(array._apply_on_multiDarrays(a1.a, a2.a, lambda_f))
             
     # helper function for apply used to apply a lambda on each
     # element of a multidimensional list and create an square_shaped
@@ -709,9 +713,9 @@ class array:
                 a.append(lambda_f(arr[j]))
             return a
         else:
-            a = []
-            for j in range(0, shp[0]):
-                a.append(array._apply_op(arr[j], lambda_f))
+            a = [[] for i in range(shp[0])]
+            for i in range(0, shp[0]):
+                a[i] = array._apply_op(arr[i], lambda_f)
             return a
                 
     # get shape of array
@@ -1832,6 +1836,18 @@ class Array:
         
     def create_2Darray(rowcount, colcount, init_value = 0):
         return [[init_value for i in range(0, colcount)] for j in range(0, rowcount)]
+
+    def create_nDarray(shp, init_value = 0):
+        result = Array.create_1Darray(shp[0], init_value)
+        if len(shp) == 1:
+            return result
+        else:
+            newshp = deepcopy(list(shp))
+            newshp.pop(0)
+            newshp = tuple(newshp)
+            for i in range(shp[0]):
+                result[i] = Array.create_nDarray(newshp, init_value)
+            return result
 
     # transpose() is defined for all 2Darrays. It returns a new
     # array with: new_array[r][c] = array[c][r] for all
@@ -5579,8 +5595,8 @@ class Polynomial:
     def draw_poly(poly, left, right, color = 'r', label = "", title = None, legend_loc = "upper left", xlabel = None, ylabel = None): 
         xmp = array.lin_distribution(left, right, 100)
         ymp = xmp.apply(lambda x: poly.compute(x))
-        x = Transfer.array_to_numpy(xmp)
-        y = Transfer.array_to_numpy(ymp)
+        x = Transfer.array_to_nparray(xmp)
+        y = Transfer.array_to_nparray(ymp)
         # setting the axes at the centre
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
@@ -5733,6 +5749,152 @@ class Polynomial:
                 return hp
             else:
                 return Polynomial.hermite_prob_cache[n]
+                
+                
+#################################################
+############## class Multinomial ###############
+#################################################       
+                
+# Multinomials are mixed polynomials with different variables
+# for example, x0 * x1^2 + x1 * x2
+# They can also be used for linear functions such as 
+# 3*x0 + 4*x1 -6*x2 + 3*x3
+class Multinomial:
+    # n is the number of variables (x0, x1, ... , xn-1)
+    def __init__(self, n):
+        self.n = n
+        self.a = []
+        
+    # tpl = (x0, x1, ..., xn)
+    
+    # arr == (2,2,3,1,0,0) => 2 * x0^2 * x1^3 * x2^1 * x3^0 *x4^0
+    def append(self,arr):
+        shp = Array.shape(arr)
+        if len(shp) != 1:
+            raise ValueError("first argument must be 1-dimensional")
+        elif shp[0] != self.n+1:
+            raise ValueError("first argument must have " + str(self.n + 1) + " elements")
+        else: 
+            self.a.append(arr)
+            return self
+            
+    @property        
+    def shape(self):
+        return Array.shape(self.a)
+        
+    def from_list(arr):
+        if arr == []: 
+            raise ValueError("cannot initialize Multinomial from empty array")
+        shp = Array.shape(arr)
+        if len(shp) != 2:
+            raise ValueError("2-dimensional array expected. but got " + str(len(shp)) + " dimensions")
+        multin = Multinomial(shp[1])
+        multin.a = arr
+        return multin
+        
+    def clone(self):
+        return deepcopy(self)
+        
+    # x0 <- arr[0], x1 <- arr[1], ....
+    def compute(self, *args):
+        if self.a == []: 
+            raise ValueError("compute() not possible due to unitialized array")
+        values = []
+        for arg in args: values.append(arg)
+        shp = self.shape
+        if len(values) != self.n:
+            raise ValueError("argument list must have " + str(self.n) + " elements")
+        else:
+            res = 0
+            for i in range(shp[0]):
+                prod = self.a[i][0]
+                for j in range(shp[1]-1):
+                    prod *= values[j] ** self.a[i][j+1]
+                res += prod
+            return res
+            
+    @property
+    def ndim(self):
+        return 2
+        
+    # the operations assume that x0, x1, x2, ... in one multinomial
+    # correspond to x0, x1, x2, ... in the in the other multinomial
+    def __add__(self, other):
+        res = deepcopy(self)
+        res.a += other.a
+        return res
+        
+    def __pos__(self):
+        return self
+        
+    def __neg__(self):
+        res = deepcopy(self)
+        shp = self.shp
+        for i in range(shp[0]):
+            res.a[i][0] = -self.a[i][0]
+            
+    def __sub__(self, other):
+        return self + -other
+        
+    def multiply(self, other):
+        res = self.clone
+        if Common.isinstance(other):
+            shp = self.shape
+            for i in range(shp[0]):
+                res[i][0] *= other
+            return res
+        else:
+            raise TypeError("scalar multiplication only supported for number types, not for  " + str(type(other)))    
+        
+    def __str__(self):
+        def xterm(idx, power):
+           if power == 1:
+               return "x" + str(idx)
+           else:
+               return "x" + str(idx) + "^" + str(power) 
+        def term(row):
+            if row[0] == 0:
+                return ""
+            res = "" 
+            if row[0] != 1:
+                res += str(row[0])
+            for i in range(1, len(row)):
+                if res != "": 
+                    if row[i] != 0:
+                        res += "*" + xterm(i-1, row[i])
+                else:
+                    if row[i] != 0:
+                        res += xterm(i-1, row[i])
+            return res
+    
+        shp = self.shape
+        res = ""
+        if shp[0] == 1:
+            return term(self.a[0])
+        else:
+            res += term(self.a[0])
+            for i in range(1, shp[0]):
+                res += " + " + term(self.a[i])
+        return res
+        
+    def draw(self, x0left, x0right, y0left, y0right):
+        def f(x,y):
+            return self.compute(x,y)
+            
+        x = np.linspace(x0left, x0right, 100)
+        y = np.linspace(y0left, y0right, 100)
+        X, Y = np.meshgrid(x, y)
+        Z = f(X,Y)
+        
+        fig = plt.figure()
+        ax = plt.axes(projection='3d')
+        ax.contour3D(X, Y, Z, 50, cmap='binary')
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+        ax.set_zlabel('z')
+        ax.set_title(str(self))
+        plt.show()
+    
         
 ##################################################### 
 ############## class RationalPolynomial #############
@@ -6921,31 +7083,31 @@ class Ring(AbelianGroup):
 # between mathplus and other libraries, primarily numpy
         
 class Transfer:
-    def numpy_to_list(nparray):
+    def nparray_to_list(nparray):
         return nparray.tolist()
         
-    def list_to_numpy(arr):
+    def list_to_nparray(arr):
         return np.array(arr)
         
-    def matrix_to_numpy(m):
-        return np.asmatrix(Transfer.list_to_numpy(m.m))
+    def matrix_to_nparray(m):
+        return np.asmatrix(Transfer.list_to_nparray(m.m))
         
-    def vector_to_numpy(v):
+    def vector_to_nparray(v):
         if not v.is_transposed():
-            return Transfer.list_to_numpy(v.v)
+            return Transfer.list_to_nparray(v.v)
         else:
             list = [] 
             for i in range(0, len(v)):
                 list.append([v[i]])
-            return Transfer.list_to_numpy(list)
+            return Transfer.list_to_nparray(list)
         
-    def numpy_to_matrix(nparray):
+    def nparray_to_matrix(nparray):
         npshp = nparray.shape
         if len(npshp) > 2:
             raise ValueError("mathplus only support one or two dimensions")
         return Matrix.from_list(nparray.tolist())
         
-    def numpy_to_vector(nparray):
+    def nparray_to_vector(nparray):
         npshp = nparray.shape
         if len(npshp) > 2:
             raise ValueError("mathplus only supports one or two dimensions")
@@ -6962,13 +7124,20 @@ class Transfer:
         else: # len(npshp) == 1 
             return Vector.from_list(nparray.tolist())
             
-    def numpy_to_array(mpa):
-        return array(mpa.tolist())
+    def nparray_to_array(npa):
+        return array(npa.tolist())
         
-    def array_to_numpy(mpa):
+    def array_to_nparray(mpa):
         shp = tuple(mpa.shape)
         npa = np.array(mpa.flatten().to_list())
         return np.reshape(npa, shp)
+        
+    def array_to_ndarray(mpa):
+        nda = np.ndarray(mpa.to_list())
+        return nda
+        
+    def ndarray_to_array(nda):
+        return array(nda.tolist())
         
     # Conversion routines to and from
     # json 
@@ -7006,8 +7175,8 @@ class Transfer:
     # is drawn using matplotlib
     def draw_function_2D(xmp, lambda_f, color = 'r', label = "", title = None, legend_loc = "upper left", xlabel = None, ylabel = None): 
         ymp = xmp.apply(lambda_f)
-        x = Transfer.array_to_numpy(xmp)
-        y = Transfer.array_to_numpy(ymp)
+        x = Transfer.array_to_nparray(xmp)
+        y = Transfer.array_to_nparray(ymp)
         # setting the axes at the centre
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
@@ -7035,13 +7204,13 @@ class Transfer:
     def draw_functions_2D(xmp, input, title = None, legend_loc = "upper left", xlabel = None, ylabel = None):
         if len(input) == 0:
             raise ValueError("received an empty input vector")
-        x = Transfer.array_to_numpy(xmp)
+        x = Transfer.array_to_nparray(xmp)
         y_array = [] 
         col_array = []
         lbl_array = []
         for entry in input:
             lambda_f, color, label = entry
-            y_array.append(Transfer.array_to_numpy(xmp.apply(lambda_f)))
+            y_array.append(Transfer.array_to_nparray(xmp.apply(lambda_f)))
             col_array.append(color)
             lbl_array.append(label)
         # setting the axes at the centre
@@ -7074,9 +7243,9 @@ class Transfer:
         
         xmp = tmp.apply(lambda_f1)
         ymp = tmp.apply(lambda_f2)
-        t = Transfer.array_to_numpy(tmp)
-        x = Transfer.array_to_numpy(xmp)
-        y = Transfer.array_to_numpy(ymp)
+        t = Transfer.array_to_nparray(tmp)
+        x = Transfer.array_to_nparray(xmp)
+        y = Transfer.array_to_nparray(ymp)
 
         ax.plot3D(x, y, t)
         ax.set_title(title)
@@ -7098,9 +7267,9 @@ class Transfer:
         Xmp, Ymp = array.meshgrid(xmp, ymp)
         Zmp = Xmp.apply(lambda_x) * Ymp.apply(lambda_y)
 
-        X = Transfer.array_to_numpy(Xmp)
-        Y = Transfer.array_to_numpy(Ymp)
-        Z = Transfer.array_to_numpy(Zmp)
+        X = Transfer.array_to_nparray(Xmp)
+        Y = Transfer.array_to_nparray(Ymp)
+        Z = Transfer.array_to_nparray(Zmp)
 
         surf = ax.plot_surface(X, Y, Z, cmap = plt.cm.cividis)
 
