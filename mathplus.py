@@ -1432,6 +1432,33 @@ class array:
     def hstack(self):
         return self.concat(other, axis = 1)
         
+    # this method allows to compose a Matrix 
+    # from rows (vectors or arrays or lists).
+    def from_row_vectors(*args):
+        a = Array.create_1Darray(len(args))
+        size = None
+        i = 0
+        for arg in args:
+            if size == None:
+                size = len(arg)
+            if size == len(arg):
+                if isinstance(arg, list):
+                    a[i] = arg
+                elif isinstance(arg, Vector):
+                    a[i] = arg.v
+                elif isinstance(arg, array):
+                    a[i] = arg.mpa.a
+            else:
+                raise ValueError("sizes of vectors must be identical")
+            print(a[i])
+            i += 1
+        return Matrix.from_list(a)
+        
+    # same as from_row_vectors() but arguments are combined
+    # as column vectors to create new matrix
+    def from_column_vectors(*args):
+        return Matrix.from_row_vectors(*args).T
+    
     # diff takes in each row a[r,c]-a[r,c-1] for c in 1 .. len(row)
     # if the original array has dimension dim1 x dim2, then the result
     # will have dimension dim1 x (dim2 - 1)
