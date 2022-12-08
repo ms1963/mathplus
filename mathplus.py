@@ -3902,6 +3902,25 @@ class Matrix:
                     m.m[r][c] = dtype(uniform(fromvalue, tovalue))
         return m
         
+    # the vander matrix takes the powers of an array  
+    # and writes its powers to fill the column vectors of 
+    # a matrix rintrht in ascending or descending order 
+    # for example, [1,2,3] ==>
+    # => 1 1 1 1
+    #    1 2 4 8
+    #    1 3 9 27
+    def vander_matrix(arr, N, ascending = True):
+        a = Array.create_1Darray(N)
+        if ascending:
+            for i in range(N):
+                a[i] = Array.pow(arr, i)
+            return Matrix.from_list(a).T
+        else:
+            for i in range(N-1,-1,-1):
+                a[i] = Array.pow(arr,N-i-1)
+            return Matrix.from_list(a).T
+    
+        
     # rotation matrices for 2D and 3d 
     # for 3d: rotation around x, y, z, general rotation
     def rotation2D(angle, dtype = float):
