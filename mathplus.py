@@ -5635,6 +5635,7 @@ class Polynomial:
                 return cp
             else:
                 return Polynomial.cheby2_cache[n]
+                
     ##################################################
     ##### Implementation of Legendre polynomials ##### 
     ##################################################           
@@ -5690,6 +5691,48 @@ class Polynomial:
             tmp = Polynomial([-c, 1]) # (x-c)
             res = res +  (tmp ** i) * a[i] # (x-c)^i
         return res
+        
+
+        
+    ##################################################
+    # Implementation Hermite polynomials Physicists ##
+    ################################################## 
+       
+    hermite_phys_cache = dict() # caches for polynomials
+    hermite_prob_cache = dict()
+    
+    def hermite_physicists(n):
+        if n == 0:
+            return Polynomial([1])
+        elif n == 1:
+            return Polynomial([0,2])
+        elif n == 2:
+            return Polynomial([-2,0,4])
+        else:
+            if not n in Polynomial.hermite_phys_cache:
+                hp = Polynomial([0,2]) * Polynomial.hermite_physicists(n-1) - Polynomial.hermite_physicists(n-2) * (2 * (n-1))
+                Polynomial.hermite_phys_cache[n] = hp
+                return hp
+            else:
+                return Polynomial.hermite_phys_cache[n]
+            
+    ###################################################
+    # Implementation Hermite polynomials Probabilists #
+    ###################################################   
+    def hermite_probabilists(n):
+        if n == 0:
+            return Polynomial([1])
+        elif n == 1:
+            return Polynomial([0,1])
+        elif n == 2:
+            return Polynomial([-1,0,1])
+        else:
+            if not n in Polynomial.hermite_prob_cache:
+                hp = Polynomial([0,1])* Polynomial.hermite_probabilists(n-1) - Polynomial.hermite_probabilists(n-2) * (n-1)
+                Polynomial.hermite_prob_cache[n] = hp
+                return hp
+            else:
+                return Polynomial.hermite_prob_cache[n]
         
 ##################################################### 
 ############## class RationalPolynomial #############
