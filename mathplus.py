@@ -1450,14 +1450,13 @@ class array:
                     a[i] = arg.mpa.a
             else:
                 raise ValueError("sizes of vectors must be identical")
-            print(a[i])
             i += 1
         return Matrix.from_list(a)
         
     # same as from_row_vectors() but arguments are combined
     # as column vectors to create new matrix
     def from_column_vectors(*args):
-        return Matrix.from_row_vectors(*args).T
+        return array.from_row_vectors(*args).T
     
     # diff takes in each row a[r,c]-a[r,c-1] for c in 1 .. len(row)
     # if the original array has dimension dim1 x dim2, then the result
