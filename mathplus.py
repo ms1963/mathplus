@@ -1437,8 +1437,7 @@ class array:
     def from_row_vectors(*args):
         a = Array.create_1Darray(len(args))
         size = None
-        i = 0
-        for arg in args:
+        for i, arg in enumerate(args):
             if size == None:
                 size = len(arg)
             if size == len(arg):
@@ -1450,7 +1449,6 @@ class array:
                     a[i] = arg.mpa.a
             else:
                 raise ValueError("sizes of vectors must be identical")
-            i += 1
         return Matrix.from_list(a)
         
     # same as from_row_vectors() but arguments are combined
