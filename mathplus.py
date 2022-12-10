@@ -1398,7 +1398,7 @@ class array:
 
     # block allows to combine different arrays to a larger
     # array
-    def block(lst, axis = 0):
+    def block(lst):
         shp = Array.shape(lst)
         if len(shp) == 1:
             if shp[0] == 0:
