@@ -5817,13 +5817,26 @@ class Polynomial:
 # 3*x0 + 4*x1 -6*x2 + 3*x3
 class Multinomial:
     # n is the number of variables (x0, x1, ... , xn-1)
-    def __init__(self, n):
+    def __init__(self, n, arr):
         self.n = n
         self.a = []
+        if arr == []:
+            raise ValueError("cannot instantiate a multinomial from an empty list")
+        shp = Array.shape(arr)
+        if len(shp) == 1:
+            if shp[0] != n+1:
+                raise ValueError("all components of a multinomial must have " + str(n+1) + " elements")
+            else:
+                self.a.append(arr)
+        else:
+            if shp[1] != n+1:
+                raise ValueError("all components of a multinomial must have " + str(n+1) + " elements")
+            else: 
+                self.a += arr
         
     # tpl = (x0, x1, ..., xn)
-    
-    # arr == (2,2,3,1,0,0) => 2 * x0^2 * x1^3 * x2^1 * x3^0 *x4^0
+    # arr == (2,2,3,1,0,0) => 2 * x0^2 * x1^3 * x2^1 * x3^0 *x4^0  
+    # append further components to existing multinomial
     def append(self,arr):
         shp = Array.shape(arr)
         if len(shp) != 1:
@@ -5839,7 +5852,7 @@ class Multinomial:
         return Array.shape(self.a)
         
     def from_list(arr):
-        if arr == []: 
+        if arr == []:
             raise ValueError("cannot initialize Multinomial from empty array")
         shp = Array.shape(arr)
         if len(shp) != 2:
@@ -5876,8 +5889,9 @@ class Multinomial:
     # calculate (x0 + x1)**n
     def binomial(n):
         mn = Multinomial(2)
+        a = Common.binomial_coeffs(n)
         for i in range(n+1):
-            mn.append([Common.n_over_k(n, i), n-i, i])
+            mn.append([a[i], n-i, i])
         return mn
             
     # the operations assume that x0, x1, x2, ... in one multinomial
