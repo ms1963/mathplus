@@ -83,6 +83,19 @@ class Common:
             result = result // fac(k)
             return result
     
+    # returns the binomial coefficients
+    # (n) (n) (n) ..... (n)
+    # (0) (1) (2) ..... (n)      
+    def binomial_coeffs(n):
+        print(n)
+        a = [0 for i in range(n+1)]
+        for i in range(n // 2 + 1):
+            a[i]     = Common.n_over_k(n,i)
+            a[n-i]   = a[i]
+        if (n % 2 == 0):
+            a[n // 2] = Common.n_over_k(n, n // 2)
+        return a 
+    
     # calculate multinomial coeff. n! / (n1! * n2! * ... * nk!)
     # with n1 + n2 + ... + nk = n        
     def multinomial_coeff(n, *args):
@@ -5860,6 +5873,13 @@ class Multinomial:
     def ndim(self):
         return 2
         
+    # calculate (x0 + x1)**n
+    def binomial(n):
+        mn = Multinomial(2)
+        for i in range(n+1):
+            mn.append([Common.n_over_k(n, i), n-i, i])
+        return mn
+            
     # the operations assume that x0, x1, x2, ... in one multinomial
     # correspond to x0, x1, x2, ... in the in the other multinomial
     def __add__(self, other):
