@@ -104,12 +104,52 @@ class Common:
                 raise ValueError("negative arguments are not allowed")
             sum += arg
         if (sum != n):
-            return 0
+            raise ValueError("sum of args must be n")
         else:
             result = Common.fac(n)
             for arg in args:
                 result /= Common.fac(arg)
             return result       
+            
+    def multinomial_coeff_from_list(n, a):
+        if sum(a) != n:
+            raise ValueError("sum of factors must be n")
+        elif min(a) < 0:
+            raise ValueError("only non negative numbers allowed")
+        result = Common.fac(n)
+        for elem in a:
+            if type(elem) != int:
+                raise ValueError("elements in list must be integers")
+            else:
+                result /= Common.fac(elem)
+        return result
+            
+    # probability mass function
+    def multinomial_mass_function(array_of_xks, n, p = None):
+        def calc_powers(x, p):
+            result = 1
+            for i in range(len(x)):
+                result *= p[i] ** x[i]
+            return result
+        prob_array = []
+        if sum(array_of_xks) != n:
+            raise ValueError("sum of factors must be = " + str(n))
+        for xk in array_of_xks:
+            if type(xk) != int or xk < 0:
+                raise ValueError("factors must be non negative integers")
+        if p == None:
+            average = 1 / len(array_of_xks)
+            for i in len(array_of_xks):
+                prob_array.append(average)
+        else:
+            if len(p) != len(array_of_xks):
+                raise ValueError("xk array and probability array must have same length")
+            if sum(p) != 1:
+                raise ValueError("sum of probabilities must be 1")
+            if min(p) < 0:
+                raise ValueError("all probabilities must be nonnegative numbers")
+            prob_array = p
+        return calc_powers(array_of_xks, p) * Common. multinomial_coeff_from_list(n, array_of_xks)
             
     # calculating the probabilty of an event: where every arg 
     # contains a tuple (ni,pi) with ni being the number the  
