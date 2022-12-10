@@ -660,9 +660,13 @@ net.add(ANN.ActivationLayer(ANN.tanh, ANN.tanh_prime))
 # train the ANN
 net.use(ANN.mse, ANN.mse_prime)
 net.fit(x_train, y_train, epochs=1000, learning_rate=0.1, autostop = False)
-
+print("Persisting the trained model to a file")
+ANN.Network.dump(net, "simpleANN")
+print("Now loading the trained network to a new variable")
+net_new = ANN.Network.load("simpleANN")
+print("Inference with loaded ANN.Network instance")
 # test its predictions
-out = net.predict(x_train)
+out = net_new.predict(x_train)
 print(out)
 print()
 
@@ -799,8 +803,6 @@ Polynomial.draw_poly(p, -4, 4, color = 'violet', label = str(p), title = "Polyno
 print()
 print("Multinomial demo")
 
-mn = Multinomial(2)
-mn.append([1,2,0])
-mn.append([1,0,2])
+mn = Multinomial(2, [[1,2,0],[1,0,2]])
 mn.draw(-4,4,-4,4)
 
