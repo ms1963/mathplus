@@ -87,7 +87,6 @@ class Common:
     # (n) (n) (n) ..... (n)
     # (0) (1) (2) ..... (n)      
     def binomial_coeffs(n):
-        print(n)
         a = [0 for i in range(n+1)]
         for i in range(n // 2 + 1):
             a[i]     = Common.n_over_k(n,i)
@@ -5888,11 +5887,11 @@ class Multinomial:
         
     # calculate (x0 + x1)**n
     def binomial(n):
-        mn = Multinomial(2)
-        a = Common.binomial_coeffs(n)
+        coeffs = Common.binomial_coeffs(n)
+        binom = []
         for i in range(n+1):
-            mn.append([a[i], n-i, i])
-        return mn
+            binom.append([coeffs[i], n-i, i])
+        return Multinomial(2, binom)
             
     # the operations assume that x0, x1, x2, ... in one multinomial
     # correspond to x0, x1, x2, ... in the in the other multinomial
