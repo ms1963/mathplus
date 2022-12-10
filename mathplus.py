@@ -5850,6 +5850,18 @@ class Multinomial:
     def shape(self):
         return Array.shape(self.a)
         
+    def __len__(self):
+        shp = Array.shape(self.a)
+        return shp[0]
+        
+    # check whether there are only linear powers of x(i) in multinomial
+    def is_multivariate(self):
+        for i in range(len(self)):
+            for j in range(1, self.n + 1):
+                if self.a[i][j] > 1:
+                    return False 
+        return True
+        
     def from_list(arr):
         if arr == []:
             raise ValueError("cannot initialize Multinomial from empty array")
