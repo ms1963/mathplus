@@ -6445,6 +6445,42 @@ class Interpolation:
         def interpolate(self, x0):
             i = self.search_interval(x0)
             return self.a[i] * x0 + self.b[i]
+            
+    # class Bezier defines Bezier polynomials.
+    # N is the degree of the polynomials
+    # *cpoints are the control points.
+    #   - Note: there must be N+1 control points 
+    # The resulting Bezier curve is defined over 
+    # the interval [0, 1]
+    # for t == 0: the result of the Bezier polynomial
+    # is cpoints[0]
+    # for t == 1: the result of the Bezier polynomial
+    # is cpoints[N]
+    class Bezier:
+        # N is the degree, for example, 3 => cubic polynomials
+        # *cpoints denotes the N+1 (!) control points 
+        def __init__(self, N, *cpoints):
+            self.binomcoeffs = Common.binomial_coeffs(N)
+            self.N = N
+            self.cpoints = cpoints 
+            if len(cpoints) != self.N + 1:
+                raise ValueError("array with " + str(self.N+1) + " control points required")
+
+        # calculates the individual Bernstein polynomials
+        def bernstein_poly(self, i, t):
+            return self.binomcoeffs[i] * t**i * (1-t)**(self.N-i)
+        
+        # resulting point at t in [0,1] 
+        def compute(self, t):
+            res = self.cpoints[0] * self.bernstein_poly(0, t)
+            for i in range(1, self.N+1):
+                res = res + self.cpoints[i] * self.bernstein_poly(i, t)
+            return res
+            
+        # just another name for compute(...)
+        def interpolate(self, t):
+            return self.compute(t)
+        
        
 #################################################
 ################ class Regression ###############
