@@ -1580,6 +1580,16 @@ class array:
         res = self.apply(math.tanh)
         return res           
                 
+    # calc the maximum of array and elements and n
+    def maximum(self, n):
+        res = self.apply(lambda x: max(x,n))
+        return res
+        
+    # calc the minimum of array and elements and n
+    def minimum(self, n):
+        res = self.apply(lambda x: min(x,n))
+        return res
+        
     # exp for arrays based on apply()
     # apply_1D
     def exp(self):
@@ -6591,7 +6601,7 @@ class ANN:
         return -x.tanh()**2+1
     
     def reLU(x):
-        return x.apply(lambda x: max(0,x))
+        return x.maximum(0)
     
     def reLU_prime(x):
         return x.apply(lambda x: 0 if x < 0 else 1)
