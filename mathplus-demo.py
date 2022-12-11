@@ -653,9 +653,9 @@ y_train = mp.array([[[0]], [[1]], [[1]], [[0]]])
 # create network model
 net = ANN.Network()
 net.add(ANN.FullyConnectedLayer(2, 3))
-net.add(ANN.ActivationLayer(ANN.reLU, ANN.tanh_prime))
+net.add(ANN.ActivationLayer(ANN.tanh, ANN.tanh_prime))
 net.add(ANN.FullyConnectedLayer(3, 1))
-net.add(ANN.ActivationLayer(ANN.reLU, ANN.tanh_prime))
+net.add(ANN.ActivationLayer(ANN.tanh, ANN.tanh_prime))
 
 # train the ANN
 net.use(ANN.mse, ANN.mse_prime)
