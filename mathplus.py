@@ -1222,15 +1222,37 @@ class array:
         
     # calculate the sum of all elements in an array
     # using init_val as the base value
-    def sum(self, init_val = None):
+    def sum_reduce(self, init_val = None):
         if init_val == None:
             return self.reduce_general(operator.add)
         else:
             return self.reduce_general(operator.add, init_val)
+            
+    # add up elements on specified axis
+    def sum(arr, axis = 0):
+        shp = arr.shape
+        if len(shp) == 1:
+            res = 0
+            for i in range(shp[0]): 
+                res += arr[i]
+            return res
+        elif len(shp) == 2:
+            res = []
+            if axis == 1:
+                for i in range(shp[0]):
+                    res.append(array.sum(arr[i]))
+                return array(res)
+            else:
+                arrT = arr.transpose()
+                return array.sum(arrT, axis = 1)
+                
+        else:
+            raise ValueError("array.sum() only defined for 1-d and 2-d arrays")
+
         
     # calculate the product of all elements in a array
     # using init_val as the base value
-    def mul(self, init_val = None):
+    def mul_reduce(self, init_val = None):
         if init_val == None:
             return self.reduce_general(operator.mul)
         else:
@@ -6607,7 +6629,7 @@ class ANN:
         return x.apply(lambda x: 0 if x < 0 else 1)
     
     def sigmoid(x):
-        return x.apply(lambda x: 1.0 / (1 + -x.exp()))
+        return x.apply(lambda x: 1.0 / (1 + (-x).exp()))
       
     def sigmoid_prime(x):
       return sigmoid(x) * (-sigmoid(x) + 1)
