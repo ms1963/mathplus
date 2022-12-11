@@ -6597,7 +6597,7 @@ class ANN:
         return x.apply(lambda x: 0 if x < 0 else 1)
     
     def sigmoid(x):
-        return x.apply(lambda x: 1.0 / (1 + np.exp(-x)))
+        return x.apply(lambda x: 1.0 / (1 + -x.exp()))
       
     def sigmoid_prime(x):
       return sigmoid(x) * (-sigmoid(x) + 1)
