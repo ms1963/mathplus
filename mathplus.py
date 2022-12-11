@@ -6459,12 +6459,12 @@ class Interpolation:
     class Bezier:
         # N is the degree, for example, 3 => cubic polynomials
         # *cpoints denotes the N+1 (!) control points 
-        def __init__(self, N, *cpoints):
-            self.binomcoeffs = Common.binomial_coeffs(N)
-            self.N = N
+        def __init__(self, *cpoints):
+            if len(cpoints) < 2:
+                raise ValueError("bezier requires at least two control points")
+            self.N = len(cpoints) - 1
+            self.binomcoeffs = Common.binomial_coeffs(self.N)
             self.cpoints = cpoints 
-            if len(cpoints) != self.N + 1:
-                raise ValueError("array with " + str(self.N+1) + " control points required")
 
         # calculates the individual Bernstein polynomials
         def bernstein_poly(self, i, t):
