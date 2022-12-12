@@ -808,7 +808,7 @@ mn.draw(-4,4,-4,4)
 print()
 plt.close("all")
 print("Bezier interpolation demo")
-b = Interpolation.Bezier(array([1,2]), array([7,16]), array([8,6]), array([14,8]))
+b = Interpolation.Bezier(array([1,2]), array([7,8]), array([9,9]), array([14,8]))
 
 x = []
 y = []
@@ -819,8 +819,12 @@ for i,_ in enumerate(t):
     x.append(t[i][0])
     y.append(t[i][1])
     
+fig, ax = plt.subplots()
+    
+ax.plot([1, 7, 9, 14], [2, 8, 9, 8], "*--k")
+    
 markers_on = [0, 99]
-plt.plot(x, y, '-gD', markevery=markers_on, label='mathplus demo: cubic Bezier polynomial with 4 control points')
+ax.plot(x, y, '-gD', markevery=markers_on, label='mathplus demo: cubic Bezier polynomial with 4 control points')
 plt.legend()
 plt.show()
 
