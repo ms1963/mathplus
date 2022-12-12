@@ -663,6 +663,15 @@ class array:
     def ndim(self):
         return len(self.shape)
         
+    # returns the size of the dim-th dimension. For example,
+    # a 3x5x4 array a.dimsize(0) == 3, a.dimsize(1) == 5, and 
+    # a.dimsize(2) == 4
+    def dimsize(self, dim):
+        if not dim in range(0, len(self.shape)):
+            raise ValueError("dimension " + str(dim) + " does not exist")
+        else:
+            return self.shape[dim]
+    
     # this method shuffles all inner 1-dimensional arrays contained
     # in a array
     def shuffle(self):
