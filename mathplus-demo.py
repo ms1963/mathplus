@@ -805,4 +805,22 @@ print("Multinomial demo")
 
 mn = Multinomial(2, [[1,2,0],[1,0,2]])
 mn.draw(-4,4,-4,4)
+print()
+plt.close("all")
+print("Bezier interpolation demo")
+b = Interpolation.Bezier(array([1,2]), array([7,16]), array([8,6]), array([14,8]))
+
+x = []
+y = []
+
+t = array.lin_distribution(0,1, 100, with_endp=True).apply(lambda x: b.compute(x))
+
+for i,_ in enumerate(t):
+    x.append(t[i][0])
+    y.append(t[i][1])
+    
+markers_on = [0, 99]
+plt.plot(x, y, '-gD', markevery=markers_on, label='mathplus demo: cubic Bezier polynomial with 4 control points')
+plt.legend()
+plt.show()
 
