@@ -1015,6 +1015,8 @@ class array:
                 tmp.append(sub_arr)
             return (tmp, new_idx)
             
+    # precondition: number of elements in newly shaped-array must
+    # correspond to number of elements in original array
     def reshape(self, new_shape):
         # Flatten the whole array to a mpone-dimenional array
         arr = self.flatten()
@@ -1029,6 +1031,16 @@ class array:
             new_a, _ = array._filler(arr.a, 0, new_shape)
             # use list to create array
             return array.from_list(new_a, dtype = self.dtype)
+            
+	# swapping two axes of the array
+    def swap_axes(self, a1, a2):
+        if not a1 in range(self.ndim) or not a2 in range(self.ndim):
+            raise ValueError("at least one of the axes out of range")
+        if a1 == a2:
+            return self 
+        newshp = list(copy(self.shape))
+        newshp[a1], newshp[a2] = newshp[a2], newshp[a1]
+        return self.reshape(tuple(newshp))
     
     # method adds an additional matrix on front of array,
     # copies elements of self and adds them to the expanded
