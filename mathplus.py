@@ -6614,6 +6614,46 @@ class Classification:
 
 # Base class
 class ANN:
+    
+    # split_dataset splits  datasets x and y according to a distribution
+    # into six resulting dataset. This distribution is specified using 
+    # qtrain, qvalid, qtest all of which are in [0,1] with 
+    # qtrain + qvalid + qtest = 1  
+    # It is assumed that xdata and ydata belong together and that
+    # the individual data tuples are defined by the first array axis
+    # of xdata respectively ydata
+    def split_dataset(xdata, ydata, qtrain, qtest, qvalid, seed = None):
+        if (qtrain < 0) or (qtest < 0) or (qvalid < 0) or qtrain + qtest + qvalid != 1:
+            raise ValueError("split values must be specified in percentage with their total being 1.0")
+        xshp = xdata.shape
+        yshp = ydata.shape  
+        if xshp[0] != yshp[0]:
+            raise ValueError("x data and y data must have the same size")
+        else:
+            random.seed(seed)
+            xtrain = [] 
+            xvalid = []
+            xtest  = []
+            ytrain = []
+            yvalid = []
+            ytest  = []
+            size = xshp[0]
+            deck = [i for i in range(size)] # represents indices into xdata/ydata
+            random.shuffle(deck) # indices are shuffled
+            size_train = int(math.floor(size * qtrain))
+            size_valid = int(math.floor(size * qvalid))
+            size_test = size - size_train - size_valid
+            for i in range(size_train):
+                xtrain.append(xdata[deck[i]])
+                ytrain.append(ydata[deck[i]])
+            for i in range(size_train, size_train + size_valid):
+                xvalid.append(xdata[deck[i]])
+                yvalid.append(ydata[deck[i]])
+            for i in range(size_train + size_valid, size):
+                xtest.append(xdata[deck[i]])
+                ytest.append(ydata[deck[i]])
+            return (array(xtrain), array(ytrain), array(xvalid), array(yvalid), array(xtest), array(ytest))    
+
     class Layer:
         def __init__(self):
             self.input = None
