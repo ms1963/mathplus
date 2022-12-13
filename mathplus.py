@@ -6622,7 +6622,7 @@ class ANN:
     # It is assumed that xdata and ydata belong together and that
     # the individual data tuples are defined by the first array axis
     # of xdata respectively ydata
-    def split_dataset(xdata, ydata, qtrain, qvalid, qtest, seed = None):
+    def split_dataset(xdata, ydata, qtrain, qvalid, qtest, shuffle = False, seed = None):
         if (qtrain < 0) or (qtest < 0) or (qvalid < 0) or qtrain + qtest + qvalid != 1:
             raise ValueError("split values must be specified in percentage with their total being 1.0")
         xshp = xdata.shape
@@ -6639,7 +6639,8 @@ class ANN:
             ytest  = []
             size = xshp[0]
             deck = [i for i in range(size)] # represents indices into xdata/ydata
-            random.shuffle(deck) # indices are shuffled
+            if shuffle:
+                random.shuffle(deck) # indices are shuffled
             size_train = int(math.floor(size * qtrain))
             size_valid = int(math.floor(size * qvalid))
             size_test = size - size_train - size_valid
