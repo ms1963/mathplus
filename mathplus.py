@@ -6622,7 +6622,7 @@ class ANN:
     # It is assumed that xdata and ydata belong together and that
     # the individual data tuples are defined by the first array axis
     # of xdata respectively ydata
-    def split_dataset(xdata, ydata, qtrain, qtest, qvalid, seed = None):
+    def split_dataset(xdata, ydata, qtrain, qvalid, qtest, seed = None):
         if (qtrain < 0) or (qtest < 0) or (qvalid < 0) or qtrain + qtest + qvalid != 1:
             raise ValueError("split values must be specified in percentage with their total being 1.0")
         xshp = xdata.shape
@@ -6806,7 +6806,7 @@ class ANN:
             
                 # calculate average error on all samples
                 err /= samples
-                if err > prev_err: 
+                if err > prev_err and autostop: 
                     print("training aborted cause the error started to rise again")
                     break
                 prev_err = err
