@@ -113,6 +113,18 @@ class Utils:
             return vfunc_5
         else:
             raise ValueError("vfuncs only defined for up to 5 arguments")
+            
+    # make vfunc0() implements the vectorized function of a 
+    # function with a vector as first and a scalar as second argument
+    # Example: pow = Utils.make_vfunc0(math.pow)
+    # pow([1,2,3,4],2) => [1, 4, 9, 16]
+    def make_vfunc0(lambda_f):
+        def vfunc0(v1, s):
+            result = []
+            for i in range(len(v1)):
+                result.append(lambda_f(v1[i], s))
+            return array(result)
+        return vfunc0
 
 #################################################
 ################## class Common #################
