@@ -75,7 +75,6 @@ class Utils:
             for i in range(len(v1)):
                 result.append(lambda_f(v1[i], v2[i]))
             return array(result)
-        
     
         def vfunc_3(v1,v2,v3):
             if len(v1) != len(v2) or len(v2) != len(v3):
@@ -92,6 +91,15 @@ class Utils:
             for i in range(len(v1)):
                 result.append(lambda_f(v1[i], v2[i], v3[i], v4[i]))
             return array(result)
+            
+        def vfunc_5(v1,v2,v3,v4,v5):
+            if len(v1) != len(v2) or len(v2) != len(v3) or len(v3) != len(v4) or len(v4) != len(v5):
+                raise ValueError("Input vectors must have same size") 
+            result = []
+            for i in range(len(v1)):
+                result.append(lambda_f(v1[i], v2[i], v3[i], v4[i], v5[i]))
+            return array(result)
+            
     
         if argcount == 1:
             return vfunc_1
@@ -99,8 +107,12 @@ class Utils:
             return vfunc_2
         elif argcount == 3:
             return vfunc_3
+        elif argcount == 4:
+            return vfunc_4
+        elif argcount == 5:
+            return vfunc_5
         else:
-            raise ValueError("vfuncs only defined for up to 3 arguments")
+            raise ValueError("vfuncs only defined for up to 5 arguments")
 
 #################################################
 ################## class Common #################
