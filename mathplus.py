@@ -715,7 +715,9 @@ class array:
     def _initializer(shp, init_value = 0, dtype = float):
         if not isinstance(shp, tuple) and not isinstance(shp,list):
             raise ValueError("first argument must be a list or a tuple, not a " + str(type(shp)))
-        if len(shp) == 1:
+        if len(shp) == 0:
+            raise ValueError("cannot process an empty shape")
+        elif len(shp) == 1:
             a = []
             for i in range(shp[0]):
                 if dtype == int:
@@ -734,9 +736,13 @@ class array:
             
     # helper function to initialize lists with random numbers
     def _random_initializer(shp, fromvalue, tovalue, seed_val = None, dtype = float):
+        if not isinstance(shp, tuple) and not isinstance(shp,list):
+            raise ValueError("first argument must be a list or a tuple, not a " + str(type(shp)))
         if seed_val != None:
             random.seed(seed_val)
-        if len(list(shp)) == 1:
+        if len(shp) == 0:
+            raise ValueError("cannot process an empty shape")
+        elif len(list(shp)) == 1:
             a = []
             for i in range(shp[0]):
                 if dtype == int:
@@ -744,9 +750,9 @@ class array:
                 else:
                     a.append(dtype(random.uniform(fromvalue, tovalue)))
             return a
-        else: # len(dims) > 1
+        else: # len(dims) > 1 
             a = []
-            newshp = [copy(shp)]
+            newshp = list(copy(shp))
             newshp.pop(0)
             newshp = tuple(newshp)
             for i in range(shp[0]):
@@ -1073,6 +1079,8 @@ class array:
         
     # create a random array of given shape and size
     def random_array(shp, fromvalue, tovalue, seedval = None, dtype = float):
+        if len(shp) == 0:
+            raise ValueError("cannot process an empty shape")
         a = array._random_initializer(shp, fromvalue, tovalue, seedval, dtype)
         t = array(a, dtype)
         return t
@@ -1138,6 +1146,14 @@ class array:
             return self 
         newshp = list(copy(self.shape))
         newshp[a1], newshp[a2] = newshp[a2], newshp[a1]
+        return self.reshape(tuple(newshp))
+        
+    # this function adds a new axis to position pos 
+    # For pos exactly the same rules apply as for 
+    # list.insert()
+    def add_axis(self, pos):
+        newshp = list(self.shape)
+        newshp.insert(pos, 1)
         return self.reshape(tuple(newshp))
     
     # method adds an additional matrix on front of array,
