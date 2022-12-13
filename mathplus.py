@@ -36,7 +36,71 @@ from collections.abc import Sequence
 import json
 import dill
 
+#################################################
+################## class Utils  #################
+################################################# 
 
+class Utils:
+    # vfunc stands for vectorized function. It takes a lambda function, 
+    # a user-defined function or a built-in function and returns a 
+    # vectorized version from it 
+    # example A: built-in-Function 
+    # sin=Utils.make_vfunc(math.sin) # make it to a vectorized version
+    # print(sin([6,7,7]))            # call it with vector argument
+    # example b: user-defined function
+    # def mult(a,b): return a * b
+    # mult = Utils.make_vfunc(mult) # vectorize it 
+    # print(mult([9,6,7],[8,1,2])) # call it
+    # Todo: also define mixtures of argument vectors and scalar types.
+    def make_vfunc(lambda_f):
+        try:
+            argcount = lambda_f.__code__.co_argcount
+        except AttributeError:
+            # lambda_f.__name__ specifies the name of the built-in-function 
+            if lambda_f.__name__ in {"max", "min", "pow", "log"}:
+                argcount = 2
+            else:
+                argcount = 1
+    
+        def vfunc_1(v1):
+            result = []
+            for i in range(len(v1)):
+                result.append(lambda_f(v1[i]))
+            return array(result)
+    
+        def vfunc_2(v1,v2):
+            if len(v1) != len(v2):
+                raise ValueError("Input vectors must have same size") 
+            result = []
+            for i in range(len(v1)):
+                result.append(lambda_f(v1[i], v2[i]))
+            return array(result)
+        
+    
+        def vfunc_3(v1,v2,v3):
+            if len(v1) != len(v2) or len(v2) != len(v3):
+                raise ValueError("Input vectors must have same size") 
+            result = []
+            for i in range(len(v1)):
+                result.append(lambda_f(v1[i], v2[i], v3[i]))
+            return array(result)
+        
+        def vfunc_4(v1,v2,v3,v4):
+            if len(v1) != len(v2) or len(v2) != len(v3) or len(v3) != len(v4):
+                raise ValueError("Input vectors must have same size") 
+            result = []
+            for i in range(len(v1)):
+                result.append(lambda_f(v1[i], v2[i], v3[i], v4[i]))
+            return array(result)
+    
+        if argcount == 1:
+            return vfunc_1
+        elif argcount == 2:
+            return vfunc_2
+        elif argcount == 3:
+            return vfunc_3
+        else:
+            raise ValueError("vfuncs only defined for up to 3 arguments")
 
 #################################################
 ################## class Common #################
