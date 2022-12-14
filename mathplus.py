@@ -4821,6 +4821,15 @@ class Vector:
                 u[i] = u[i] - Vector.proj(u[j], v[i])
             e[i] = u[i].scalar_product(1 / u[i].euclidean_norm())
         return (u, e)
+        
+    # determine angle beteen vectors in multidim. space
+    def angle(v1, v2):
+        if not isinstance(v1, Vector) or not isinstance(v2,Vector):
+            raise TypeError("both operands must be vectors")
+        if len(v1) != len(v2):
+            raise ValueError("got vectors with diiferent lengths")
+        else:
+            return math.acos(v1.dot(v2)/(v1.euclidean_norm()*v2.euclidean_norm()))
     
     # get ith unit/base vector for dimension = size
     def unit_vector(size, i, dtype = float):
