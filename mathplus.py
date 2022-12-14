@@ -7310,6 +7310,30 @@ class Measurement:
         b = Measurement.dist_3D(p2, p3)  
         c = Measurement.dist_3D(p3, p1)  
         return Measurement.heron(a,b,c)  
+           
+    # calculating the angle between 3D vectors v1, v2
+    def angle_between_vectors_3D(v1, v2):
+        ab = v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]
+        a_norm = math.sqrt(v1[0]**2 + v1[1]**2 + v1[2]**2)
+        b_norm = math.sqrt(v2[0]**2 + v2[1]**2 + v2[2]**2)
+        return math.acos(ab/(a_norm*b_norm))
+        
+    # calculating all angles in the triangle defined by the 
+    # 3 3D-points
+    def triangle_angles_3D(p1, p2, p3):
+        def vec(p, q):
+            return [p[0]-q[0],p[1]-q[1],p[2]-q[2]]
+            
+        v1a = vec(p1,p2)
+        v2a = vec(p1,p3)
+        a1 = Measurement.angle_between_vectors_3D(v1a,v2a)
+        v1b = vec(p2,p1)
+        v2b = vec(p2,p3)
+        a2 = Measurement.angle_between_vectors_3D(v1b,v2b)
+        v1c = vec(p3,p1)
+        v2c = vec(p3,p2)
+        a3 = Measurement.angle_between_vectors_3D(v1c,v2c)
+        return (a1, a2, a3)
         
 #################################################
 ##################  class Group  ################
