@@ -7273,6 +7273,14 @@ class Measurement:
             for j in range(result.shape[0]):
                 result[j] /= len(args)
             return result
+                   
+    # calculate area created by triangle defined
+    # using 2-dim points
+    def triangle_area(p1,p2,p3):
+        if len(p1) != 2 or len(p2) != 2 or len(p3) != 2:
+            raise TypeError("2-dimensional points required")
+        else:
+            return 0.5 * abs(p1[0]*(p2[1]-p3[1]) + p2[0]*(p3[1]- p1[1]) + p3[0] * (p1[1]-p2[1]))
 
 #################################################
 ##################  class Group  ################
