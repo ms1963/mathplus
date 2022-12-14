@@ -4827,7 +4827,7 @@ class Vector:
         if not isinstance(v1, Vector) or not isinstance(v2,Vector):
             raise TypeError("both operands must be vectors")
         if len(v1) != len(v2):
-            raise ValueError("got vectors with diiferent lengths")
+            raise ValueError("got vectors with different lengths")
         else:
             return math.acos(v1.dot(v2)/(v1.euclidean_norm()*v2.euclidean_norm()))
     
