@@ -7282,6 +7282,16 @@ class Measurement:
         else:
             return 0.5 * abs(p1[0]*(p2[1]-p3[1]) + p2[0]*(p3[1]- p1[1]) + p3[0] * (p1[1]-p2[1]))
 
+    # calculate angles created by triangle defined
+    # using 2-dim points p1, p2, p3
+    # returns (angle in p1, angle in p2, angle in p3)
+    def triangle_angles(p1,p2,p3):
+        def dot(p1, p2, p3):
+            a = [p1[0]-p2[0], p1[1]-p2[1]]
+            b = [p1[0]-p3[0], p1[1]-p3[1]]
+            return (a[0]*b[0] + a[1]*b[1]) / (math.sqrt(a[0]**2 + a[1]**2) * math.sqrt(b[0]**2 + b[1]**2))
+        return (math.acos(dot(p1,p2,p3)), math.acos(dot(p2,p1,p3)), math.acos(dot(p3,p1,p2)))
+
 #################################################
 ##################  class Group  ################
 #################################################
