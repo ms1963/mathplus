@@ -7259,6 +7259,20 @@ class Measurement:
         
     def pyramid_volume(h, base_area):
         return 1/3 * base_area * h
+        
+    # calculates the centerpoint of m 1-d vectors 
+    # v_i with same length 
+    # formula: centerpoint = 1/m * sum(i = 0..m)v_i
+    def centerpoint(*args):
+        if len(args) == 0:
+            return None
+        else:
+            result = args[0]
+            for i in range(1, len(args)):
+                result += args[i]
+            for j in range(result.shape[0]):
+                result[j] /= len(args)
+            return result
 
 #################################################
 ##################  class Group  ################
