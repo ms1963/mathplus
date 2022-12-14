@@ -7292,6 +7292,25 @@ class Measurement:
             return (a[0]*b[0] + a[1]*b[1]) / (math.sqrt(a[0]**2 + a[1]**2) * math.sqrt(b[0]**2 + b[1]**2))
         return (math.acos(dot(p1,p2,p3)), math.acos(dot(p2,p1,p3)), math.acos(dot(p3,p1,p2)))
 
+    # heron method
+    def heron(a,b,c):  
+        s = (a + b + c) / 2   
+        area = (s*(s-a) * (s-b)*(s-c)) ** 0.5        
+        return area
+    
+    # distance between two points in 3D    
+    def dist_3D(p, q):    
+        a=(p[0]-q[0])**2 + (p[1]-q[1])**2 + (p[2]-q[2])**2
+        return math.sqrt(a)
+
+    # calculate the area of a triangle defined by
+    # 3 points in 3D space
+    def triangle_area_3D(p1, p2, p3): 
+        a = Measurement.dist_3D(p1, p2)  
+        b = Measurement.dist_3D(p2, p3)  
+        c = Measurement.dist_3D(p3, p1)  
+        return Measurement.heron(a,b,c)  
+        
 #################################################
 ##################  class Group  ################
 #################################################
