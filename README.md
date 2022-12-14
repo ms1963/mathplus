@@ -15,7 +15,7 @@ Pros and Cons
 Pros:
 
 + minimalistic library that constrains itself to essential functionality
-+ call by value: only the setters __setitem__ manipulate an object directly. All other functionality tries to stick to a functional approach. Occasionally methods have an in_situ argument so that users can choose to change the source object directly
++ call by value: only the setters ```__setitem__``` manipulate an object directly. All other functionality tries to stick to a functional approach. Occasionally methods have an in_situ argument so that users can choose to change the source object directly
 + small code size
 + easy to use (yes, this is very subjective)
 + brings its own style, but tries to mimic numpy where possible so that many things should appear familar
