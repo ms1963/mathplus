@@ -1,7 +1,9 @@
 # mathplus
-This is my own implementation of matrices, vectors, polynomials and rational numbers and more,  done just for fun. This is my experimentation platform to deal with mathematical ideas and concepts.
+This is an implementation of matrices, vectors, polynomials and rational numbers and much more, done just for fun. It serves as an experimentation platform to deal with mathematical ideas and concepts.
 
-The demo code in demo_matrix.py shows how to use the library. Given the fact that libraries like scipy, numpy exist, it may appear unnecessary to come up with yet another math library. Nonetheless, I did it for the fun of experimentation and to have a library that does not depend on code written in other languages, in particular C and C++. mathplus is useful for problems where significant performance boosts are less an issue than programming safety. If however, performance is the most significant requirement, it is strongly advised to use numpy (and scipy) instead.
+The demo code in demo_matrix.py shows how to use the library. Obviously, it can only scratch the surface, but at least illustrates the use of mathplus.  
+Given the fact that libraries like scipy, numpy exist, it may appear unnecessary to come up with yet another math library. Nonetheless, I did it for the fun of experimentation and to have a library that does not depend on code written in other languages, in particular C and C++. 
+mathplus is useful for problems where significant performance boosts are less an issue than programming safety. If however, performance is the most significant requirement, it is strongly advised to use numpy (and scipy) instead.
 
 graph.py implements a naive graph structure that uses a matrix for visualizing the edges between nodes.
 
