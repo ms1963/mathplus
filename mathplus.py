@@ -831,6 +831,20 @@ class array:
         
     def find_where(self, lambda_f):
         return array._find_with_path(self.a, [], lambda_f)
+        
+    # checks a condition on every element of an 
+    # array and returns a boolean array with 
+    # results of applying cond to the array 
+    # elements => result has the same shape as 
+    # checked array 
+    # result[i][j]...[z] = True 
+    # <=> cond(self[i][j]...[z]) holds
+    def check_condition(self, cond):
+        a = self.flatten()
+        print(a)
+        b = array.filled_array((a.shape))
+        for i in range(a.shape[0]): b[i] = cond(a[i])
+        return b.reshape(self.shape)
                     
     # apply a lambda on all array elements and create a
     # new array from result
