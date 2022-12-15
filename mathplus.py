@@ -422,7 +422,7 @@ class Common:
     def gaussian_distribution(x, mu, sigma):
         return (1 / (sigma * math.sqrt(2 * math.pi))) * math.exp(-0.5 * (((x-mu)/sigma) ** 2)) 
 
-    # the different gaussian kernels for 1D, 2D, multidiemsional cases
+    # the different gaussian kernels for 1D, 2D, multidimensional cases
     def gaussian_kernel_1D(x, sigma):
         return  (1 / (math.sqrt(2 * math.pi) * sigma)) * math.exp(- x**2/(2 * sigma ** 2)) 
 
@@ -638,6 +638,12 @@ class array:
     def filled_array(shp, init_value = 0, dtype = float):
         a = array._initializer(shp, init_value = init_value, dtype = dtype)
         return array(a, dtype)
+        
+    # identity "matrix"
+    def identity(size, dtype = float):
+        a = array.zeros((size,size), dtype)
+        for i in range(size): a[i][i] = 1
+        return a
         
     def ones(shp, dtype = float):
         return array.filled_array(shp, init_value = 1, dtype = dtype)
@@ -896,6 +902,14 @@ class array:
             for i in range(0, shp[0]):
                 a[i] = array._apply_op(arr[i], lambda_f)
             return a
+            
+    # return the cubic roots of the array elements
+    def cuberoot(self):
+        return self.apply(lambda x: x **(1/3))
+            
+    # return the square roots of the array elements
+    def squareroot(self):
+        return self.apply(lambda x: x**(1/2))
                 
     # get shape of array
     @property
