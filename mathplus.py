@@ -627,6 +627,10 @@ class array:
             prod *= shp[i]
         return prod
         
+    # create a clone of self
+    def clone(self):
+        return deepcopy(self)
+        
     # creates a multidimensional array using a list
     def create_multidim_array(dims, lst, dtype = float):
         tmp = lst
@@ -1003,7 +1007,7 @@ class array:
         shp = arr1.shape
         result = array.filled_array(shp, dtype = arr1.dtype)
         if arr1.degree() == 1:
-            for i in range(shp1[0]):
+            for i in range(shp[0]):
                 result[i] = arr1[i] * arr2[i]
             return result
         elif arr1.degree() == 2:
@@ -1500,15 +1504,21 @@ class array:
             return res
         elif len(shp1) == 2 and len(shp2) == 1:
             if shp1[1] == shp2[0]:
-                res = array.filled_array([shp1[0], 1], dtype=self.dtype)
+                res = array.filled_array((shp1[0], 1), dtype=self.dtype)
                 for i in range(shp1[0]):
                     sum = 0
                     for j in range(shp1[1]):
-                        sum += self[i, j] * other[j]
+                        sum += self[i][j] * other[j]
                     res[i] = sum
                 return res
             else:
                 raise ValueError("the 2- and -dimensional arrays have incompatible shapes for multiplication")
+        elif len(shp1) == 1 and len(shp2) == 1:
+            if shp1[0] != shp2[0]:
+                raise ValueError("cannot multiply 1-dim arrays with different lengths")
+            sum = 0
+            for i in range(shp1[0]): sum += self[i]*other[i]
+            return sum
             
         
     # transpose() transposes nxm-arrays
