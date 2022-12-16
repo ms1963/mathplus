@@ -1520,6 +1520,12 @@ class array:
             for i in range(shp1[0]): sum += self[i]*other[i]
             return sum
             
+    # allows expressions such as !/array
+    def __rtruediv__(self, other):
+        if Common.isinstance(other):
+            return self.apply(lambda x: other / x)
+        else: 
+            raise TypeError("second argument must be a number type")
         
     # transpose() transposes nxm-arrays
     def array_transpose(arr):
@@ -3550,6 +3556,12 @@ class Matrix:
     def __matmul__(self, other):
         return self * other
         
+    def __rtruediv__(self, other):
+        if not Common.isinstance(other):
+            raise TypeError("other argument must have number type")
+        else:
+            return self.apply(lambda x: other/x)
+        
     def multiply(self, other):
         if not isinstance(other, Matrix):
             m = deepcopy(self)
@@ -4722,6 +4734,12 @@ class Vector:
     def __contains__(self, key):
         return key in self.v
         
+    def __rtruediv__(self, other):
+        if not Common.isinstance(other):
+            raise TypeError("other argument must have number type")
+        else:
+            return self.apply(lambda x: other/x)
+        
     # build scalar product of two vectors
     def cross_product(self, other):
         if len(self) != len(other):
@@ -5137,6 +5155,13 @@ class Tensor:
         mpa = array.filled_array(self.shape, init_value = 0, dtype = self.mpa.dtype)
         Tensor._apply(mpa, self.mpa, other.mpa, lambda x,y: x/y)
         return Tensor(mpa)
+        
+    def __rtruediv__(self, other):
+        if not Common.isinstance(other):
+            raise TypeError("other argument must have number type")
+        else:
+            return self.apply(lambda x: other/x)
+        
         
     def mult(t1,t2): 
         t1a = t1.flatten()
