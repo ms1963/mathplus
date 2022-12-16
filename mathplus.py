@@ -991,7 +991,7 @@ class array:
         
     # scalar multiplication and multiplication between arrays is supported
     def __mul__(self, other):
-        return array.multiply(self, other)
+        return self @ other
         
     # pair-wise multiplication
     def multiply(arr1, arr2):
@@ -1670,6 +1670,16 @@ class array:
     def concat(mp1, mp2, axis = 0):
         result = Array.concat(mp1.to_list(), mp2.to_list(), axis)
         return array(result, mp1.dtype)
+        
+    # append array vals to array a1
+    def append(a1, vals, axis = None):
+        if axis == None:
+            a2 = a1.flatten()
+            v2 = vals.flatten()
+            a2.a = a2.a + v2.a
+            return a2
+        else:
+            return array.concat(a1, vals, axis)
                 
     # vstack is based on concat. Two arrays are stacked horizontally
     def vstack(self):
