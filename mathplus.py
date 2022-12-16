@@ -982,12 +982,18 @@ class array:
             t = array.filled_array(self.shape, init_value = 0,dtype=self.dtype)
             t.a = array._apply_on_multiDarrays(self.a, other.a, lambda x,y: x+y)
             return t
-        elif isinstance(other, float) or isinstance(other, int):
+        elif Common.isinstance(other):
             t = array.filled_array(self.shape, init_value = 0, dtype = self.dtype)
             t.a = array._apply_op(self.a, lambda x: x + self.dtype(other))
             return t
         else:
             raise TypeError("operands must be arrays or a array and a number")
+            
+    def __radd__(self, other):
+        return self + other
+        
+    def __rsub__(self, other):
+        return self + (-other)
         
     # scalar multiplication and multiplication between arrays is supported
     def __mul__(self, other):
@@ -1522,10 +1528,19 @@ class array:
             
     # allows expressions such as !/array
     def __rtruediv__(self, other):
+        def divfunc(x):
+            if x != 0:
+                return 1 / x
+            else:
+                return float("inf")
         if Common.isinstance(other):
-            return self.apply(lambda x: other / x)
+            return self.apply(divfunc)
         else: 
             raise TypeError("second argument must be a number type")
+            
+    def __rmatmul__(self, other):
+        if Common.isinstance(other):
+            return self + other
         
     # transpose() transposes nxm-arrays
     def array_transpose(arr):
