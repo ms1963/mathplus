@@ -561,8 +561,11 @@ class Common:
             a.append(n // d)
             n, d = d, n % d
         return a
-           
-    
+        
+    # Sigmoid function
+    def sigmoid(x):
+        return 1/(1+math.exp(-x))
+        
     # print for matrices
     def print_matrix(m):   
         for r in range(0, m.dim1):
