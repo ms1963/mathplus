@@ -15,6 +15,8 @@ from mathplus import *
 # instead the simplistic error function (predictions-y) is used
 
 
+# X contains the training samples. Each row is an individual example
+# y contains the labels for the training data 
 X = array([[1, 2], [2, 3], [3, 4], [4, 5]])
 y = array([0, 0, 1, 1])
 
@@ -57,7 +59,7 @@ def logistic_regression(X, y, alpha, num_iter):
 # get the weights
 weights = logistic_regression(X, y, 0.1, 500)
 # get the prediction for a new data sample 
-test_X = array([[0.5,0.5]])
+test_X = array([[0.5,-0.5]])
 test_y = sigmoid(test_X @ weights)
 # and print it
 print(test_y)
