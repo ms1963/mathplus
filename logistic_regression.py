@@ -23,12 +23,12 @@ class LogisticRegression:
         self.sigmoid = Utils.make_vfunc(Common.sigmoid)
         self.cross_entropy = Utils.make_vfunc(Common.cross_entropy)
     
-    def add_theta0(self, X):
+    def add_bias(self, X):
         intercept = array.ones((X.shape[0], 1))
         return array.concat(intercept, X, axis=0)
         
     def fit(self, X, y):
-        X = self.add_theta0(X)
+        X = self.add_bias(X)
         print(X)
         # initialize weights with 0
         self.theta = array.zeros((X.shape[1],))
@@ -46,7 +46,7 @@ class LogisticRegression:
         return self.sigmoid(X * self.theta)
             
     def predict(self, X, threshold):
-        return self.predict_prob(self.add_theta0(X)) >= threshold
+        return self.predict_prob(self.add_bias(X)) >= threshold
         
         
 lreg = LogisticRegression(lr = 0.01, max_iter = 100000, verbose = True)
