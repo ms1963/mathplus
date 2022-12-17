@@ -566,6 +566,9 @@ class Common:
     def sigmoid(x):
         return 1/(1+math.exp(-x))
         
+    def cross_entropy(x,y):
+        return -(y*math.log(x,math.e)+(1-y)*math.log(1-x, math.e))
+        
     # print for matrices
     def print_matrix(m):   
         for r in range(0, m.dim1):
@@ -1010,6 +1013,10 @@ class array:
     # scalar multiplication and multiplication between arrays is supported
     def __mul__(self, other):
         return self @ other
+        
+    def __rmul__(self, other):
+        if Common.isinstance(other):
+            return self * other
         
     # pair-wise multiplication
     def multiply(arr1, arr2):
@@ -1529,7 +1536,7 @@ class array:
                 raise TypeError("Incompatible operands for array.dot()")
         
     def __matmul__(self , other):
-        if not isinstance(other, array):
+        if Common.isinstance(other):
             return self.apply(lambda x: x * other)
         shp1 = self.shape
         shp2 = other.shape
@@ -1582,7 +1589,7 @@ class array:
             
     def __rmatmul__(self, other):
         if Common.isinstance(other):
-            return self + other
+            return self @ other
         
     # transpose() transposes nxm-arrays
     def array_transpose(arr):
