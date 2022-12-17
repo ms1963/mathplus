@@ -854,11 +854,20 @@ class array:
     # <=> cond(self[i][j]...[z]) holds
     def check_condition(self, cond):
         a = self.flatten()
-        print(a)
         b = array.filled_array((a.shape))
         for i in range(a.shape[0]): b[i] = cond(a[i])
         return b.reshape(self.shape)
-                    
+
+    # similar to check_condition but uses two arrays as input sources to cond
+    def check_condition2(self, other, cond):
+        if self.shape != other.shape:
+            raise ValueError("check_condition2 is only applicable to arrays with same size")
+        a = self.flatten()
+        b = other.flatten()
+        c = array.filled_array((a.shape))
+        for i in range(a.shape[0]): c[i] = cond(a[i], b[i])
+        return c.reshape(self.shape)            
+
     # apply a lambda on all array elements and create a
     # new array from result
     def apply(self, lambda_f):
@@ -1115,8 +1124,32 @@ class array:
             raise ValueError("cannot compare objects with different shapes")
         return array._compare_arrays(self.a, self.shape, operand2.a, operand2.shape)
 
-    def _ne__(self, other):
+    def __ne__(self, other):
         return not self == other
+
+    def __gt__(self, other):
+        if Common.isinstance(other):
+            return self.check_condition(lambda x: x > other)
+        else:
+            return self.check_condition2(other, lambda x,y: x > y)
+
+    def __ge__(self, other):
+        if Common.isinstance(other):
+            return self.check_condition(lambda x: x >= other)
+        else:
+            return self.check_condition2(other, lambda x,y: x >= y)
+
+    def __lt__(self, other):
+        if Common.isinstance(other):
+            return self.check_condition(lambda x: x < other)
+        else:
+            return self.check_condition2(other, lambda x,y: x < y)
+
+    def __le__(self, other):
+        if Common.isinstance(other):
+            return self.check_condition(lambda x: x <= other)
+        else:
+            return self.check_condition2(other, lambda x,y: x <= y)
         
     # create a random array of given shape and size
     def random_array(shp, fromvalue, tovalue, seedval = None, dtype = float):
@@ -1528,6 +1561,12 @@ class array:
             sum = 0
             for i in range(shp1[0]): sum += self[i]*other[i]
             return sum
+            
+    def __truediv__(self, other):
+        if Common.isinstance(other):
+            return self.apply(lambda x: x / other)
+        else:
+            raise ValueError("arrays can only divided by numbers")
             
     # allows expressions such as !/array
     def __rtruediv__(self, other):
