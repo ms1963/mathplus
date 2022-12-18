@@ -1478,9 +1478,12 @@ class array:
     # array with: new_array[r][c] = array[c][r] for all
     # valid (row,column)-combinations
     def transpose(self):
-        assert self.degree() == 2, "transpose only defined for 2d-arrays"
-        result = array.array_transpose(self.a)
-        return array(result, self.dtype)
+        assert self.degree() <= 2, "transpose only defined for 1d-2d-arrays"
+        if self.degree() == 1:
+            return self
+        else:
+            result = array.array_transpose(self.a)
+            return array(result, self.dtype)
     
     # returns the transposed array
     @property
@@ -1893,7 +1896,7 @@ class array:
     def euclidean_norm(self):
         sum = 0
         arr = self.flatten()
-        for i in range(array.shape[0]):
+        for i in range(arr.shape[0]):
             sum += arr[i] ** 2
         return math.sqrt(sum)
         
