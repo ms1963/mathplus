@@ -50,9 +50,9 @@ def logistic_regression(X, y, alpha, num_iter):
         # error vector is difference between predictions and ground truth
         error = predictions - y
         # the gradient is X.T@error / m (number of samples) 
-        gradient = X.T @ error / m
+        gradient = (X.T @ error).apply(lambda x: x/m)
         # adjust weights using gradient and learning rate alpha
-        weights -= alpha @ gradient
+        weights -= gradient @ alpha
     # return the weights calculated in max_iter loops
     return weights
     

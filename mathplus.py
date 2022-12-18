@@ -1535,7 +1535,7 @@ class array:
             else:
                 raise TypeError("Incompatible operands for array.dot()")
         
-    def __matmul__(self , other):
+    def __matmul__(self, other):
         if Common.isinstance(other):
             return self.apply(lambda x: x * other)
         shp1 = self.shape

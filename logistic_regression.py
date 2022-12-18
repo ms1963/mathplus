@@ -16,12 +16,17 @@ from mathplus import *
 # Or vectorized: h = sigmoid(X @ theta)
 
 class LogisticRegression:
+    def sigmoid(x):
+        return 1 / (1 + math.exp(-x))
+    def cross_entropy(x,y):
+        return -(y*math.log(x,math.e) + (1-y)*math.log(1-x, math.e))
+        
     def __init__(self, lr=0.01, max_iter=100000, verbose=False):
         self.lr = lr
         self.max_iter = max_iter
         self.verbose = verbose
-        self.sigmoid = Utils.make_vfunc(Common.sigmoid)
-        self.cross_entropy = Utils.make_vfunc(Common.cross_entropy)
+        self.sigmoid = Utils.make_vfunc(LogisticRegression.sigmoid)
+        self.cross_entropy = Utils.make_vfunc(LogisticRegression.cross_entropy)
     
     def add_bias(self, X):
         intercept = array.ones((X.shape[0], 1))
@@ -29,13 +34,12 @@ class LogisticRegression:
         
     def fit(self, X, y):
         X = self.add_bias(X)
-        print(X)
         # initialize weights with 0
         self.theta = array.zeros((X.shape[1],))
         for i in range(self.max_iter):
             z = X @ self.theta
             h = self.sigmoid(z)
-            gradient = (X.T @ (h - y)) / y.shape[0]
+            gradient = (X.T @ (h - y)).apply(lambda x: x/y.shape[0])
             self.theta = self.theta - gradient * self.lr
             if self.verbose and i % 10000 == 0:
                 z = X @ self.theta
@@ -43,13 +47,13 @@ class LogisticRegression:
                 print(f'loss: {self.cross_entropy(h,y)}\t')
     
     def predict_prob(self, X):
-        return self.sigmoid(X * self.theta)
+        return self.sigmoid(X @ self.theta)
             
     def predict(self, X, threshold):
-        return self.predict_prob(self.add_bias(X)) >= threshold
+        return self.predict_prob(self.add_bias(X)).apply(lambda x: x  >= threshold)
         
         
-lreg = LogisticRegression(lr = 0.01, max_iter = 100000, verbose = True)
+lreg = LogisticRegression(lr = 0.01, max_iter = 100000)
 
 # train model with datasets (rows of X) and labels (values of y):
 lreg.fit(array([[1,2],[3,4],[5,6],[6,7]]), array([1,1,0,0]))
