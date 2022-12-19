@@ -2502,7 +2502,7 @@ class Array:
                     result.append(arr2[r])
                 return result
             elif len(shp1) == 1 and len(shp2) == 2 and len(arr1) == shp2[1]:
-                result == []
+                result = []
                 result.append(arr1)
                 for r in range(0, shp2[0]):
                     result.append(arr2[r])
