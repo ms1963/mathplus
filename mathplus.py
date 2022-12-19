@@ -1739,10 +1739,15 @@ class array:
         else:
             raise ValueError("array.block() onls supports 1-dimensional and 2-dimensional arrays")
         
-    # concat combines two arrays along axis 0 or axis 1
-    def concat(mp1, mp2, axis = 0):
-        result = Array.concat(mp1.to_list(), mp2.to_list(), axis)
-        return array(result, mp1.dtype)
+    def concat(a1, a2, axis = None):
+        if axis == None:
+            a1_f = a1.flatten()
+            a2_f = a2.flatten()
+            tmp = a1_f.a + a2_f.a
+            return array(tmp, a1.dtype)
+        else:
+            tmp = Array.concat(a1.a, a2.a, axis)
+            return array(tmp)
         
     # append array vals to array a1
     def append(a1, vals, axis = None):
@@ -2487,49 +2492,47 @@ class Array:
         else:
             return sortedarr, indices
         
-    # concatenate two rectangular arrays on axis 0 or 1 
     def concat(arr1, arr2, axis = 0):
         shp1 = Array.shape(arr1)
         shp2 = Array.shape(arr2)
         if len(shp1) > 2 or len(shp2) > 2:
-            raise ValueError("concat not defined for arrays with dimension > 2")
-        if axis == 1:
-            if len(shp1) == 2 and len(shp2) == 2 and shp1[1] == shp2[1]:
+            raise ValueError("only 1- and 2-dim arrays can be concatenated")
+        if axis == 0:      
+            if shp1[0] != shp2[0]:
+                raise ValueError("cannot concatenated lists with different number of rows on axis 0")
+            else:
+                if len(shp1) == 1 and len(shp2) == 1:
+                    return arr1+arr2
+                if len(shp1) == 1:
+                    arr1 = [arr1]
+                    shp1 = Array.shape(arr1)
+                if len(shp2) == 1:
+                    arr2 = [arr2]
+                    shp2 = Array.shape(arr2)
                 result = []
-                for r in range(0, shp1[0]): 
-                    result.append(arr1[r])
-                for r in range(0, shp2[0]):
-                    result.append(arr2[r])
+                for i in range(shp1[0]):
+                    result.append(arr1[i]+arr2[i])
                 return result
-            elif len(shp1) == 1 and len(shp2) == 2 and len(arr1) == shp2[1]:
-                result = []
-                result.append(arr1)
-                for r in range(0, shp2[0]):
-                    result.append(arr2[r])
-                return result
-            elif len(shp1) == 2 and len(shp2) == 1 and shp1[1] == len(arr2):
-                result = []
-                for r in range(0, shp1[0]): 
-                    result.append(arr1[r])
-                result.append(arr2)
-                return result
-            elif len(shp1) == 1 and len(shp2) == 1 and len(arr1) == len(arr2):
-                result = []
-                result.append(arr1)
-                result.append(arr2)
-                return [arr1, arr2]
-            else: # dimensions don't fit
-                raise ValueError("cannot concatenate array with different number of columns on axis 1")
-        else: # axis == 0 
+        else: # axis == 1 
             if len(shp1) == 1 and len(shp2) == 1:
-                return arr1 + arr2
-            elif len(shp1) == 2 and len(shp2) == 2 and shp1[0] == shp2[0]:
+                return [arr1, arr2]
+            if len(shp1) == 1:
+                arr1 = [arr1]
+                shp1 = Array.shape(arr1)
+            if len(shp2) == 1:
+                arr2 = [arr2]
+                shp2 = Array.shape(arr1)
+        
+            if shp1[1] != shp2[1]:
+                raise ValueError("cannot concatenated lists with different number of columns on axis 1")
+            else:
                 result = []
-                for r in range(shp1[0]):
-                    result.append(arr1[r]+arr2[r])    
+                for i in range(shp1[0]):
+                    result.append(arr1[i])
+                for i in range(shp2[0]):
+                    result.append(arr2[i])
                 return result
-            else: 
-                raise ValueError("cannot concatenate array with different number of rows on axis 0")
+    
             
     # vstack is based on concat. Two arrays are stacked horizontally
     def vstack(arr1, arr2):
