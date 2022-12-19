@@ -7324,6 +7324,115 @@ class Newton:
 
 
 #################################################
+############### class BFGS method ###############
+################################################# 
+
+class BFGS:
+    # test function - subject to optimiztion
+    def f(x):
+        d = len(x)
+        return sum(100*(x[i+1]-x[i]**2)**2 + (x[i]-1)**2 for i in range(d-1))
+
+    # approximation of gradient using (f(x+h)-f(x-h))/2h 
+    # x is point where to calc gradient, f the function
+    def grad(f, x): 
+        h = 1E-8 # should be adapted to machine accuracy eps
+        d = x.shape[0]
+        # gradient has d elements
+        gradient = array.zeros((d,))
+        for i in range(d): 
+            x_for = x.clone() 
+            x_back = x.clone()
+            x_for[i]  += h 
+            x_back[i] -= h 
+            gradient[i] = (f(x_for) - f(x_back))/(2*h) 
+        return gradient 
+
+    # backtracking line search using Wolfe conditions
+    def line_search(f, x, p, gradient):
+        a = 1
+        c1 = 1e-4 
+        c2 = 0.9 
+        fx = f(x)
+        x_new = x + a * p 
+        gradient_new = BFGS.grad(f,x_new)
+        while f(x_new) >= fx + (c1*a*gradient.T@p) or gradient_new.T@p <= c2*gradient.T@p : 
+            a *= 0.5
+            x_new = x + a * p 
+            gradient_new = BFGS.grad(f,x_new)
+        return a
+    
+    
+    def draw_trajectory(f, x_data):
+        x1 = array.lin_distribution(min(x_data.column(0)-0.5),max(x_data.column(0)+0.5),30)
+        x2 = array.lin_distribution(min(x_data.column(1)-0.5),max(x_data.column(1)+0.5),30)
+        X1,X2 = array.meshgrid(x1,x2)
+        
+        # transferring data to numpy for using matplotlib
+        X1 = Transfer.array_to_nparray(X1)
+        X2 = Transfer.array_to_nparray(X2)
+        x_data = Transfer.array_to_nparray(x_data)
+        Z = f([X1,X2])
+        plt.figure()
+        plt.title('OPTIMAL AT: '+str(x_data[-1,:])+'\n IN '+str(len(x_data))+' ITERATIONS')
+        plt.contourf(X1,X2,Z,30,cmap='jet')
+        plt.colorbar()
+        plt.plot(x_data[:,0],x_data[:,1],c='w')
+        plt.xlabel('$x_1$'); plt.ylabel('$x_2$')
+        plt.show()
+    
+    # BFGS: optimization method (quasi - Newton)
+    # f:             function for which to find minimum
+    # x0:            first approximation
+    # max_iters:     maximum number of iterations
+    # verbose:       print()-statements enabled
+    # draw:          indicates whether function should be plotted
+    #
+    # returns the optimum found
+    def bfgs(f, x0, max_iters, verbose = False, draw = False):
+        d = len(x0)                   # dimension of problem 
+        gradient = BFGS.grad(f,x0)    # starting gradient 
+        H = array.identity(d)         # starting approx. for hessian
+        x = x0[:]
+        iter = 2 
+        if draw: 
+            if d == 2: 
+                x_data =  array.zeros((1,2)) # storing x values 
+                x_data[0][0] = x[0]
+                x_data[0][1] = x[1]
+            else: 
+                if verbose:
+                    print('can only plot 2-dimensional trajectories!')
+                draw = False
+
+        while gradient.euclidean_norm() > 1E-5:
+            if iter > max_iters: 
+                if verbose:
+                    print('maximum number of iterations completed!')
+                break
+            iter += 1 # increment counter
+            p = -H@gradient # search direction 
+            a = BFGS.line_search(f,x,p,gradient) # line search 
+            s = a * p 
+            x_new = x + a * p 
+            gradient_new = BFGS.grad(f,x_new)
+            y = gradient_new - gradient 
+            y = y.reshape((d,1))
+            s = s.reshape((d,1))
+            r = 1/(y.T@s)
+            li = (array.identity(d)-(r[0][0]*((s@(y.T)))))
+            ri = (array.identity(d)-(r[0][0]*((y@(s.T)))))
+            hess_inter = li@H@ri
+            H = hess_inter + (r[0][0]*((s@(s.T)))) # BFGS Update
+            gradient = gradient_new[:] 
+            x = x_new[:]
+            if draw: x_data.a.append(x.a)
+            
+        if draw: BFGS.draw_trajectory(f, x_data)
+        return x
+
+
+#################################################
 ##############  class Measurement  ##############
 #################################################
 

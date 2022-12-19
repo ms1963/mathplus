@@ -827,4 +827,7 @@ markers_on = [0, 99]
 ax.plot(x, y, '-gD', markevery=markers_on, label='mathplus demo: cubic Bezier polynomial with 4 control points')
 plt.legend()
 plt.show()
+print()
+print("Finding the minimum of a function using the BFGS method")
+x_opt = BFGS.bfgs(BFGS.f,array([-1.2,1]),100,verbose = True, draw=True)
 
