@@ -1778,9 +1778,9 @@ class array:
     def hstack(self):
         return self.concat(other, axis = 1)
         
-    # this method allows to compose a Matrix 
-    # from rows (vectors or arrays or lists).
-    def from_row_vectors(*args):
+    # this method allows to compose an array (raw = True) or
+	# a Matrix (raw = False) from rows (vectors or arrays or lists).
+    def from_row_vectors(*args, raw = True):
         a = Array.create_1Darray(len(args))
         size = None
         for i, arg in enumerate(args):
@@ -1795,11 +1795,14 @@ class array:
                     a[i] = arg.mpa.a
             else:
                 raise ValueError("sizes of vectors must be identical")
-        return Matrix.from_list(a)
+        if raw:
+            return array(a)
+        else:
+            return Matrix.from_list(a)
         
     # same as from_row_vectors() but arguments are combined
-    # as column vectors to create new matrix
-    def from_column_vectors(*args):
+    # as column vectors to create new array or matrix
+    def from_column_vectors(*args, raw = True):
         return array.from_row_vectors(*args).T
     
     # diff takes in each row a[r,c]-a[r,c-1] for c in 1 .. len(row)
