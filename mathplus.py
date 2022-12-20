@@ -7964,33 +7964,6 @@ class Transfer:
         ax.set_zlabel('t', labelpad=20)
 
         plt.show()
-        
-    def draw_surface(xmp, ymp, lambda_x, lambda_y):
-        fig = plt.figure(figsize = (12,10))
-        ax = plt.axes(projection='3d')
-
-        xmp = array.arange(-5, 5.1, 0.2)    
-        ymp = array.arange(-5, 5.1, 0.2)
-
-        Xmp, Ymp = array.meshgrid(xmp, ymp)
-        Zmp = Xmp.apply(lambda_x) * Ymp.apply(lambda_y)
-
-        X = Transfer.array_to_nparray(Xmp)
-        Y = Transfer.array_to_nparray(Ymp)
-        Z = Transfer.array_to_nparray(Zmp)
-
-        surf = ax.plot_surface(X, Y, Z, cmap = plt.cm.cividis)
-
-        # Set axes label
-        ax.set_xlabel('x', labelpad=20)
-        ax.set_ylabel('y', labelpad=20)
-        ax.set_zlabel('z', labelpad=20)
-
-        fig.colorbar(surf, shrink=0.5, aspect=8)
-        plt.show()
-
-
-
             
     # the following read/write-methods writea matrix or array to a
     # file or read a matrix or array from a file. The format is "csv".

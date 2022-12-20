@@ -689,11 +689,8 @@ print("With draw_function_3D it is possible to draw 3D functions that are define
 t = mp.array.arange(0, 10*np.pi, np.pi/50)
 Transfer.draw_function_3D(t, math.sin, math.cos)
 print()
-print("draw_surface() allows to plot functions f(x,y) = (f1(x),f2(y)")
-xmp = mp.array.arange(-3.1, 3.1, 0.01)
-ymp = mp.array.arange(-3.1, 3.1, 0.01)
-Transfer.draw_surface(xmp, ymp, math.sin, math.cos)
-("Here comes another 3D surface with the more complex operations done in array. The results are then transferred to numpy arrays and plotted using mathplotlib.")
+
+print("Here comes another 3D surface with the more complex operations done in array. The results are then transferred to numpy arrays and plotted using mathplotlib.")
 fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
 # Conduct operations in array.
