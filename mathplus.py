@@ -7282,20 +7282,16 @@ class Newton:
         self.y0 = 0
         self.eps = eps # tolerance
         self.max_iter = 100 # maximum number of iterations
-        if fderivative != None:
-            self.fder = fderivative
-        else:
-            self.fder = None
-
+        self.fder = fderivative
+        
     # calls the function f
     def fun(self,x):
         return self.f(x) - self.y0
         
-
     # calculates the derivative of f at x. If the user 
     # specified a derivative of f, the this function is 
     # used. Otherwise, an approximation is done.
-    def derivation(self, x):
+    def derivative(self, x):
         try:
             approx = (self.fun(x+self.eps) - self.fun(x)) / self.eps
         except OverflowError as oe:
@@ -7303,6 +7299,17 @@ class Newton:
         except ZeroDivisionError as ze:
             print("division by zero")
         return approx
+        
+    def derivative2(self, x):
+        try:
+            approx = (self.fun(x+self.eps) - self.fun(x-self.eps)) / (2*self.eps)
+        except OverflowError as oe:
+            print("overflow")
+        except ZeroDivisionError as ze:
+            print("division by zero")
+        return approx
+        
+        
     
     # the work horse of the Newton method. y0 is the result the
     # function should have. if, for example.
@@ -7314,7 +7321,7 @@ class Newton:
     # the x specified as argument is the initial value 
     # compute() should start with
     
-    def compute(self, x, y0):
+    def compute(self, x, y0, derivative_norm = True):
         self.y0 = y0 
         iter = 0
         while iter < self.max_iter:
@@ -7322,7 +7329,10 @@ class Newton:
             if self.fder != None:
                 fun_d = self.fder(x)
             else:
-                fun_d = self.derivation(x)
+                if derivative_norm:
+                    fun_d = self.derivative(x)
+                else:
+                    fun_d = self.derivative2(x)
             x_old = x 
             try:
                 x = x - fun_r / fun_d
@@ -7335,8 +7345,98 @@ class Newton:
             if abs(x-x_old) < self.eps: break
             iter += 1
         return x
+        
+        
+######################################################### 
+################## Newton_vectorized #################### 
+######################################################### 
 
+# same as Newton but vor vectorized functions:
+# f: R^n -> R^n
+class Newton_vectorized:
+    def __init__(self, f, fgradient = None, eps = 01E-10):
+        self.f = f
+        self.eps = eps # tolerance
+        self.fgrad = fgradient
+        
+    # calls the vectorized function f
+    def fun(self,x):
+        return self.f(x)
+        
+    # calculates the gradient of f at x. If the user 
+    # specified a derivative of f, then the derivative is 
+    # used. Otherwise, an approximation is determined.
+    # gradient: x -> (f(x+h)-f(x))/h
+    def gradient(self, x):
+        try:
+            approx = (self.fun(x+self.eps) - self.fun(x)) / self.eps
+        except OverflowError as oe:
+            print("overflow")
+        except ZeroDivisionError as ze:
+            print("division by zero")
+        return approx
+        
+    # gradient2: x - (f(x+h)-f(x-h))/2h
+    def gradient2(self, x):
+        try:
+            approx = (self.fun(x+self.eps) - self.fun(x-self.eps)) / (2*self.eps)
+        except OverflowError as oe:
+            print("overflow")
+        except ZeroDivisionError as ze:
+            print("division by zero")
+        return approx
+        
+    # calculates f(x)/f'(x)
+    def fun_r_div_fun_d(self, fun_r, fun_d):
+        tmp = []
+        for i in range(fun_r.shape[0]):
+            tmp.append(fun_r[i]/fun_d[i])
+        return array(tmp)
+    
+    # the work horse of the Newton method. 
+    # Example:f([x1,x2]) is [x1**2, x2**2], then compute tries to
+    # solve the equation f([x1,x2]) = [0,0]. For this 
+    # case, the call would look like: 
+    #     n = Newton(lambda x: x**2)
+    #     res = n.compute(array([1,2]), gradient_norm = False)
+    #                                   |- use gradient2
+    # the x specified as argument is the initial value 
+    # compute() should start with
+    
+    def compute(self, x, max_iter = 100, gradient_norm = True):
+        iter = 0
+        while iter < max_iter:
+            fun_r = self.fun(x)
+            if self.fgrad != None:
+                fun_d = self.fgrad(x)
+            else:
+                if gradient_norm:
+                    fun_d = self.gradient(x)
+                else:
+                    fun_d = self.gradient2(x)
+            x_old = x 
+            try:
+                x = x - self.fun_r_div_fun_d(fun_r,fun_d)
+            except OverflowError as oe:
+                print("overflow error")
+                return None
+            except ZeroDivisionError as ze:
+                print("division by zero")
+                return None
+            if (x-x_old).euclidean_norm() < self.eps: break
+            iter += 1
+        return x
+ 
+""" Example usage:        
+def f(x):
+    return x.pow(2) - array([2,3,4])
+    
+x0 = array([1,1,1]) # first estimate
 
+n = Newton_vectorized(f)
+print(n.compute(x0, gradient_norm = False))
+"""
+        
 #################################################
 ############### class BFGS method ###############
 ################################################# 
