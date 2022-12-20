@@ -1424,7 +1424,18 @@ class array:
             for i in range(len(x_dataset)):
                 sum += (x_dataset[i] - x_mean) * (y_dataset[i] - y_mean)
             return sum / (len(x_dataset)-1)
-           
+            
+    # the following methods implement feature scaling for input
+    # variables with arr being the array with x-values 
+    # functions return the normalized vector
+    def minmax_normalization(self):
+        return self.apply(lambda x: (x - min(self)) / (max(self) - min(self)))
+        
+    def mean_normalization(self):
+        return self.apply(lambda x: (x - self.mean()) / (max(self) - min(self)))
+        
+    def zscore_normalization(self):
+        return self.apply(lambda x: (x - self.mean()) / self.std_dev())
            
     # this function does delegate to reduce()
     # the lmbda is applied to all elements of
