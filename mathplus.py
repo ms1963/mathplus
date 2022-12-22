@@ -7710,6 +7710,36 @@ class Measurement:
         a3 = Measurement.angle_between_vectors_3D(v1c,v2c)
         return (a1, a2, a3)
         
+    # Newton law of gravitation
+    def gravity(G, m1, m2, r):
+        return G * m1 * m2 / r**2
+        
+    # G = gravitational constant, m1, m2: mass of the bodies
+    # r: distance between bodies, a: length of second-major axis
+    def orbital_speed(G, m1, m2, r, a):
+        mu = G * (m1 + m2)
+        return math.sqrt(mu * (2/r - 1/a))
+        
+    # escape speed. G: Gravitaion constant, M: mass of body, 
+    # r radius of body
+    def escape_velocity(G, M, r):
+        return math.sqrt(2*G*M/r)
+    
+    # F: force, A: area
+    def pressure(F, A):
+        return F/A
+        
+    # speed of light in m/sec
+    c = 299792458
+    
+    # time dilation. t measure time in seconds
+    # v: speed
+    def time_dilation(t, v):
+        return t / math.sqrt(1 - (v**2)/(Measurement.c**2))
+        
+    
+    
+        
 #################################################
 ##################  class Group  ################
 #################################################
