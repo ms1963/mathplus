@@ -9,7 +9,7 @@ Permissions of this strong copyleft license are conditioned on making available 
 from mathplus import *
 
 # a second version of logistic regression
-# here the error (cross_entropy) is calculated using 
+# here the error (maximum_likelhood) is calculated using 
 # - (y * log(htheta(x)) + (1-y) * log(1-htheta(x)))
 # the prediction for x0,x1,..,xn is 
 # htheta(x) = sigmoid(theta0*x0 + theta1*x1 + ... + thetan*xn)
@@ -18,7 +18,7 @@ from mathplus import *
 class LogisticRegression:
     def sigmoid(x):
         return 1 / (1 + math.exp(-x))
-    def cross_entropy(x,y):
+    def maximum_likelihood(x,y):
         return -(y*math.log(x,math.e) + (1-y)*math.log(1-x, math.e))
         
     def __init__(self, lr=0.01, max_iter=100000, verbose=False):
@@ -26,7 +26,7 @@ class LogisticRegression:
         self.max_iter = max_iter
         self.verbose = verbose
         self.sigmoid = Utils.make_vfunc(LogisticRegression.sigmoid)
-        self.cross_entropy = Utils.make_vfunc(LogisticRegression.cross_entropy)
+        self.maximum_likelihood = Utils.make_vfunc(LogisticRegression.maximum_likelihood)
     
     def add_bias(self, X):
         intercept = array.ones((X.shape[0], 1))
@@ -44,7 +44,7 @@ class LogisticRegression:
             if self.verbose and i % 10000 == 0:
                 z = X @ self.theta
                 h = self.sigmoid(z)
-                print(f'loss: {self.cross_entropy(h,y)}\t')
+                print(f'loss: {self.maximum_likelihood(h,y)}\t')
     
     def predict_prob(self, X):
         return self.sigmoid(X @ self.theta)

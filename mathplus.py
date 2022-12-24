@@ -566,7 +566,7 @@ class Common:
     def sigmoid(x):
         return 1/(1+math.exp(-x))
         
-    def cross_entropy(x,y):
+    def maximum_likelihood(x,y):
         return -(y*math.log(x,math.e)+(1-y)*math.log(1-x, math.e))
         
     # print for matrices
